@@ -155,6 +155,40 @@ test("recovery rejects duplicate manifest identifiers", async () => {
   await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published/);
 });
 
+test("recovery preserves timing metadata from the published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null, manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png", frameCount: 48, durationSeconds: 4 },
+  ] } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.index.entries.wave.frameCount, 48);
+  assert.equal(result.index.entries.wave.durationSeconds, 4);
+});
+
+test("recovery rejects path traversal in published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/../outside/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /Unsafe or duplicate/);
+});
+
+test("recovery invalidates fingerprints from older renderer versions", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.index.entries.wave.fingerprint, "");
+});
+
+test("recovery accepts an empty unpublished library", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null });
+  root.children.delete("manifest.json");
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 0);
+  assert.equal(result.present.size, 0);
+});
+
 async function loadRecovery() {
   const base = new URL("../src/viewer/", import.meta.url);
   const indexSource = readFileSync(new URL("previewIndex.ts", base), "utf8");
