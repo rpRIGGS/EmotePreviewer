@@ -432,6 +432,8 @@ export function Viewer() {
       useAppStore.getState().setLayering(false);
       useAppStore.getState().setSecondary(null);
       useAppStore.getState().setManualClip(null);
+      // Shared animations must be rendered with both characters when enabled;
+      // avoid mutating the saved viewer preference during batch capture.
       const plan = planCatalogBatch(useAppStore.getState().entries);
       if (!plan.ready.length) throw new Error("No previewable animations found in the catalog");
       const result = await exportCatalogBatch(plan, {
