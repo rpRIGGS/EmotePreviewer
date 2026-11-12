@@ -154,6 +154,66 @@ export class Scene {
     this.renderer.render(this.scene, this.camera);
   };
 
+  /**
+   * Capture a transparent PNG without modifying the visible canvas or relying on
+   * preserveDrawingBuffer. Frames are rendered into a temporary offscreen WebGL target.
+   * The caller is responsible for posing the animation at the desired timestamp.
+   */
+  captureTransparentPng(width: number, height: number): string {
+    if (this.disposed) throw new Error("Cannot capture a disposed scene");
+    if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) {
+      throw new RangeError("Capture dimensions must be integers from 1 to 2048");
+    }
+
+    const target = new THREE.WebGLRenderTarget(width, height, {
+      format: THREE.RGBAFormat,
+      type: THREE.UnsignedByteType,
+      depthBuffer: true,
+      stencilBuffer: false,
+    });
+    const previousTarget = this.renderer.getRenderTarget();
+    const previousBackground = this.scene.background;
+    const previousGrid = this.grid.visible;
+    const previousAspect = this.camera.aspect;
+    const previousClearAlpha = this.renderer.getClearAlpha();
+    const previousClearColor = this.renderer.getClearColor(new THREE.Color()).clone();
+    try {
+      this.scene.background = null;
+      this.grid.visible = false;
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setRenderTarget(target);
+      this.renderer.setClearColor(0x000000, 0);
+      this.renderer.clear(true, true, true);
+      this.renderer.render(this.scene, this.camera);
+
+      const pixels = new Uint8Array(width * height * 4);
+      this.renderer.readRenderTargetPixels(target, 0, 0, width, height, pixels);
+      // WebGL's origin is bottom-left; ImageData's origin is top-left.
+      const image = document.createElement("canvas");
+      image.width = width;
+      image.height = height;
+      const context = image.getContext("2d");
+      if (!context) throw new Error("2D canvas context unavailable");
+      const data = context.createImageData(width, height);
+      const stride = width * 4;
+      for (let y = 0; y < height; y++) {
+        data.data.set(pixels.subarray((height - 1 - y) * stride, (height - y) * stride), y * stride);
+      }
+      context.putImageData(data, 0, 0);
+      return image.toDataURL("image/png");
+    } finally {
+      this.renderer.setRenderTarget(previousTarget);
+      this.renderer.setClearColor(previousClearColor, previousClearAlpha);
+      this.scene.background = previousBackground;
+      this.grid.visible = previousGrid;
+      this.camera.aspect = previousAspect;
+      this.camera.updateProjectionMatrix();
+      target.dispose();
+      this.invalidate();
+    }
+  }
+
   dispose(): void {
     this.disposed = true;
     cancelAnimationFrame(this.frame);
