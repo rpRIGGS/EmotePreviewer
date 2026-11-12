@@ -28,7 +28,10 @@ async function publishedPaths(root: FileSystemDirectoryHandle): Promise<Set<stri
     if (!index || typeof index !== "object" || (index as {schemaVersion?: unknown}).schemaVersion !== 1 || !entries || typeof entries !== "object" || Array.isArray(entries)) throw new Error("Invalid preview index. Cleanup refused.");
     for (const record of Object.values(entries)) {
       const media = (record && typeof record === "object" ? (record as {media?: unknown}).media : undefined);
-      if (media === "") continue;
+      if (media === "") {
+        if ((record as {status?: unknown}).status !== "failed") throw new Error("Empty media in non-failed index record. Cleanup refused.");
+        continue;
+      }
       if (typeof media !== "string" || !safePath(media)) throw new Error("Unsafe index entry. Cleanup refused.");
       protectedPaths.add(media);
     }
