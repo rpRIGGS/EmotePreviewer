@@ -230,6 +230,7 @@ export function Viewer() {
   });
   const [rebuildAll, setRebuildAll] = useState(false);
   const [verifiedMedia, setVerifiedMedia] = useState<ReadonlySet<string> | null>(null);
+  const [previewDirectory, setPreviewDirectory] = useState<FileSystemDirectoryHandle | null>(null);
   const batchAbortRef = useRef<AbortController | null>(null);
   const readyRef = useRef<{ id: string | null; ready: boolean; error: string | null }>({ id: null, ready: false, error: null });
 
@@ -458,6 +459,15 @@ export function Viewer() {
         signal: abort.signal,
         previousIndex: previewIndex,
         fingerprints,
+        writeFile: previewDirectory ? async (path, data) => {
+          const parts = path.split("/");
+          let directory = previewDirectory;
+          for (const part of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(part, { create: true });
+          const handle = await directory.getFileHandle(parts[parts.length - 1], { create: true });
+          const writable = await handle.createWritable();
+          try { await writable.write(new Blob([new Uint8Array(data)])); await writable.close(); }
+          catch (error) { await writable.abort(); throw error; }
+        } : undefined,
         onProgress: (p) => setBatchProgress(`Emotes ${p.completed}/${p.total} · captured ${p.captured} · failed ${p.failed}`),
         load: async (item, signal) => {
           useAppStore.getState().select(null);
@@ -480,6 +490,7 @@ export function Viewer() {
           throw new Error("Timed out waiting for animation and ped mesh (45 seconds)");
         },
       });
+      if (result.archive) {
       const url = URL.createObjectURL(result.archive);
       try {
         const link = document.createElement("a");
@@ -489,7 +500,14 @@ export function Viewer() {
       } finally {
         setTimeout(() => URL.revokeObjectURL(url), 30000);
       }
-      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed`);
+      }
+      if (previewDirectory) {
+        setPreviewIndex(result.index);
+        localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(result.index));
+        const checked = await verifyPreviewFiles(result.index, previewDirectory);
+        setVerifiedMedia(checked.present);
+      }
+      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed${previewDirectory ? " · saved to selected folder" : " · ZIP downloaded"}`);
       // The exported preview-index.json is authoritative for future updates.
       // Import it after installing the new media to avoid marking missing files complete.
     } catch (error) {
@@ -624,11 +642,15 @@ export function Viewer() {
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
           <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting} /> Rebuild all</label>
-          <button type="button" disabled={exporting} title="Check existing preview media on disk before an incremental export"
+          <button type="button" disabled={exporting} title="Select the preview library folder for direct incremental export and verification"
             onClick={() => {
               const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
               if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
-              void picker.call(window).then((directory) => verifyPreviewFiles(previewIndex, directory)).then((result) => {
+              void picker.call(window).then(async (directory) => {
+                const result = await verifyPreviewFiles(previewIndex, directory);
+                setPreviewDirectory(directory);
+                return result;
+              }).then((result) => {
                 setVerifiedMedia(result.present);
                 setBatchProgress(`Verified ${result.present.size}/${result.checked} previews on disk; ${result.missing.length} missing will be regenerated`);
                 setExportError(null);
@@ -636,7 +658,7 @@ export function Viewer() {
                 if (error instanceof DOMException && error.name === "AbortError") return;
                 setExportError(error instanceof Error ? error.message : String(error));
               });
-            }}>Verify preview folder</button>
+            }}>Select preview folder</button>
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
             <input type="file" accept=".json,application/json" disabled={exporting} style={{ width: 120 }}
