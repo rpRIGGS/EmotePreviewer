@@ -8,7 +8,6 @@ import { ViewerController, type ClipTiming, type Slot } from "./controller";
 import type { CameraPreset } from "./scene";
 import { makeZip } from "./exportZip";
 import { captureSequence } from "./captureSequence";
-import { planCatalogBatch } from "./batchPlan";
 import { exportCatalogBatch } from "./exportCatalogBatch";
 import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncrementalBatch, type PreviewIndex } from "./previewIndex";
 
