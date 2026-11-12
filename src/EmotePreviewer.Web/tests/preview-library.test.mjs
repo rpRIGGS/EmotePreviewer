@@ -101,6 +101,20 @@ test("cleanup refuses malformed index rather than deleting referenced media", as
   await assert.rejects(() => planPreviewCleanup(root), /Unsafe index/);
 });
 
+test("cleanup rejects generated index records with empty media", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: {
+    wave: { status: "generated", media: "" },
+  } } });
+  await assert.rejects(() => planPreviewCleanup(root), /Empty media/);
+});
+
+test("cleanup permits failed index records without media", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: {
+    wave: { status: "failed", media: "" },
+  } } });
+  assert.equal((await planPreviewCleanup(root)).obsolete.length, 1);
+});
+
 test("cleanup rejects unknown manifest versions", async () => {
   const { root } = library({ manifest: { schemaVersion: 2, entries: [] } });
   await assert.rejects(() => planPreviewCleanup(root), /invalid published manifest/);
