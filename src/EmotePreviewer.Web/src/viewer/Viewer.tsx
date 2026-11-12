@@ -6,6 +6,7 @@ import { selectEntry, selectSecondary, useAppStore, type EmoteRow } from "../sha
 import type { ClipMetaDto, EmoteSlot, PropDto, ViewerSettings } from "../shared/types";
 import { ViewerController, type ClipTiming, type Slot } from "./controller";
 import type { CameraPreset } from "./scene";
+import { makeZip, pngDataUrlBytes, type ExportFile } from "./exportZip";
 
 type ViewState =
   | { kind: "idle" }
@@ -215,6 +216,8 @@ export function Viewer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controllerRef = useRef<ViewerController | null>(null);
   const [playing, setPlaying] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const status = useAppStore((s) => s.status);
   const connected = useAppStore((s) => s.connected);
@@ -362,6 +365,56 @@ export function Viewer() {
     void saveSettings({ ...settings, viewer: { ...settings.viewer, ...patch } }).catch(() => undefined);
   };
 
+  /**
+   * Developer-only proof of concept: export the currently selected, fully loaded
+   * emote as a deterministic PNG frame sequence. This does not yet encode WebP/WebM
+   * or batch across the catalog.
+   */
+  const exportSelected = async () => {
+    const controller = controllerRef.current;
+    if (!controller || !entry || view.kind !== "ready" || exporting) return;
+    setExportError(null);
+    setExporting(true);
+    const wasPlaying = controller.timeline.playing;
+    try {
+      controller.timeline.pause();
+      const fps = 12;
+      const duration = Math.min(controller.timeline.duration, 3);
+      if (duration <= 0) throw new Error("No loaded animation duration");
+      const frames = Math.max(1, Math.ceil(duration * fps));
+      const safeId = entry.id.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 100);
+      const files: ExportFile[] = [];
+      for (let i = 0; i < frames; i++) {
+        // Yield so the browser remains responsive and a user can see progress.
+        await new Promise<void>((resolve) => setTimeout(resolve, 0));
+        const png = controller.captureFramePng(i / fps, 320, 320);
+        files.push({ name: `frames/${String(i).padStart(4, "0")}.png`, data: pngDataUrlBytes(png) });
+      }
+      const metadata = {
+        schemaVersion: 1, sourceId: entry.id, frameRate: fps,
+        frameCount: frames, width: 320, height: 320,
+        durationSeconds: duration, frameFormat: "png",
+        note: "Developer proof of concept; no encoded animation or PM Emotes manifest yet",
+      };
+      files.push({ name: "capture.json", data: new TextEncoder().encode(JSON.stringify(metadata, null, 2)) });
+      const blob = makeZip(files);
+      const url = URL.createObjectURL(blob);
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `emote-capture-${safeId || "preview"}.zip`;
+        link.click();
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+      }
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (wasPlaying) controller.timeline.play();
+      setExporting(false);
+    }
+  };
+
   const camera = (preset: CameraPreset) => controllerRef.current?.setCamera(preset);
 
   // Ped switchers in the HUD: popovers with the same picker as the settings page. Write settings.ped / settings.partnerPed.
@@ -478,6 +531,12 @@ export function Viewer() {
           {second.rigPed && partnerActive ? ` + ${second.rigPed}` : ""}
           {main.rigPed ? " · " : ""}
           {t("viewer.axes")}
+        </div>
+        <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
+          {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
+          <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
+            {exporting ? "Capturing…" : "Export PNG frames"}
+          </button>
         </div>
         <ViewerOverlay view={view} />
       </div>
