@@ -83,3 +83,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Its `BatchAdapter.load` contract explicitly requires a fully ready rig/clip/mesh before capture. **The React viewer adapter that selects each entry and waits for readiness is still missing.** The batch runner is therefore not yet reachable from a user-facing batch button.
 - The archive is explicitly labeled an intermediate developer format, not the final animated PM Emotes NUI media package.
 - Build and real-world capture remain unverified.
+
+## Implementation log — viewer batch integration
+
+- Wired `exportCatalogBatch` into the React viewer with an `Export catalog PNG batch` control, progress display, cancel control, and ZIP download.
+- The adapter selects catalog entries sequentially, waits for a ready clip and loaded ped mesh (45-second per-entry timeout), and restores the original viewer selection after completion/cancellation. It clears secondary layering during export.
+- Added a loading-transition guard so the next selection cannot immediately capture the previous emote's stale ready state.
+- **Not yet verified:** Windows/TypeScript build, live readiness transitions, per-emote visual accuracy, large batch memory consumption, and NUI-ready animated encoding. The archive remains a developer PNG-sequence ZIP.
