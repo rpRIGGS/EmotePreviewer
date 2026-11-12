@@ -68,6 +68,24 @@ test("cleanup deletes only orphaned media", async () => {
   assert.equal((await wave.getDirectoryHandle("run2")).children.has("preview.png"), false);
 });
 
+test("cleanup preserves media published by another window before deletion", async () => {
+  const { root, wave } = library();
+  const manifest = root.children.get("manifest.json");
+  const originalGet = root.getFileHandle.bind(root);
+  let manifestReads = 0;
+  root.getFileHandle = async (name) => {
+    if (name === "manifest.json" && ++manifestReads === 2) {
+      manifest.content = JSON.stringify({ schemaVersion: 1, entries: [
+        { id: "wave", media: "previews/wave/run1/preview.png" },
+        { id: "new", media: "previews/wave/run2/preview.png" },
+      ] });
+    }
+    return originalGet(name);
+  };
+  assert.equal(await deleteObsoletePreviews(root), 0);
+  assert.ok((await wave.getDirectoryHandle("run2")).children.has("preview.png"));
+});
+
 test("cleanup protects index-only media after interrupted publication", async () => {
   const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "previews/wave/run2/preview.png" } } } });
   assert.equal((await planPreviewCleanup(root)).obsolete.length, 0);
