@@ -44,6 +44,11 @@ function check(signal?: AbortSignal): void {
 /** Sequential execution avoids loading the entire GTA catalog's ped meshes at
  * once. Failed entries are recorded without terminating the remaining batch. */
 export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter): Promise<BatchResult> {
+  // Refuse ambiguous catalogs before writing a single file. Duplicate IDs
+  // would otherwise let one capture silently replace another in the index.
+  const catalogIds = (adapter.catalog ?? plan.ready).map((entry) => entry.id);
+  if (new Set(catalogIds).size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
+  if (new Set(plan.ready.map((entry) => entry.id)).size !== plan.ready.length) throw new Error("Duplicate emote identifiers in export plan.");
   const files: ExportFile[] = [];
   const emit = async (file: ExportFile): Promise<void> => {
     check(adapter.signal);
