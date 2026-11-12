@@ -48,10 +48,12 @@ function parsePng(png: Uint8Array): ParsedFrame {
   let sawHeader = false;
   let sawImageData = false;
   let imageDataClosed = false;
+  let sawEnd = false;
   while (offset + 12 <= png.length) {
     const length = u32(png, offset);
     if (length > png.length - offset - 12) throw new Error("Truncated PNG chunk");
     const type = decoder.decode(png.subarray(offset + 4, offset + 8));
+    if (!/^[A-Za-z]{4}$/.test(type)) throw new Error("Invalid PNG chunk type");
     const payload = png.slice(offset + 8, offset + 8 + length);
     const expected = u32(png, offset + 8 + length);
     if (crc32(png.subarray(offset + 4, offset + 8 + length)) !== expected) throw new Error("PNG CRC mismatch");
@@ -65,7 +67,15 @@ function parsePng(png: Uint8Array): ParsedFrame {
       sawImageData = true;
       imageData.push(payload);
     }
-    else if (type === "IEND") { ended = true; break; }
+    else if (type === "IEND") {
+      if (!sawImageData || length !== 0 || offset + 12 !== png.length) throw new Error("Invalid PNG end chunk");
+      ended = true;
+      sawEnd = true;
+      break;
+    }
+    else if (type === "acTL" || type === "fcTL" || type === "fdAT") {
+      throw new Error("Input frame is already animated; expected a static PNG");
+    }
     else if (type === "PLTE" || type === "tRNS") {
       if (sawImageData) throw new Error("PNG palette metadata appears after image data");
       ancillary.push(chunk(type, payload));
@@ -74,20 +84,23 @@ function parsePng(png: Uint8Array): ParsedFrame {
     if (sawImageData && type !== "IDAT") imageDataClosed = true;
     offset += 12 + length;
   }
-  if (!ended || !ihdr || ihdr.length !== 13 || !imageData.length) throw new Error("PNG missing required chunks");
+  if (!ended || !sawEnd || !ihdr || ihdr.length !== 13 || !imageData.length) throw new Error("PNG missing required chunks");
   return { ihdr, imageData, ancillary };
 }
 /** APNG with an infinite loop and frame delays of 1/fps. */
 export function encodeApng(pngFrames: readonly Uint8Array[], fps = 12): Uint8Array {
   if (!pngFrames.length) throw new Error("No PNG frames supplied");
   if (!Number.isInteger(fps) || fps < 1 || fps > 60) throw new RangeError("Invalid APNG frame rate");
+  // Prevent accidental multi-gigabyte allocations from a malformed or
+  // unexpectedly long capture sequence. Standard exports use <= 360 frames.
+  if (pngFrames.length > 1800) throw new RangeError("Too many APNG frames");
   const frames = pngFrames.map(parsePng);
   const header = frames[0].ihdr;
   if (frames.some((frame) => frame.ihdr.some((byte, i) => byte !== header[i]))) {
     throw new Error("APNG frames must have identical PNG dimensions and format");
   }
   const width = u32(header, 0), height = u32(header, 4);
-  if (!width || !height) throw new Error("Invalid APNG frame dimensions");
+  if (!width || !height || width > 2048 || height > 2048) throw new Error("Invalid APNG frame dimensions");
   // WebGL captures are RGBA PNGs. RGB or indexed PNGs can silently lose
   // transparency when packaged as previews; reject them explicitly.
   if (header[8] !== 8 || header[9] !== 6 || header[12] !== 0) {
@@ -98,11 +111,13 @@ export function encodeApng(pngFrames: readonly Uint8Array[], fps = 12): Uint8Arr
       part.some((byte, at) => byte !== frames[0].ancillary[i][at])))) {
     throw new Error("APNG frames have inconsistent palette or transparency metadata");
   }
-  const parts: Uint8Array[] = [signature, chunk("IHDR", header), ...frames[0].ancillary];
+  // APNG requires acTL before the first IDAT, and the animation control
+  // should precede per-frame control/data chunks.
+  const parts: Uint8Array[] = [signature, chunk("IHDR", header)];
   const animation = new Uint8Array(8);
   write32(animation, 0, frames.length);
   write32(animation, 4, 0);
-  parts.push(chunk("acTL", animation));
+  parts.push(chunk("acTL", animation), ...frames[0].ancillary);
   let sequence = 0;
   frames.forEach((frame, index) => {
     const control = new Uint8Array(26);
