@@ -10,6 +10,7 @@ import { makeZip } from "./exportZip";
 import { captureSequence } from "./captureSequence";
 import { exportCatalogBatch } from "./exportCatalogBatch";
 import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncrementalBatch, type PreviewIndex } from "./previewIndex";
+import { planCatalogBatch } from "./batchPlan";
 import { verifyPreviewFiles } from "./verifyPreviewFiles";
 
 type ViewState =
@@ -459,6 +460,7 @@ export function Viewer() {
         signal: abort.signal,
         previousIndex: previewIndex,
         fingerprints,
+        catalog: planCatalogBatch(emotes).ready,
         writeFile: previewDirectory ? async (path, data) => {
           const parts = path.split("/");
           let directory = previewDirectory;
