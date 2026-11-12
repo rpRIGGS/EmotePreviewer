@@ -60,4 +60,12 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Added `Export PNG frames` to the viewer, enabled only for a loaded emote with a loaded ped mesh and Mesh enabled. It captures up to 3 seconds at 12 fps in 320×320 transparent PNG frames, with `capture.json` metadata, and downloads a ZIP. Export temporarily pauses and then restores playback.
 - This is a **single-selected-emote developer proof of concept**, not batch export, WebP/WebM encoding, or PM Emotes packaging.
 - **Validation blocked:** GitHub source is accessible through the connector, but the execution container could not resolve github.com to clone/build. TypeScript compile and real WebGL alpha testing remain outstanding; do not mark as tested.
-- Next: build/typecheck and actual PNG transparency test, then batch capture and encoder/manifest work. Capture currently uses the viewer's active camera; standardized framing is not yet implemented.
+- Next: build/typecheck and actual PNG transparency test, then batch capture and encoder/manifest work. Capture now uses a fixed cloned export camera rather than the interactive viewer camera; actual framing still requires visual testing.
+
+## Implementation log — export hardening
+
+- Standardized PNG export framing with a cloned, fixed-angle camera. Export no longer changes the interactive viewer camera/aspect.
+- Added selected-emote frame progress in the viewer UI.
+- Added alpha sanity checks: fail on entirely transparent frames (missing geometry) or entirely opaque frames (lost transparency) instead of packaging bad previews.
+- Confirmed the repository already has a Windows GitHub Actions build/test/publish workflow in `.github/workflows/build.yml`. It runs .NET build, .NET tests, and publishes a win-x64 executable; no duplicate workflow was added.
+- **Still unverified:** CI outcome for these commits, actual WebGL rendering and camera coverage, media encoding, catalog batching, and PM Emotes integration.
