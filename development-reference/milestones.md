@@ -96,3 +96,11 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Tightened viewer clip state to retain the exact clip-spec key when asynchronous loads complete or refresh. A previously selected emote's `ready` state can no longer satisfy a different emote's readiness check merely because React has not run the next loading effect.
 - Removed the fragile requirement to observe a loading transition during polling; readiness now depends on the selected entry and its matching loaded clip key.
 - This is source-level hardening, not a claim that full batch capture was executed. Windows CI/build and representative rendering still require verification.
+
+## Implementation log — animated media candidate
+
+- Implemented `viewer/encodeApng.ts`: assembles full-frame PNG captures into a looping APNG using PNG chunks, APNG frame controls, CRC32 validation, and sequence numbering. This does not require a browser video encoder.
+- Catalog batch export now writes one `previews/<stem>/preview.png` animated PNG per successfully captured emote rather than a directory of raw frames. `manifest.json` maps source IDs and commands to media paths; `report.json` records failures/skips.
+- Updated viewer batch button and ZIP name to identify animated preview output. The separate single-selected-emote developer button still exports raw PNG frames.
+- **Format status: experimental.** APNG must be tested for actual animation, transparency, loop behavior, file size, and FiveM Chromium/NUI playback before choosing it as final PM Emotes media. This is not yet a copy-ready PM Emotes package.
+- **Validation outstanding:** TypeScript/.NET build, Windows GTA rendering, batch memory behavior, and actual APNG decoding/playback. Local GitHub clone remains DNS-blocked; GitHub connector commits work.
