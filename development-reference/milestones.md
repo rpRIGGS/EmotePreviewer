@@ -165,3 +165,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - A generated index without a manifest is treated as ambiguous and rejected rather than silently overwriting a potentially published library.
 - Regression coverage was extended with interrupted-generation, missing-index, and missing-manifest scenarios.
 - **Still required to close milestone 1:** observe passing frontend build and regression tests in Windows CI; verify the browser File System Access API in the desktop WebView2 host; test interrupted publication on real disk. The code is not certified by this checkpoint.
+
+
+### Additional milestone 1 hardening
+
+- Corrected regression fixtures to match the real manifest and preview-index schemas; otherwise recovery tests could incorrectly fail before exercising the intended scenarios.
+- Added a UI maintenance lock: cleanup and batch export cannot start concurrently in the same viewer session; the lock is released after success, cancellation, or failure.
+- Remaining verification is explicit: the GitHub connector currently exposes no successful workflow status for these changes, and this environment cannot resolve github.com for a local clone. Do not mark the milestone complete until automated build/test output is available.
