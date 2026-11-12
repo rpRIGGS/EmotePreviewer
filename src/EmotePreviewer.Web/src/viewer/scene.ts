@@ -193,6 +193,17 @@ export class Scene {
 
       const pixels = new Uint8Array(width * height * 4);
       this.renderer.readRenderTargetPixels(target, 0, 0, width, height, pixels);
+      // A capture without visible pixels is usually a missing ped, a stale
+      // WebGL context, or a camera framing problem. Fail rather than silently
+      // shipping an unusable preview archive.
+      let visiblePixels = 0;
+      let transparentPixels = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] > 0) visiblePixels++;
+        else transparentPixels++;
+      }
+      if (visiblePixels === 0) throw new Error("Capture produced an empty transparent frame; check ped loading and camera framing");
+      if (transparentPixels === 0) throw new Error("Capture has no transparent background; check WebGL alpha and scene background");
       // WebGL's origin is bottom-left; ImageData's origin is top-left.
       const image = document.createElement("canvas");
       image.width = width;
