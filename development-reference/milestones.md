@@ -155,3 +155,13 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Run locally from `src/EmotePreviewer.Web`: `npm ci`, `npm run build`, then `npm run test:library`.
 - Windows GitHub Actions now requires these tests before publishing the executable artifact.
 - **Verification distinction:** tests are committed and wired into CI; this document does not claim they have passed. A successful CI run and hands-on Windows/FiveM playback verification are still release gates.
+
+
+## Milestone 1 — published-library recovery (implementation checkpoint)
+
+- `recoverPreviewLibrary.ts` treats the published `manifest.json` as the consumer-facing publication boundary. It reconstructs a missing producer index from the manifest, corrects index entries that point to an unpublished generation, and removes generated index entries absent from the published manifest.
+- Recovery runs when a user selects a preview folder and immediately before incremental export. It verifies referenced files on disk; missing media is scheduled for retry rather than trusted.
+- Reconstructed records retain the last published media path and timing metadata but intentionally use an empty render fingerprint, ensuring a later update can recapture when inputs are known.
+- A generated index without a manifest is treated as ambiguous and rejected rather than silently overwriting a potentially published library.
+- Regression coverage was extended with interrupted-generation, missing-index, and missing-manifest scenarios.
+- **Still required to close milestone 1:** observe passing frontend build and regression tests in Windows CI; verify the browser File System Access API in the desktop WebView2 host; test interrupted publication on real disk. The code is not certified by this checkpoint.
