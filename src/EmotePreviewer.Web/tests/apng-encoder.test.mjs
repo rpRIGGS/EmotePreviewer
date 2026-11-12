@@ -92,3 +92,53 @@ test("APNG refuses unsupported frame rates and empty sequences", () => {
   assert.throws(() => encodeApng([]), /No PNG frames/);
   assert.throws(() => encodeApng([png()], 0), /frame rate/);
 });
+
+test("APNG rejects malformed PNG header and trailing bytes", () => {
+  const valid = png();
+  const badSignature = Buffer.from(valid);
+  badSignature[0] = 0;
+  assert.throws(() => encodeApng([badSignature]), /signature/);
+  assert.throws(() => encodeApng([Buffer.concat([valid, Buffer.from([1])])]), /end chunk/);
+});
+
+test("APNG rejects truncated chunks and missing IEND", () => {
+  const valid = png();
+  assert.throws(() => encodeApng([valid.subarray(0, valid.length - 8)]), /required chunks/);
+  const damaged = Buffer.from(valid);
+  const firstIdat = chunks(valid).find((c) => c.type === "IDAT");
+  assert.ok(firstIdat);
+  damaged.writeUInt32BE(0xffffffff, 33);
+  assert.throws(() => encodeApng([damaged]), /Truncated PNG chunk/);
+});
+
+test("APNG rejects nonconsecutive IDAT data and unsupported critical chunks", () => {
+  const valid = png();
+  const sections = chunks(valid);
+  const ihdr = sections.find((c) => c.type === "IHDR").data;
+  const idat = sections.find((c) => c.type === "IDAT").data;
+  const interrupted = Buffer.concat([
+    signature, chunk("IHDR", ihdr), chunk("IDAT", idat),
+    chunk("tEXt", Buffer.from("note\\0hello")), chunk("IDAT", idat), chunk("IEND"),
+  ]);
+  assert.throws(() => encodeApng([interrupted]), /image data order/);
+  const critical = Buffer.concat([
+    signature, chunk("IHDR", ihdr), chunk("ZZZZ"), chunk("IDAT", idat), chunk("IEND"),
+  ]);
+  assert.throws(() => encodeApng([critical]), /Unsupported critical/);
+});
+
+test("APNG refuses nested animated PNG source frames", () => {
+  const animated = encodeApng([png(), png()]);
+  assert.throws(() => encodeApng([animated]), /already animated/);
+});
+
+test("APNG enforces frame count and maximum capture dimensions", () => {
+  assert.throws(() => encodeApng(Array(1801).fill(png())), /Too many/);
+  assert.throws(() => encodeApng([png({width:2049})]), /dimensions/);
+});
+
+test("APNG rejects invalid frame chunk checksums even when signature is valid", () => {
+  const damaged = Buffer.from(png());
+  damaged[32] ^= 0x20;
+  assert.throws(() => encodeApng([damaged]), /CRC mismatch/);
+});
