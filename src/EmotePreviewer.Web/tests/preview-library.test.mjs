@@ -16,7 +16,19 @@ const { planPreviewCleanup, deleteObsoletePreviews } = await import(
 class MockFile {
   kind = "file";
   constructor(content = "") { this.content = content; }
-  async getFile() { return { text: async () => this.content, size: this.content.length }; }
+  async getFile() {
+    // Mock real browser File semantics for media signature checks, while
+    // retaining text fixtures for JSON manifest and index files.
+    const isPreview = this.content === "good" || this.content === "orphan";
+    const bytes = isPreview
+      ? Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10, ...Array(25).fill(0)])
+      : new TextEncoder().encode(this.content);
+    return {
+      text: async () => this.content,
+      size: bytes.length,
+      slice: (start, end) => ({ arrayBuffer: async () => bytes.slice(start, end).buffer }),
+    };
+  }
 }
 class MockDirectory {
   kind = "directory";
