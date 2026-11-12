@@ -49,7 +49,8 @@ export async function planPreviewCleanup(root: FileSystemDirectoryHandle): Promi
     throw error;
   }
   const walk = async (directory: FileSystemDirectoryHandle, prefix: string): Promise<void> => {
-    for await (const [name, handle] of directory.entries()) {
+    const iterable = directory as FileSystemDirectoryHandle & { entries(): AsyncIterable<[string, FileSystemHandle]> };
+    for await (const [name, handle] of iterable.entries()) {
       if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error("Unexpected directory entry. Cleanup refused.");
       const relative = `${prefix}/${name}`;
       if (handle.kind === "directory") await walk(handle as FileSystemDirectoryHandle, relative);
