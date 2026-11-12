@@ -11,7 +11,7 @@ function safePath(path: string): boolean {
 async function publishedPaths(root: FileSystemDirectoryHandle): Promise<Set<string>> {
   const file = await (await root.getFileHandle("manifest.json")).getFile();
   const data: unknown = JSON.parse(await file.text());
-  if (!data || typeof data !== "object" || !Array.isArray((data as {entries?: unknown}).entries)) {
+  if (!data || typeof data !== "object" || (data as {schemaVersion?: unknown}).schemaVersion !== 1 || !Array.isArray((data as {entries?: unknown}).entries)) {
     throw new Error("Missing or invalid published manifest. Cleanup refused.");
   }
   const protectedPaths = new Set<string>();
@@ -25,7 +25,7 @@ async function publishedPaths(root: FileSystemDirectoryHandle): Promise<Set<stri
     const indexFile = await (await root.getFileHandle("preview-index.json")).getFile();
     const index: unknown = JSON.parse(await indexFile.text());
     const entries = (index as {entries?: unknown} | null)?.entries;
-    if (!entries || typeof entries !== "object" || Array.isArray(entries)) throw new Error("Invalid preview index. Cleanup refused.");
+    if (!index || typeof index !== "object" || (index as {schemaVersion?: unknown}).schemaVersion !== 1 || !entries || typeof entries !== "object" || Array.isArray(entries)) throw new Error("Invalid preview index. Cleanup refused.");
     for (const record of Object.values(entries)) {
       const media = (record as {media?: unknown} | null)?.media;
       if (media === "") continue;
