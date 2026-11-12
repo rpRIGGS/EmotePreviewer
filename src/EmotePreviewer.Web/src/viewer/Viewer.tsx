@@ -399,7 +399,7 @@ export function Viewer() {
    */
   const exportSelected = async () => {
     const controller = controllerRef.current;
-    if (!controller || !entry || view.kind !== "ready" || exporting) return;
+    if (!controller || !entry || view.kind !== "ready" || exporting || maintenanceLockRef.current) return;
     setExportError(null);
     setExportProgress(null);
     setExporting(true);
@@ -734,7 +734,7 @@ export function Viewer() {
               Export catalog animated previews
             </button>
           )}
-          <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
+          <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || maintenanceBusy || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
             {exporting ? `Capturing ${exportProgress?.done ?? 0}/${exportProgress?.total ?? "…"}…` : "Export PNG frames"}
           </button>
         </div>
