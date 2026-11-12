@@ -86,7 +86,7 @@ function useLayerClip(controllerRef: React.RefObject<ViewerController | null>, s
       .then((clip: LoadedClip) => {
         if (abort.signal.aborted || clip.meta.eTag === loadedETag.current) return;
         controllerRef.current?.replaceClip(slot, layer, clip);
-        setState({ kind: "ready", meta: clip.meta });
+        setState({ kind: "ready", key: spec.key, meta: clip.meta });
       })
       .catch(() => undefined);
     return () => abort.abort();
