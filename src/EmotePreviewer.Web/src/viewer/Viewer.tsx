@@ -14,6 +14,7 @@ import { planCatalogBatch } from "./batchPlan";
 import { verifyPreviewFiles } from "./verifyPreviewFiles";
 import { planPreviewCleanup, deleteObsoletePreviews } from "./previewLibraryMaintenance";
 import { recoverPreviewLibrary } from "./recoverPreviewLibrary";
+import { waitForBatchReady } from "./waitForBatchReady";
 
 type ViewState =
   | { kind: "idle" }
@@ -506,18 +507,10 @@ export function Viewer() {
           await new Promise<void>((resolve) => setTimeout(resolve, 50));
           if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
           useAppStore.getState().select(item.id);
-          const deadline = Date.now() + 45000;
-          const selectedAt = Date.now();
-          while (Date.now() < deadline) {
-            if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
-            const state = readyRef.current;
-            if (state.id === item.id && state.error) throw new Error(state.error);
-            // Clip readiness is keyed to the exact selection, so a previous
-            // emote cannot satisfy this check during a React effect transition.
-            if (Date.now() - selectedAt >= 100 && state.id === item.id && state.ready && controllerRef.current) return controllerRef.current;
-            await new Promise<void>((resolve) => setTimeout(resolve, 100));
-          }
-          throw new Error("Timed out waiting for animation and ped mesh (45 seconds)");
+          return waitForBatchReady({
+            id: item.id, signal, timeoutMs: 45000,
+            snapshot: () => ({ ...readyRef.current, controller: controllerRef.current }),
+          });
         },
       });
       if (result.archive) {
