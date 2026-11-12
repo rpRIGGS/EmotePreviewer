@@ -27,6 +27,7 @@ export interface BatchAdapter {
   signal?: AbortSignal;
   previousIndex?: PreviewIndex;
   fingerprints?: ReadonlyMap<string, string>;
+  catalog?: readonly BatchEntry[];
   /** Write files as each emote completes, avoiding an enormous in-memory ZIP. */
   writeFile?: (path: string, data: Uint8Array) => Promise<void>;
 }
@@ -94,12 +95,30 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     }
     progress(i + 1, null);
   }
+  // A delta export must still publish a complete manifest.
+  const catalog = adapter.catalog ?? plan.ready;
+  const currentIds = new Set(catalog.map((item) => item.id));
+  for (const id of Object.keys(updatedIndex.entries)) {
+    if (!currentIds.has(id)) delete updatedIndex.entries[id];
+  }
+  const capturedById = new Map(manifest.map((item) => [item.id, item]));
+  const completeManifest = catalog.flatMap((item) => {
+    const record = updatedIndex.entries[item.id];
+    if (!record || record.status !== "generated" || !record.media) return [];
+    const captured = capturedById.get(item.id);
+    return [captured ?? {
+      id: item.id, source: item.source, category: item.category,
+      command: item.command, folder: record.media.slice(0, record.media.lastIndexOf("/")),
+      media: record.media, frameCount: 0, durationSeconds: 0,
+      frameRate: 12, width: 320, height: 320, format: "apng" as const,
+    }];
+  });
   await emit(textFile("preview-index.json", updatedIndex));
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
-    entries: manifest,
+    entries: completeManifest,
   }));
   await emit(textFile("report.json", {
     schemaVersion: 1,
