@@ -672,8 +672,8 @@ export function Viewer() {
         </div>
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
-          <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting} /> Rebuild all</label>
-          <button type="button" disabled={exporting} title="Select the preview library folder for direct incremental export and verification"
+          <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting || maintenanceBusy} /> Rebuild all</label>
+          <button type="button" disabled={exporting || maintenanceBusy} title="Select the preview library folder for direct incremental export and verification"
             onClick={() => {
               const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
               if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
@@ -711,7 +711,7 @@ export function Viewer() {
             }}>Clean old previews</button>
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
-            <input type="file" accept=".json,application/json" disabled={exporting} style={{ width: 120 }}
+            <input type="file" accept=".json,application/json" disabled={exporting || maintenanceBusy} style={{ width: 120 }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
