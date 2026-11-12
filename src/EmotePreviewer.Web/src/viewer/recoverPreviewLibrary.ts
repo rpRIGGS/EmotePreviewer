@@ -79,7 +79,9 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     recovered++;
   }
   for (const [id, old] of Object.entries(index.entries)) {
-    if (old.status === "generated" && !published.has(id)) {
+    // The manifest defines all published records, including removals.
+    // An unpublished failed record is not a published preview either.
+    if (!published.has(id)) {
       delete index.entries[id];
       reconciled++;
     }
