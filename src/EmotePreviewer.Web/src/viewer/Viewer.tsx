@@ -442,6 +442,9 @@ export function Viewer() {
       // Shared animations must be rendered with both characters when enabled;
       // avoid mutating the saved viewer preference during batch capture.
       const emotes = useAppStore.getState().entries;
+      if (!rebuildAll && !verifiedMedia && Object.values(previewIndex.entries).some((record) => record.status === "generated")) {
+        throw new Error("Verify the existing preview folder before an incremental update, or select Rebuild all.");
+      }
       const ped = settings?.ped ?? DEFAULT_PED;
       const partnerPed = settings?.partnerPed ?? ped;
       const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", verifiedMedia ?? undefined);
