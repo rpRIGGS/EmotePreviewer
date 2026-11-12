@@ -35,7 +35,7 @@ export function makeZip(files: ExportFile[]): Blob {
     u32(d, 0, 0x02014b50); u16(d, 4, 20); u16(d, 6, 20); u16(d, 8, 0x0800);
     u32(d, 16, checksum); u32(d, 20, file.data.length); u32(d, 24, file.data.length);
     u16(d, 28, name.length); u32(d, 42, offset); directory.set(name, 46);
-    local.push(head, file.data);
+    local.push(head, new Uint8Array(file.data));
     central.push(directory);
     offset += head.length + file.data.length;
   }
