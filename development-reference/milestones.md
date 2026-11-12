@@ -69,3 +69,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Added alpha sanity checks: fail on entirely transparent frames (missing geometry) or entirely opaque frames (lost transparency) instead of packaging bad previews.
 - Confirmed the repository already has a Windows GitHub Actions build/test/publish workflow in `.github/workflows/build.yml`. It runs .NET build, .NET tests, and publishes a win-x64 executable; no duplicate workflow was added.
 - **Still unverified:** CI outcome for these commits, actual WebGL rendering and camera coverage, media encoding, catalog batching, and PM Emotes integration.
+
+## Implementation log — reusable capture and batch planning
+
+- Extracted selected-emote capture into `viewer/captureSequence.ts`. It validates capture settings, supports cancellation and per-frame progress, and restores playback state even on errors. The existing viewer action now calls this module.
+- Added `viewer/batchPlan.ts`: stable catalog ordering, duplicate-ID handling, explicit unsupported-entry skip reasons, and collision-resistant export stems based on source/category/command plus a deterministic ID hash.
+- **Important scope:** These modules provide capture and queue-planning primitives. No automatic selection/loading loop, batch UI, animated encoder, final PM Emotes manifest, or ready-to-copy package exists yet. Do not mark batch production complete.
+- **Verification:** GitHub commits succeeded; TypeScript compilation and Windows rendering have not been verified.
