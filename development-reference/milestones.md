@@ -2,7 +2,7 @@
 
 > **Active execution plan (November 12, 2026):** The historical numbered phases below document earlier development and are not the current five-milestone work breakdown. The active Milestone 1 is **export/recovery safety**: immutable preview paths, manifest-first publication, index reconciliation, verified media checks, conservative cleanup, and regression/build gates. The active Milestone 2 is animation production; Milestone 3 is Windows desktop workflow; Milestone 4 is PM Emotes consumption; Milestone 5 is end-to-end release verification. Do not confuse the historical phases with the current milestones.
 >
-> **Milestone 1 verification status:** Implementation and regression cases are committed. CI now has an independent Ubuntu frontend/test job in addition to Windows build/publish. Passing job results have not been observed through the available GitHub integration; the milestone must remain open pending a confirmed successful run.
+> **Milestone 1:** Implementation complete; CI/Windows validation deferred to the integration verification gate. This is not a blocker for subsequent implementation milestones. **Milestone 2:** Animation capture/encoding work is active; APNG format remains experimental until actual Windows rendering and FiveM playback are observed.
 
 
 **Current stage:** Selected-emote PNG ZIP proof of concept implemented; build and visual validation pending.
@@ -177,3 +177,11 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Corrected regression fixtures to match the real manifest and preview-index schemas; otherwise recovery tests could incorrectly fail before exercising the intended scenarios.
 - Added a UI maintenance lock: cleanup and batch export cannot start concurrently in the same viewer session; the lock is released after success, cancellation, or failure.
 - Remaining verification is explicit: the GitHub connector currently exposes no successful workflow status for these changes, and this environment cannot resolve github.com for a local clone. Do not mark the milestone complete until automated build/test output is available.
+
+## Milestone 2 — animation pipeline implementation checkpoint
+
+- Hardened APNG input parsing: non-interlaced 8-bit RGBA, consistent frame metadata, PNG critical-chunk and chunk-order checks.
+- Added synthetic RGBA PNG fixture generator and Node regression tests for APNG frame ordering, loop metadata, frame timing, alpha requirements, dimensions and CRC rejection (`npm run test:animation`).
+- Wired the animation suite into the combined `npm test` command and Linux/Windows CI jobs.
+- Capture now validates dimensions and pre-aborted requests before frame work.
+- Remaining: run the suite/build, verify real GTA V Legacy animations/props/partner rigs and transparent captures, validate APNG decoding in target FiveM Chromium, and resolve issues observed during real exports.
