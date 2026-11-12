@@ -113,3 +113,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Viewer now provides **Import preview index** (JSON stored in browser localStorage) and **Rebuild all** controls. Default mode exports only new/changed/failed items relative to imported index. The index is **not automatically marked installed** after export: import the updated index only after copying the associated media into the preview library.
 - **Important limitation:** browser-local index cannot verify that media files actually exist in the installed PM Emotes folder. Full disk-backed verification and persistent native Windows application state are not yet implemented. An index with missing media can incorrectly classify an emote as unchanged; use rebuild if unsure. Index import is an explicit step, not automatic folder scanning.
 - **Not yet validated:** TypeScript build, APNG playback in FiveM Chromium, Windows rendering, end-to-end incremental installation and missing-preview fallback in PM Emotes NUI.
+
+## Preview library verification (follow-up)
+
+- Added `viewer/verifyPreviewFiles.ts`: after an explicit user folder selection, checks each indexed generated preview's relative path and verifies the file is nonempty. Rejects invalid/traversal paths.
+- Added **Verify preview folder** to the viewer. Missing files are classified for regeneration by `planIncrementalBatch`.
+- Incremental exports now refuse to skip indexed generated files unless the library was verified in the current session. **Rebuild all** remains available without verification.
+- **Limitations:** requires browser File System Access API; folder selection is user-initiated, not a native background scan. The chosen folder must be the root containing the indexed `previews/` directory. File existence/size does not validate APNG decoding or content hash. Export still generates a ZIP and does not install media automatically. No Windows build or FiveM NUI test has been completed.
