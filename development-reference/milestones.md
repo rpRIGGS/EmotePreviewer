@@ -1,11 +1,11 @@
 # Development milestones and verification
 
-**Current stage:** Documentation baseline and export feasibility audit.
+**Current stage:** Initial renderer capture implementation; build and visual validation pending.
 
 ## 1 — Renderer and export feasibility
-- [ ] Locate renderer/camera/scene and animation timing entry points in source.
-- [ ] Verify deterministic frame capture and transparent background capability.
-- [ ] Identify minimum changes required for a batch export command or UI.
+- [x] Locate renderer/camera/scene and animation timing entry points in source.
+- [ ] Verify deterministic frame capture and transparent background capability in a running Windows build (capture methods now implemented, not yet tested).
+- [x] Identify initial capture integration points in `viewer/scene.ts` and `viewer/controller.ts`; batch interface still pending.
 - [ ] Record limits for props, partner peds, and unpreviewable entries.
 
 **Exit criterion:** Documented export design tied to concrete source files, not assumptions.
@@ -45,3 +45,11 @@
 
 ## Verification rules
 Do not mark tasks complete without actual evidence. No live FiveM test, exported library, or encoder validation has occurred as part of this documentation baseline.
+
+## Implementation log — 2026-11-12
+
+- Inspected `src/EmotePreviewer.Web/src/viewer/scene.ts`, `controller.ts`, and `Viewer.tsx`.
+- Added `Scene.captureTransparentPng(width,height)`: offscreen RGBA render target, hidden grid/background, pixel readback and vertical flip, restoration of renderer/camera state, PNG data URL result.
+- Added `ViewerController.captureFramePng(timeSeconds,width,height)`: seek, pose at exact time, capture, restore timeline.
+- **Not yet verified:** TypeScript build, WebGL alpha correctness, textures settling before capture, camera framing, batch/export UI, encoding, PM Emotes playback.
+- The capture primitive is intentionally not exposed as a player-facing UI yet. Next implementation must add a developer export workflow, including readiness checks and batch output.
