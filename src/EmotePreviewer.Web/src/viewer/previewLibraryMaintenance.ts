@@ -77,9 +77,15 @@ export async function deleteObsoletePreviews(root: FileSystemDirectoryHandle): P
     if ((await publishedPaths(root)).has(relative)) continue;
     const parts = relative.split("/");
     let directory = root;
-    for (const segment of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(segment);
-    await directory.removeEntry(parts[parts.length - 1]);
-    removed++;
+    try {
+      for (const segment of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(segment);
+      await directory.removeEntry(parts[parts.length - 1]);
+      removed++;
+    } catch (error) {
+      // A concurrent cleanup may have removed the same orphan already.
+      // Never suppress permission or filesystem I/O failures.
+      if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
+    }
   }
   return removed;
 }
