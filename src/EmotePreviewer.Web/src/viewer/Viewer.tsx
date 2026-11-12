@@ -10,6 +10,7 @@ import { makeZip } from "./exportZip";
 import { captureSequence } from "./captureSequence";
 import { exportCatalogBatch } from "./exportCatalogBatch";
 import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncrementalBatch, type PreviewIndex } from "./previewIndex";
+import { verifyPreviewFiles } from "./verifyPreviewFiles";
 
 type ViewState =
   | { kind: "idle" }
@@ -228,6 +229,7 @@ export function Viewer() {
     catch { return emptyPreviewIndex(); }
   });
   const [rebuildAll, setRebuildAll] = useState(false);
+  const [verifiedMedia, setVerifiedMedia] = useState<ReadonlySet<string> | null>(null);
   const batchAbortRef = useRef<AbortController | null>(null);
   const readyRef = useRef<{ id: string | null; ready: boolean; error: string | null }>({ id: null, ready: false, error: null });
 
@@ -442,7 +444,7 @@ export function Viewer() {
       const emotes = useAppStore.getState().entries;
       const ped = settings?.ped ?? DEFAULT_PED;
       const partnerPed = settings?.partnerPed ?? ped;
-      const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update");
+      const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", verifiedMedia ?? undefined);
       const plan = incremental.plan;
       if (!plan.ready.length) {
         setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed from catalog`);
@@ -619,6 +621,19 @@ export function Viewer() {
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
           <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting} /> Rebuild all</label>
+          <button type="button" disabled={exporting} title="Check existing preview media on disk before an incremental export"
+            onClick={() => {
+              const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
+              if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
+              void picker.call(window).then((directory) => verifyPreviewFiles(previewIndex, directory)).then((result) => {
+                setVerifiedMedia(result.present);
+                setBatchProgress(`Verified ${result.present.size}/${result.checked} previews on disk; ${result.missing.length} missing will be regenerated`);
+                setExportError(null);
+              }).catch((error: unknown) => {
+                if (error instanceof DOMException && error.name === "AbortError") return;
+                setExportError(error instanceof Error ? error.message : String(error));
+              });
+            }}>Verify preview folder</button>
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
             <input type="file" accept=".json,application/json" disabled={exporting} style={{ width: 120 }}
@@ -628,6 +643,7 @@ export function Viewer() {
                 void file.text().then((content) => {
                   const parsed = parsePreviewIndex(JSON.parse(content));
                   setPreviewIndex(parsed);
+                  setVerifiedMedia(null);
                   localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(parsed));
                   setBatchProgress(`Loaded index with ${Object.keys(parsed.entries).length} records`);
                   setExportError(null);
