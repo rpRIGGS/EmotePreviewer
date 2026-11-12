@@ -16,7 +16,7 @@ async function publishedPaths(root: FileSystemDirectoryHandle): Promise<Set<stri
   }
   const protectedPaths = new Set<string>();
   for (const entry of (data as {entries: unknown[]}).entries) {
-    const media = (entry as {media?: unknown} | null)?.media;
+    const media = (entry && typeof entry === "object" ? (entry as {media?: unknown}).media : undefined);
     if (typeof media !== "string" || !safePath(media)) throw new Error("Unsafe manifest entry. Cleanup refused.");
     protectedPaths.add(media);
   }
@@ -27,7 +27,7 @@ async function publishedPaths(root: FileSystemDirectoryHandle): Promise<Set<stri
     const entries = (index as {entries?: unknown} | null)?.entries;
     if (!index || typeof index !== "object" || (index as {schemaVersion?: unknown}).schemaVersion !== 1 || !entries || typeof entries !== "object" || Array.isArray(entries)) throw new Error("Invalid preview index. Cleanup refused.");
     for (const record of Object.values(entries)) {
-      const media = (record as {media?: unknown} | null)?.media;
+      const media = (record && typeof record === "object" ? (record as {media?: unknown}).media : undefined);
       if (media === "") continue;
       if (typeof media !== "string" || !safePath(media)) throw new Error("Unsafe index entry. Cleanup refused.");
       protectedPaths.add(media);
