@@ -217,6 +217,7 @@ export function Viewer() {
   const controllerRef = useRef<ViewerController | null>(null);
   const [playing, setPlaying] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
 
   const status = useAppStore((s) => s.status);
@@ -374,6 +375,7 @@ export function Viewer() {
     const controller = controllerRef.current;
     if (!controller || !entry || view.kind !== "ready" || exporting) return;
     setExportError(null);
+    setExportProgress(null);
     setExporting(true);
     const wasPlaying = controller.timeline.playing;
     try {
@@ -384,11 +386,13 @@ export function Viewer() {
       const frames = Math.max(1, Math.ceil(duration * fps));
       const safeId = entry.id.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 100);
       const files: ExportFile[] = [];
+      setExportProgress({ done: 0, total: frames });
       for (let i = 0; i < frames; i++) {
         // Yield so the browser remains responsive and a user can see progress.
         await new Promise<void>((resolve) => setTimeout(resolve, 0));
         const png = controller.captureFramePng(i / fps, 320, 320);
         files.push({ name: `frames/${String(i).padStart(4, "0")}.png`, data: pngDataUrlBytes(png) });
+        setExportProgress({ done: i + 1, total: frames });
       }
       const metadata = {
         schemaVersion: 1, sourceId: entry.id, frameRate: fps,
@@ -412,6 +416,7 @@ export function Viewer() {
     } finally {
       if (wasPlaying) controller.timeline.play();
       setExporting(false);
+      setExportProgress(null);
     }
   };
 
@@ -535,7 +540,7 @@ export function Viewer() {
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
           <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
-            {exporting ? "Capturing…" : "Export PNG frames"}
+            {exporting ? `Capturing ${exportProgress?.done ?? 0}/${exportProgress?.total ?? "…"}…` : "Export PNG frames"}
           </button>
         </div>
         <ViewerOverlay view={view} />
