@@ -69,18 +69,28 @@ test("cleanup deletes only orphaned media", async () => {
 });
 
 test("cleanup protects index-only media after interrupted publication", async () => {
-  const { root } = library({ index: { entries: { wave: { media: "previews/wave/run2/preview.png" } } } });
+  const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "previews/wave/run2/preview.png" } } } });
   assert.equal((await planPreviewCleanup(root)).obsolete.length, 0);
 });
 
 test("cleanup refuses unsafe manifest paths", async () => {
-  const { root } = library({ manifest: { entries: [{ media: "../outside/preview.png" }] } });
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [{ media: "../outside/preview.png" }] } });
   await assert.rejects(() => planPreviewCleanup(root), /Unsafe manifest/);
 });
 
 test("cleanup refuses malformed index rather than deleting referenced media", async () => {
-  const { root } = library({ index: { entries: { wave: { media: "../outside" } } } });
+  const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "../outside" } } } });
   await assert.rejects(() => planPreviewCleanup(root), /Unsafe index/);
+});
+
+test("cleanup rejects unknown manifest versions", async () => {
+  const { root } = library({ manifest: { schemaVersion: 2, entries: [] } });
+  await assert.rejects(() => planPreviewCleanup(root), /invalid published manifest/);
+});
+
+test("cleanup rejects unknown index versions", async () => {
+  const { root } = library({ index: { schemaVersion: 2, entries: {} } });
+  await assert.rejects(() => planPreviewCleanup(root), /Invalid preview index/);
 });
 
 test("cleanup tolerates absent index and preserves manifest media", async () => {
