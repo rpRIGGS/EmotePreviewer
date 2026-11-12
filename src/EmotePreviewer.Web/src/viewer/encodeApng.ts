@@ -46,6 +46,8 @@ function parsePng(png: Uint8Array): ParsedFrame {
   const ancillary: Uint8Array[] = [];
   let ended = false;
   let sawHeader = false;
+  let sawImageData = false;
+  let imageDataClosed = false;
   while (offset + 12 <= png.length) {
     const length = u32(png, offset);
     if (length > png.length - offset - 12) throw new Error("Truncated PNG chunk");
@@ -59,12 +61,17 @@ function parsePng(png: Uint8Array): ParsedFrame {
       sawHeader = true;
     }
     else if (type === "IDAT") {
-      if (!sawHeader) throw new Error("PNG image data precedes header");
+      if (!sawHeader || imageDataClosed) throw new Error("Invalid PNG image data order");
+      sawImageData = true;
       imageData.push(payload);
     }
     else if (type === "IEND") { ended = true; break; }
-    else if (type === "PLTE" || type === "tRNS") ancillary.push(chunk(type, payload));
+    else if (type === "PLTE" || type === "tRNS") {
+      if (sawImageData) throw new Error("PNG palette metadata appears after image data");
+      ancillary.push(chunk(type, payload));
+    }
     else if ((type.charCodeAt(0) & 32) === 0) throw new Error(`Unsupported critical PNG chunk: ${type}`);
+    if (sawImageData && type !== "IDAT") imageDataClosed = true;
     offset += 12 + length;
   }
   if (!ended || !ihdr || ihdr.length !== 13 || !imageData.length) throw new Error("PNG missing required chunks");
