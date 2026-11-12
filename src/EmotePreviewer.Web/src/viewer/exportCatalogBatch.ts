@@ -72,29 +72,25 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     check(adapter.signal);
     const entry = plan.ready[i];
     progress(i, entry.id);
+    // Capture/encode failures are per-emote and should not stop the catalog.
+    // Filesystem failures are different: abort immediately so we never publish
+    // a manifest that claims to reference media that could not be installed.
+    let encoded: Uint8Array | null = null;
+    let frameCount = 0;
+    let durationSeconds = 0;
     try {
       const controller = await adapter.load(entry, adapter.signal ?? new AbortController().signal);
       check(adapter.signal);
       const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal });
-      const folder = `previews/${entry.outputStem}/${runId}`;
       const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
-      const media = `${folder}/preview.png`;
-      await emit({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
-      updatedIndex.entries[entry.id] = {
-        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
-        status: "generated", updatedAt: new Date().toISOString(),
-      };
-      manifest.push({
-        id: entry.id, source: entry.source, category: entry.category,
-        command: entry.command, folder, media, frameCount: capture.frameCount,
-        durationSeconds: capture.durationSeconds, frameRate: 12,
-        width: 320, height: 320, format: "apng",
-      });
+      encoded = encodeApng(frameFiles.map((file) => file.data), 12);
+      frameCount = capture.frameCount;
+      durationSeconds = capture.durationSeconds;
     } catch (error) {
       check(adapter.signal);
       failures.push({ id: entry.id, reason: error instanceof Error ? error.message : String(error) });
-      // Retain the last known-good preview on a failed replacement. Its old
-      // fingerprint intentionally remains unchanged so the next update retries.
+      // Preserve verified last-known-good media. Keep its original fingerprint
+      // so the next incremental update still attempts regeneration.
       const previous = Object.hasOwn(updatedIndex.entries, entry.id) ? updatedIndex.entries[entry.id] : undefined;
       if (!(previous?.status === "generated" && previous.media && adapter.verifiedMedia?.has(entry.id))) {
         updatedIndex.entries[entry.id] = {
@@ -102,6 +98,23 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
           status: "failed", updatedAt: new Date().toISOString(),
         };
       }
+    }
+    if (encoded) {
+      const folder = `previews/${entry.outputStem}/${runId}`;
+      const media = `${folder}/preview.png`;
+      // Do not catch writer errors here: incomplete exports must never publish
+      // a new manifest or index.
+      await emit({ name: media, data: encoded });
+      updatedIndex.entries[entry.id] = {
+        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
+        status: "generated", updatedAt: new Date().toISOString(),
+      };
+      manifest.push({
+        id: entry.id, source: entry.source, category: entry.category,
+        command: entry.command, folder, media, frameCount,
+        durationSeconds, frameRate: 12,
+        width: 320, height: 320, format: "apng",
+      });
     }
     progress(i + 1, null);
   }
