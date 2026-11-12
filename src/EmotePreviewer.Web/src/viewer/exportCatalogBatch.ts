@@ -128,6 +128,9 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const completeManifest = catalog.flatMap((item) => {
     const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
     if (!record || record.status !== "generated" || !record.media) return [];
+    // Only newly written media or previously verified on-disk media may be
+    // published. An imported index alone is not evidence that a file exists.
+    if (!capturedById.has(item.id) && !adapter.verifiedMedia?.has(item.id)) return [];
     const captured = capturedById.get(item.id);
     return [captured ?? {
       id: item.id, source: item.source, category: item.category,
