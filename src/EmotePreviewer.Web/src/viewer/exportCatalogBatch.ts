@@ -28,6 +28,8 @@ export interface BatchAdapter {
   previousIndex?: PreviewIndex;
   fingerprints?: ReadonlyMap<string, string>;
   catalog?: readonly BatchEntry[];
+  /** Existing published media verified on disk; a failed recapture must not erase it. */
+  verifiedMedia?: ReadonlySet<string>;
   /** Write files as each emote completes, avoiding an enormous in-memory ZIP. */
   writeFile?: (path: string, data: Uint8Array) => Promise<void>;
 }
@@ -91,10 +93,15 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     } catch (error) {
       check(adapter.signal);
       failures.push({ id: entry.id, reason: error instanceof Error ? error.message : String(error) });
-      updatedIndex.entries[entry.id] = {
-        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
-        status: "failed", updatedAt: new Date().toISOString(),
-      };
+      // Retain the last known-good preview on a failed replacement. Its old
+      // fingerprint intentionally remains unchanged so the next update retries.
+      const previous = Object.hasOwn(updatedIndex.entries, entry.id) ? updatedIndex.entries[entry.id] : undefined;
+      if (!(previous?.status === "generated" && previous.media && adapter.verifiedMedia?.has(entry.id))) {
+        updatedIndex.entries[entry.id] = {
+          fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
+          status: "failed", updatedAt: new Date().toISOString(),
+        };
+      }
     }
     progress(i + 1, null);
   }
