@@ -290,6 +290,26 @@ export class ViewerController {
     this.scene.setCamera(preset);
   }
 
+  /**
+   * Deterministic frame capture primitive for the offline export pipeline.
+   * Poses the existing rigs at an exact timeline time, captures a transparent
+   * frame, then restores the viewer's previous timeline position.
+   */
+  captureFramePng(timeSeconds: number, width = 320, height = 320): string {
+    if (!Number.isFinite(timeSeconds) || timeSeconds < 0 || timeSeconds > this.timeline.duration) {
+      throw new RangeError("Capture time must fall within the loaded timeline");
+    }
+    const previousTime = this.timeline.time;
+    try {
+      this.seek(timeSeconds);
+      this.tick(0);
+      return this.scene.captureTransparentPng(width, height);
+    } finally {
+      this.seek(previousTime);
+      this.tick(0);
+    }
+  }
+
   /** World positions of every bone of a slot in three.js space (debugging / tests). */
   worldPositions(slot: Slot = "main"): number[][] {
     const rigSlot = this.slots[slot];
