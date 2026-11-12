@@ -13,12 +13,12 @@ function notFound(error: unknown): boolean {
   return error instanceof DOMException && error.name === "NotFoundError";
 }
 
-async function readJson(root: FileSystemDirectoryHandle, filename: string): Promise<unknown | null> {
+async function readJson(root: FileSystemDirectoryHandle, filename: string, tolerateInvalidJson = false): Promise<unknown | null> {
   try {
     const file = await (await root.getFileHandle(filename)).getFile();
     return JSON.parse(await file.text()) as unknown;
   } catch (error) {
-    if (notFound(error)) return null;
+    if (notFound(error) || (tolerateInvalidJson && error instanceof SyntaxError)) return null;
     throw error;
   }
 }
@@ -35,7 +35,7 @@ function safeMedia(media: string): boolean {
  * Recovered records deliberately have an empty fingerprint so they regenerate
  * on the next incremental update, but remain visible until replacement works. */
 export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Promise<RecoveredLibrary> {
-  const rawIndex = await readJson(root, "preview-index.json");
+  const rawIndex = await readJson(root, "preview-index.json", true);
   // The manifest is the committed source of truth. A truncated or unsupported
   // index must not prevent reconstructing published media after a crash.
   let index: PreviewIndex;
