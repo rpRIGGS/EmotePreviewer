@@ -234,6 +234,8 @@ export function Viewer() {
   const [rebuildAll, setRebuildAll] = useState(false);
   const [verifiedMedia, setVerifiedMedia] = useState<ReadonlySet<string> | null>(null);
   const [previewDirectory, setPreviewDirectory] = useState<FileSystemDirectoryHandle | null>(null);
+  const [maintenanceBusy, setMaintenanceBusy] = useState(false);
+  const maintenanceLockRef = useRef(false);
   const batchAbortRef = useRef<AbortController | null>(null);
   const readyRef = useRef<{ id: string | null; ready: boolean; error: string | null }>({ id: null, ready: false, error: null });
 
@@ -426,7 +428,7 @@ export function Viewer() {
   };
 
   const exportBatch = async () => {
-    if (exporting || !gtaReady || !showMesh || main.meshState === "error") return;
+    if (exporting || maintenanceLockRef.current || !gtaReady || !showMesh || main.meshState === "error") return;
     const abort = new AbortController();
     batchAbortRef.current = abort;
     setExporting(true);
@@ -689,10 +691,12 @@ export function Viewer() {
                 setExportError(error instanceof Error ? error.message : String(error));
               });
             }}>Select preview folder</button>
-          <button type="button" disabled={exporting || !previewDirectory}
+          <button type="button" disabled={exporting || maintenanceBusy || !previewDirectory}
             title="Review obsolete generated media and remove only unreferenced preview files"
             onClick={() => {
-              if (!previewDirectory) return;
+              if (!previewDirectory || exporting || maintenanceLockRef.current) return;
+              maintenanceLockRef.current = true;
+              setMaintenanceBusy(true);
               void (async () => {
                 const plan = await planPreviewCleanup(previewDirectory);
                 if (!plan.obsolete.length) {
@@ -702,7 +706,8 @@ export function Viewer() {
                 if (!window.confirm(`Delete ${plan.obsolete.length} unreferenced preview files? ${plan.retained} published previews will be retained. This cannot be undone.`)) return;
                 const removed = await deleteObsoletePreviews(previewDirectory);
                 setBatchProgress(`Removed ${removed} obsolete preview files; published media preserved.`);
-              })().catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)));
+              })().catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)))
+                .finally(() => { maintenanceLockRef.current = false; setMaintenanceBusy(false); });
             }}>Clean old previews</button>
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
@@ -725,7 +730,7 @@ export function Viewer() {
           {batchAbortRef.current ? (
             <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
           ) : (
-            <button type="button" onClick={() => void exportBatch()} disabled={exporting || !gtaReady || !showMesh} title="Export all previewable animations as experimental transparent animated PNG previews">
+            <button type="button" onClick={() => void exportBatch()} disabled={exporting || maintenanceBusy || !gtaReady || !showMesh} title="Export all previewable animations as experimental transparent animated PNG previews">
               Export catalog animated previews
             </button>
           )}
