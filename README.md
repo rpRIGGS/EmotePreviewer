@@ -4,7 +4,7 @@
 
 This fork extends [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer) toward an offline production workflow for creating optimized, locally hosted animation previews for **PM Emotes**, the PowerMoves RP FiveM emote interface.
 
-**Development status:** Export workflow under design. The original viewer is functional upstream; automated preview export, packaging, and PM Emotes integration are **planned, not yet implemented or validated**.
+**Development status:** Experimental batch APNG capture, incremental preview indexes, direct-to-folder export, and guarded cleanup are implemented in source. Windows runtime behavior, generated APNG playback in FiveM Chromium, and end-to-end PM Emotes integration remain **unverified**. Do not treat the current exporter as production-ready.
 
 ### PowerMoves development
 
@@ -13,7 +13,7 @@ This fork extends [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePre
 - [Milestones and verification checklist](development-reference/milestones.md)
 - [Original developer's technical guide](Docs/development.md)
 
-**Approach:** Preserve the original offline viewer, extend its existing renderer with a repeatable export workflow, and keep the in-game PM Emotes NUI lightweight. Export media formats and transparency support remain subject to testing.
+**Approach:** Keep all preview rendering in this Windows development utility. PM Emotes only consumes the exported media and manifest; PM AutoShot is retired. The APNG format remains experimental pending FiveM NUI playback validation.\n\n**Build verification:** GitHub Actions runs frontend `npm ci && npm run build`, Windows .NET solution build and tests, and publishes a Windows executable artifact. A successful workflow and actual Windows/PM Emotes playback testing are still required before release.
 
 **Attribution:** The original EmotePreviewer is created by [Acc-Off](https://github.com/Acc-Off) and distributed under the [MIT License](LICENSE). This fork is maintained for PowerMoves RP by PowerMoves Development. The original documentation follows below.
 
