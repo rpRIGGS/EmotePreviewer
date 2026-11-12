@@ -72,6 +72,16 @@ export function encodeApng(pngFrames: readonly Uint8Array[], fps = 12): Uint8Arr
   }
   const width = u32(header, 0), height = u32(header, 4);
   if (!width || !height) throw new Error("Invalid APNG frame dimensions");
+  // WebGL captures are RGBA PNGs. RGB or indexed PNGs can silently lose
+  // transparency when packaged as previews; reject them explicitly.
+  if (header[8] !== 8 || header[9] !== 6 || header[12] !== 0) {
+    throw new Error("APNG preview frames must be non-interlaced 8-bit RGBA PNGs");
+  }
+  if (frames.some((frame) => frame.ancillary.length !== frames[0].ancillary.length ||
+    frame.ancillary.some((part, i) => part.length !== frames[0].ancillary[i].length ||
+      part.some((byte, at) => byte !== frames[0].ancillary[i][at])))) {
+    throw new Error("APNG frames have inconsistent palette or transparency metadata");
+  }
   const parts: Uint8Array[] = [signature, chunk("IHDR", header), ...frames[0].ancillary];
   const animation = new Uint8Array(8);
   write32(animation, 0, frames.length);
