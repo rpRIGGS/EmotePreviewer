@@ -177,3 +177,7 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Corrected regression fixtures to match the real manifest and preview-index schemas; otherwise recovery tests could incorrectly fail before exercising the intended scenarios.
 - Added a UI maintenance lock: cleanup and batch export cannot start concurrently in the same viewer session; the lock is released after success, cancellation, or failure.
 - Remaining verification is explicit: the GitHub connector currently exposes no successful workflow status for these changes, and this environment cannot resolve github.com for a local clone. Do not mark the milestone complete until automated build/test output is available.
+
+## Milestone 1 validation checkpoint
+
+This branch exists to trigger the pull-request CI event and expose test/build results to the development integration. Passing checks are required before closing Milestone 1. Do not merge this branch solely to mark validation complete.
