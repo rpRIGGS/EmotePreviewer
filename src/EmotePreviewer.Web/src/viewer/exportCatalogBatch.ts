@@ -3,6 +3,7 @@ import { captureSequence } from "./captureSequence";
 import { makeZip, type ExportFile } from "./exportZip";
 import { encodeApng } from "./encodeApng";
 import type { BatchEntry, BatchSkip, BatchPlan } from "./batchPlan";
+import { PREVIEW_RENDER_VERSION, type PreviewIndex } from "./previewIndex";
 
 export interface BatchProgress {
   completed: number;
@@ -23,6 +24,8 @@ export interface BatchAdapter {
   load(entry: BatchEntry, signal: AbortSignal): Promise<ViewerController>;
   onProgress?: (progress: BatchProgress) => void;
   signal?: AbortSignal;
+  previousIndex?: PreviewIndex;
+  fingerprints?: ReadonlyMap<string, string>;
 }
 
 function textFile(name: string, value: unknown): ExportFile {
@@ -43,6 +46,10 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     frameRate: number; width: number; height: number; format: "apng";
   }> = [];
   const total = plan.ready.length;
+  const updatedIndex: PreviewIndex = {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
+    entries: { ...(adapter.previousIndex?.entries ?? {}) },
+  };
   const progress = (completed: number, currentId: string | null) =>
     adapter.onProgress?.({ completed, total, currentId, captured: manifest.length, failed: failures.length });
   progress(0, null);
@@ -58,6 +65,10 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
       const media = `${folder}/preview.png`;
       files.push({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
+      updatedIndex.entries[entry.id] = {
+        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
+        status: "generated", updatedAt: new Date().toISOString(),
+      };
       manifest.push({
         id: entry.id, source: entry.source, category: entry.category,
         command: entry.command, folder, media, frameCount: capture.frameCount,
@@ -67,9 +78,14 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     } catch (error) {
       check(adapter.signal);
       failures.push({ id: entry.id, reason: error instanceof Error ? error.message : String(error) });
+      updatedIndex.entries[entry.id] = {
+        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
+        status: "failed", updatedAt: new Date().toISOString(),
+      };
     }
     progress(i + 1, null);
   }
+  files.push(textFile("preview-index.json", updatedIndex));
   files.push(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
