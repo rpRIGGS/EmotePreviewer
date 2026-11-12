@@ -9,6 +9,26 @@ on:
   pull_request:
 
 jobs:
+  library-tests:
+    name: Preview library regression tests (Linux)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: src/EmotePreviewer.Web/package-lock.json
+      - name: Install frontend dependencies
+        working-directory: src/EmotePreviewer.Web
+        run: npm ci
+      - name: Run preview library regression tests
+        working-directory: src/EmotePreviewer.Web
+        run: npm run test:library
+      - name: Typecheck and bundle frontend
+        working-directory: src/EmotePreviewer.Web
+        run: npm run build
+
   build:
     runs-on: windows-latest
     steps:
