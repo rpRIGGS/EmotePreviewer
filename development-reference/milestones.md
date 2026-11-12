@@ -76,3 +76,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Added `viewer/batchPlan.ts`: stable catalog ordering, duplicate-ID handling, explicit unsupported-entry skip reasons, and collision-resistant export stems based on source/category/command plus a deterministic ID hash.
 - **Important scope:** These modules provide capture and queue-planning primitives. No automatic selection/loading loop, batch UI, animated encoder, final PM Emotes manifest, or ready-to-copy package exists yet. Do not mark batch production complete.
 - **Verification:** GitHub commits succeeded; TypeScript compilation and Windows rendering have not been verified.
+
+## Implementation log — sequential batch runner
+
+- Added `viewer/exportCatalogBatch.ts` to execute a planned catalog sequentially, with cancellation, per-entry failures, progress, and a ZIP containing `manifest.json`, `report.json`, and captured PNG sequences.
+- Its `BatchAdapter.load` contract explicitly requires a fully ready rig/clip/mesh before capture. **The React viewer adapter that selects each entry and waits for readiness is still missing.** The batch runner is therefore not yet reachable from a user-facing batch button.
+- The archive is explicitly labeled an intermediate developer format, not the final animated PM Emotes NUI media package.
+- Build and real-world capture remain unverified.
