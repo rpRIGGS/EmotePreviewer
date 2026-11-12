@@ -152,7 +152,9 @@ test("recovery reconstructs published previews when index JSON is truncated", as
   const { recoverPreviewLibrary } = await loadRecovery();
   const { root } = library();
   root.children.get("preview-index.json").content = "{truncated";
-  await assert.rejects(() => recoverPreviewLibrary(root), /Unexpected token|Expected property|JSON/);
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.ok(result.present.has("wave"));
 });
 
 test("recovery restores manifest media when index points at interrupted generation", async () => {
