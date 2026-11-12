@@ -189,7 +189,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // Validate all final publication references before emitting metadata.
   // Media paths must remain within our immutable preview tree.
   for (const item of completeManifest) {
-    if (!/^previews\\/[a-zA-Z0-9_-]+\\/[a-zA-Z0-9_-]+\\/preview\\.png$/.test(item.media)) {
+    if (!/^previews\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/preview\.png$/.test(item.media)) {
       throw new Error(`Unsafe published media path for ${item.id}`);
     }
   }

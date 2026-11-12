@@ -66,7 +66,7 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
     if (id === "__proto__" || id === "constructor" || id === "prototype") continue;
     // Generated media must point into the immutable preview tree. Failed
     // records have no installed media and are always eligible for retry.
-    if (record.status === "generated" && !/^previews\\/[a-zA-Z0-9_-]+\\/[a-zA-Z0-9_-]+\\/preview\\.png$/.test(record.media as string)) continue;
+    if (record.status === "generated" && !/^previews\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/preview\.png$/.test(record.media as string)) continue;
     if (record.status === "failed" && record.media !== "") continue;
     const frameCount = typeof record.frameCount === "number" && Number.isFinite(record.frameCount) && record.frameCount > 0 ? record.frameCount : undefined;
     const durationSeconds = typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 ? record.durationSeconds : undefined;
