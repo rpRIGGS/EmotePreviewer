@@ -464,7 +464,7 @@ export function Viewer() {
       try {
         const link = document.createElement("a");
         link.href = url;
-        link.download = "emote-catalog-capture.zip";
+        link.download = "emote-catalog-apng-previews.zip";
         link.click();
       } finally {
         setTimeout(() => URL.revokeObjectURL(url), 30000);
@@ -605,8 +605,8 @@ export function Viewer() {
           {batchAbortRef.current ? (
             <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
           ) : (
-            <button type="button" onClick={() => void exportBatch()} disabled={exporting || !gtaReady || !showMesh} title="Capture all previewable catalog animations as a developer PNG sequence ZIP">
-              Export catalog PNG batch
+            <button type="button" onClick={() => void exportBatch()} disabled={exporting || !gtaReady || !showMesh} title="Export all previewable animations as experimental transparent animated PNG previews">
+              Export catalog animated previews
             </button>
           )}
           <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
