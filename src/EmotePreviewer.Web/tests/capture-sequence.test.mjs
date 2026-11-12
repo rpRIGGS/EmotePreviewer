@@ -9,8 +9,9 @@ const compiled = ts.transpileModule(source, {
 }).outputText;
 // Type-only imports are removed by TS; the PNG decoder import is substituted
 // with a fixture stub to exercise timeline sequencing without WebGL.
-const javascript = compiled.replace(/import \{ pngDataUrlBytes \} from "\.\/exportZip";/,
+const javascript = compiled.replace(/import\s*\{\s*pngDataUrlBytes\s*\}\s*from\s*["\x27]\.\/exportZip(?:\.js)?["\x27];?/,
   "const pngDataUrlBytes = () => new Uint8Array([137,80,78,71]);");
+assert.ok(!javascript.includes('from "./exportZip"') && !javascript.includes("from \'./exportZip\'"), "PNG stub import must be replaced");
 const { captureSequence } = await import("data:text/javascript;base64," + Buffer.from(javascript).toString("base64"));
 
 function controller(duration = 1.2) {
