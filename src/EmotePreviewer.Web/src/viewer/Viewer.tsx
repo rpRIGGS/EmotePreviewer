@@ -8,6 +8,8 @@ import { ViewerController, type ClipTiming, type Slot } from "./controller";
 import type { CameraPreset } from "./scene";
 import { makeZip } from "./exportZip";
 import { captureSequence } from "./captureSequence";
+import { planCatalogBatch } from "./batchPlan";
+import { exportCatalogBatch } from "./exportCatalogBatch";
 
 type ViewState =
   | { kind: "idle" }
@@ -220,6 +222,9 @@ export function Viewer() {
   const [exporting, setExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+  const [batchProgress, setBatchProgress] = useState<string | null>(null);
+  const batchAbortRef = useRef<AbortController | null>(null);
+  const readyRef = useRef<{ id: string | null; ready: boolean; error: string | null }>({ id: null, ready: false, error: null });
 
   const status = useAppStore((s) => s.status);
   const connected = useAppStore((s) => s.connected);
@@ -340,6 +345,13 @@ export function Viewer() {
     else if (state.kind === "error") view = { kind: "error", message: state.message };
     else view = { kind: "loading" };
   }
+  // The asynchronous batch adapter reads the latest React readiness snapshot.
+  // Never capture a previously selected animation while the next clip loads.
+  readyRef.current = {
+    id: entry?.id ?? null,
+    ready: view.kind === "ready" && showMesh && main.meshState === "ready" && (!partnerActive || (second.clips.primary.kind === "ready" && second.meshState === "ready")),
+    error: view.kind === "error" ? view.message : main.meshState === "error" ? "Ped mesh failed to load" : null,
+  };
   const primaryMeta = main.clips.primary.kind === "ready" ? main.clips.primary.meta : null;
 
   // Space toggles playback unless a form control has the focus.
@@ -399,6 +411,69 @@ export function Viewer() {
     } finally {
       setExporting(false);
       setExportProgress(null);
+    }
+  };
+
+  const exportBatch = async () => {
+    if (exporting || !gtaReady || !showMesh || main.meshState === "error") return;
+    const abort = new AbortController();
+    batchAbortRef.current = abort;
+    setExporting(true);
+    setExportError(null);
+    setBatchProgress("Preparing catalog…");
+    const original = useAppStore.getState();
+    const originalId = original.selectedId;
+    const originalLayering = original.layering;
+    const originalSecondary = original.secondaryId;
+    const originalManual = original.manualClip;
+    try {
+      // Keep one visible emote at a time. A prior secondary clip can
+      // otherwise contaminate the export of the next selected animation.
+      useAppStore.getState().setLayering(false);
+      useAppStore.getState().setSecondary(null);
+      useAppStore.getState().setManualClip(null);
+      const plan = planCatalogBatch(useAppStore.getState().entries);
+      if (!plan.ready.length) throw new Error("No previewable animations found in the catalog");
+      const result = await exportCatalogBatch(plan, {
+        signal: abort.signal,
+        onProgress: (p) => setBatchProgress(`Emotes ${p.completed}/${p.total} · captured ${p.captured} · failed ${p.failed}`),
+        load: async (item, signal) => {
+          useAppStore.getState().select(null);
+          // Force a React render and clip teardown before selecting the next
+          // entry; do not reuse the previous clip's ready state.
+          await new Promise<void>((resolve) => setTimeout(resolve, 50));
+          if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
+          useAppStore.getState().select(item.id);
+          const deadline = Date.now() + 45000;
+          while (Date.now() < deadline) {
+            if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
+            const state = readyRef.current;
+            if (state.id === item.id && state.error) throw new Error(state.error);
+            if (state.id === item.id && state.ready && controllerRef.current) return controllerRef.current;
+            await new Promise<void>((resolve) => setTimeout(resolve, 100));
+          }
+          throw new Error("Timed out waiting for animation and ped mesh (45 seconds)");
+        },
+      });
+      const url = URL.createObjectURL(result.archive);
+      try {
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "emote-catalog-capture.zip";
+        link.click();
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
+      }
+      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${result.skipped} skipped`);
+    } catch (error) {
+      setExportError(error instanceof Error ? error.message : String(error));
+    } finally {
+      useAppStore.getState().select(originalId);
+      useAppStore.getState().setLayering(originalLayering);
+      if (originalLayering) useAppStore.getState().setSecondary(originalSecondary);
+      useAppStore.getState().setManualClip(originalManual);
+      batchAbortRef.current = null;
+      setExporting(false);
     }
   };
 
@@ -521,6 +596,14 @@ export function Viewer() {
         </div>
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
+          {batchProgress && <span role="status" style={{ fontSize: 12 }}>{batchProgress}</span>}
+          {batchAbortRef.current ? (
+            <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
+          ) : (
+            <button type="button" onClick={() => void exportBatch()} disabled={exporting || !gtaReady || !showMesh} title="Capture all previewable catalog animations as a developer PNG sequence ZIP">
+              Export catalog PNG batch
+            </button>
+          )}
           <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
             {exporting ? `Capturing ${exportProgress?.done ?? 0}/${exportProgress?.total ?? "…"}…` : "Export PNG frames"}
           </button>
