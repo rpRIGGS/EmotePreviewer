@@ -32,7 +32,7 @@ function stable(value: unknown): string {
     const obj = value as Record<string, unknown>;
     return "{" + Object.keys(obj).sort().map((key) => JSON.stringify(key) + ":" + stable(obj[key])).join(",") + "}";
   }
-  return JSON.stringify(value);
+  return JSON.stringify(value) ?? "null";
 }
 /** Fingerprints rendering inputs rather than display labels or catalog order. */
 export function fingerprintEmote(emote: EmoteDto, ped: string, partnerPed: string, showPartner: boolean): string {
@@ -44,6 +44,7 @@ export function fingerprintEmote(emote: EmoteDto, ped: string, partnerPed: strin
     ped: emote.ped ?? ped, props: emote.props,
     partner: showPartner ? emote.partner : null,
     partnerPed: showPartner ? partnerPed : null,
+    animalPedSelection: emote.ped !== null,
   });
 }
 export function parsePreviewIndex(value: unknown): PreviewIndex {
