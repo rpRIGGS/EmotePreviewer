@@ -227,6 +227,17 @@ test("recovery invalidates fingerprints from older renderer versions", async () 
   assert.equal(result.index.entries.wave.fingerprint, "");
 });
 
+test("recovery clears failed records when no manifest was ever published", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    abandoned: { media: "", fingerprint: "old", status: "failed", updatedAt: "2026-01-01" },
+  } } });
+  root.children.delete("manifest.json");
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.deepEqual(Object.keys(result.index.entries), []);
+});
+
 test("recovery accepts an empty unpublished library", async () => {
   const { recoverPreviewLibrary } = await loadRecovery();
   const { root } = library({ index: null });
