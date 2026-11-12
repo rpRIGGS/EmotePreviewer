@@ -47,7 +47,9 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // Refuse ambiguous catalogs before writing a single file. Duplicate IDs
   // would otherwise let one capture silently replace another in the index.
   const catalogIds = (adapter.catalog ?? plan.ready).map((entry) => entry.id);
-  if (new Set(catalogIds).size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
+  const catalogIdSet = new Set(catalogIds);
+  if (catalogIdSet.size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
+  if (plan.ready.some((entry) => !catalogIdSet.has(entry.id))) throw new Error("Export plan contains an emote absent from the full catalog.");
   if (new Set(plan.ready.map((entry) => entry.id)).size !== plan.ready.length) throw new Error("Duplicate emote identifiers in export plan.");
   // Stems are filesystem components, not trusted display labels. Two distinct
   // emotes sharing a stem would overwrite one another inside the same run.
@@ -135,7 +137,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   }
   // A delta export must still publish a complete manifest.
   const catalog = adapter.catalog ?? plan.ready;
-  const currentIds = new Set(catalog.map((item) => item.id));
+  const currentIds = catalogIdSet;
   for (const id of Object.keys(updatedIndex.entries)) {
     if (!currentIds.has(id)) delete updatedIndex.entries[id];
   }
