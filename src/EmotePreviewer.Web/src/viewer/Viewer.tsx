@@ -451,8 +451,8 @@ export function Viewer() {
       const partnerPed = settings?.partnerPed ?? ped;
       const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", verifiedMedia ?? undefined);
       const plan = incremental.plan;
-      if (!plan.ready.length) {
-        setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed from catalog`);
+      if (!plan.ready.length && !incremental.removed.length) {
+        setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged`);
         return;
       }
       const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
