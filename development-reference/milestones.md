@@ -127,3 +127,12 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - **Select preview folder** now retains the user-selected File System Access directory handle for the session, verifies indexed files, and uses it as the destination for direct incremental export.
 - Export writes `previews/<stem>/preview.png`, `preview-index.json`, `manifest.json`, and `report.json` to that folder. After successful completion, the index is saved locally and the folder is verified again. New/changed/failed media is updated; unchanged media is not overwritten.
 - **Remaining concerns:** browser directory permission/availability and Windows desktop host behavior require testing. ZIP fallback still retains output in memory. Direct export is not transactional if interrupted halfway through, so the previous index should be backed up before a large update. APNG compatibility and end-to-end build are unverified. This is not yet production-ready or PM Emotes NUI-tested.
+
+
+## Export safety milestone — immutable media generations (2026-11-12)
+
+- Direct-to-folder exports now write each captured preview to a unique per-run path under `previews/<outputStem>/<runId>/preview.png`. The prior published manifest's media paths are never overwritten during a new run.
+- Export order is media files, diagnostic report, consumer `manifest.json`, then producer `preview-index.json`. If capture fails or is cancelled before manifest publication, the previous manifest and its media remain available. If index publication fails after manifest publication, the next run can recapture without destroying the published media.
+- The selected directory is authoritative: selecting it reads its on-disk index, and every export verifies media again before incremental planning. Missing files are scheduled for regeneration.
+- This is **crash-tolerant publication, not a full transaction**: orphaned media from failed runs and obsolete generations are intentionally retained; automatic garbage collection is not yet implemented. External readers must consume the manifest, not scan folders or infer paths.
+- ZIP fallback uses the same versioned media paths. APNG playback, Windows host directory-picker compatibility, TypeScript build, and complete end-to-end testing remain unverified.
