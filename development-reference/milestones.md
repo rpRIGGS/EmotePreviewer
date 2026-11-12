@@ -1,5 +1,10 @@
 # Development milestones and verification
 
+> **Active execution plan (November 12, 2026):** The historical numbered phases below document earlier development and are not the current five-milestone work breakdown. The active Milestone 1 is **export/recovery safety**: immutable preview paths, manifest-first publication, index reconciliation, verified media checks, conservative cleanup, and regression/build gates. The active Milestone 2 is animation production; Milestone 3 is Windows desktop workflow; Milestone 4 is PM Emotes consumption; Milestone 5 is end-to-end release verification. Do not confuse the historical phases with the current milestones.
+>
+> **Milestone 1 verification status:** Implementation and regression cases are committed. CI now has an independent Ubuntu frontend/test job in addition to Windows build/publish. Passing job results have not been observed through the available GitHub integration; the milestone must remain open pending a confirmed successful run.
+
+
 **Current stage:** Selected-emote PNG ZIP proof of concept implemented; build and visual validation pending.
 
 ## 1 — Renderer and export feasibility
