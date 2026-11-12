@@ -42,7 +42,11 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     if (Object.values(index.entries).some((record) => record.status === "generated")) {
       throw new Error("Preview index exists without a published manifest. Recovery refused; preserve the folder and inspect it.");
     }
-    return { index, present: new Set(), missing: [], recovered: 0, reconciled: 0 };
+    // Without a manifest there is no published library. Failed index records
+    // are uncommitted attempts and must not survive recovery.
+    const reconciled = Object.keys(index.entries).length;
+    index.entries = Object.create(null) as PreviewIndex["entries"];
+    return { index, present: new Set(), missing: [], recovered: 0, reconciled };
   }
   if (!rawManifest || typeof rawManifest !== "object" ||
     (rawManifest as { schemaVersion?: unknown }).schemaVersion !== 1 ||
@@ -81,7 +85,7 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     };
     recovered++;
   }
-  for (const [id, old] of Object.entries(index.entries)) {
+  for (const id of Object.keys(index.entries)) {
     // The manifest defines all published records, including removals.
     // An unpublished failed record is not a published preview either.
     if (!published.has(id)) {
