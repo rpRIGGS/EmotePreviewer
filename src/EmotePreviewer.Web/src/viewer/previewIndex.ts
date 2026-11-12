@@ -77,6 +77,8 @@ export function planIncrementalBatch(
   showPartner: boolean, mode: "update" | "rebuild" = "update", verifiedMedia?: ReadonlySet<string>,
 ): IncrementalPlan {
   const full = planCatalogBatch(emotes);
+  // Imported metadata is never proof of an installed preview. Without
+  // explicit verification, schedule regeneration of every existing entry.
   const byId = new Map(emotes.map((emote) => [emote.id, emote]));
   const ready: BatchEntry[] = [], unchanged: BatchEntry[] = [];
   const added: string[] = [], changed: string[] = [], retry: string[] = [];
@@ -84,7 +86,7 @@ export function planIncrementalBatch(
     const previous = Object.hasOwn(index.entries, entry.id) ? index.entries[entry.id] : undefined;
     const fingerprint = fingerprintEmote(byId.get(entry.id)!, ped, partnerPed, showPartner);
     if (!previous) added.push(entry.id);
-    else if (previous.status !== "generated" || (verifiedMedia && !verifiedMedia.has(entry.id))) retry.push(entry.id);
+    else if (previous.status !== "generated" || !verifiedMedia?.has(entry.id)) retry.push(entry.id);
     else if (previous.fingerprint !== fingerprint || index.renderVersion !== PREVIEW_RENDER_VERSION) changed.push(entry.id);
     else if (mode === "update") { unchanged.push(entry); continue; }
     ready.push(entry);

@@ -17,7 +17,7 @@ export async function verifyPreviewFiles(
     if (record.status !== "generated") continue;
     checked++;
     const segments = record.media.split("/");
-    if (segments.length < 3 || segments[0] !== "previews" || segments[segments.length - 1] !== "preview.png" ||
+    if (segments.length !== 4 || segments[0] !== "previews" || segments[segments.length - 1] !== "preview.png" ||
       segments.slice(1, -1).some((segment) => !/^[a-zA-Z0-9_-]+$/.test(segment))) {
       missing.push(id);
       continue;
