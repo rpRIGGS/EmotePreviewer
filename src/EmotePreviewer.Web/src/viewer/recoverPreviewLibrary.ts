@@ -25,7 +25,7 @@ async function readJson(root: FileSystemDirectoryHandle, filename: string, toler
 
 function safeMedia(media: string): boolean {
   const parts = media.split("/");
-  return parts.length >= 3 && parts[0] === "previews" &&
+  return parts.length === 4 && parts[0] === "previews" &&
     parts.slice(1, -1).every((part) => /^[a-zA-Z0-9_-]+$/.test(part)) &&
     parts[parts.length - 1] === "preview.png";
 }

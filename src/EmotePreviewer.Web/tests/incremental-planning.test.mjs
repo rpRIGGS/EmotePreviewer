@@ -48,3 +48,16 @@ test("missing disk file forces retry even with an unchanged index", () => {
   const result = planIncrementalBatch([item], index, "ped", "ped", false, "update", new Set());
   assert.deepEqual(result.retry, ["wave"]);
 });
+
+test("import parser rejects generated paths outside immutable preview tree", async () => {
+  const indexModule = await import(asUrl(indexJs));
+  const parsed = indexModule.parsePreviewIndex({
+    schemaVersion: 1, renderVersion: "test",
+    entries: {
+      bad: { fingerprint: "a", media: "../outside.png", status: "generated", updatedAt: "now" },
+      old: { fingerprint: "b", media: "previews/wave/preview.png", status: "generated", updatedAt: "now" },
+      good: { fingerprint: "c", media: "previews/wave/run1/preview.png", status: "generated", updatedAt: "now" },
+    },
+  });
+  assert.deepEqual(Object.keys(parsed.entries), ["good"]);
+});
