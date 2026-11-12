@@ -103,8 +103,11 @@ export function encodeApng(pngFrames: readonly Uint8Array[], fps = 12): Uint8Arr
   if (!width || !height || width > 2048 || height > 2048) throw new Error("Invalid APNG frame dimensions");
   // WebGL captures are RGBA PNGs. RGB or indexed PNGs can silently lose
   // transparency when packaged as previews; reject them explicitly.
-  if (header[8] !== 8 || header[9] !== 6 || header[12] !== 0) {
+  if (header[8] !== 8 || header[9] !== 6 || header[10] !== 0 || header[11] !== 0 || header[12] !== 0) {
     throw new Error("APNG preview frames must be non-interlaced 8-bit RGBA PNGs");
+  }
+  if (frames.some((frame) => frame.ancillary.some((part) => decoder.decode(part.subarray(4, 8)) === "tRNS"))) {
+    throw new Error("RGBA PNG frames cannot contain a tRNS transparency chunk");
   }
   if (frames.some((frame) => frame.ancillary.length !== frames[0].ancillary.length ||
     frame.ancillary.some((part, i) => part.length !== frames[0].ancillary[i].length ||
