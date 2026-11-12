@@ -490,7 +490,12 @@ export function Viewer() {
           const handle = await directory.getFileHandle(parts[parts.length - 1], { create: true });
           const writable = await handle.createWritable();
           try { await writable.write(new Blob([new Uint8Array(data)])); await writable.close(); }
-          catch (error) { await writable.abort(); throw error; }
+          catch (error) {
+            // Aborting a failed write is best-effort; an abort failure must not
+            // replace the original filesystem error that caused the export to stop.
+            try { await writable.abort(); } catch { /* preserve original error */ }
+            throw error;
+          }
         } : undefined,
         onProgress: (p) => setBatchProgress(`Emotes ${p.completed}/${p.total} · captured ${p.captured} · failed ${p.failed}`),
         load: async (item, signal) => {
