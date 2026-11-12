@@ -49,6 +49,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const catalogIds = (adapter.catalog ?? plan.ready).map((entry) => entry.id);
   if (new Set(catalogIds).size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
   if (new Set(plan.ready.map((entry) => entry.id)).size !== plan.ready.length) throw new Error("Duplicate emote identifiers in export plan.");
+  // Stems are filesystem components, not trusted display labels. Two distinct
+  // emotes sharing a stem would overwrite one another inside the same run.
+  const stems = plan.ready.map((entry) => entry.outputStem);
+  if (stems.some((stem) => !/^[a-zA-Z0-9_-]+$/.test(stem))) throw new Error("Unsafe preview output stem in export plan.");
+  if (new Set(stems).size !== stems.length) throw new Error("Duplicate preview output stems in export plan.");
   const files: ExportFile[] = [];
   const emit = async (file: ExportFile): Promise<void> => {
     check(adapter.signal);
