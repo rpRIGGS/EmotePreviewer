@@ -1,6 +1,7 @@
 import type { ViewerController } from "./controller";
 import { captureSequence } from "./captureSequence";
 import { makeZip, type ExportFile } from "./exportZip";
+import { encodeApng } from "./encodeApng";
 import type { BatchEntry, BatchSkip, BatchPlan } from "./batchPlan";
 
 export interface BatchProgress {
@@ -38,8 +39,8 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const failures: BatchSkip[] = [];
   const manifest: Array<{
     id: string; source: string; category: string; command: string;
-    folder: string; frameCount: number; durationSeconds: number;
-    frameRate: number; width: number; height: number; format: "png-sequence";
+    folder: string; media: string; frameCount: number; durationSeconds: number;
+    frameRate: number; width: number; height: number; format: "apng";
   }> = [];
   const total = plan.ready.length;
   const progress = (completed: number, currentId: string | null) =>
@@ -54,12 +55,14 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       check(adapter.signal);
       const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal });
       const folder = `previews/${entry.outputStem}`;
-      for (const file of capture.files) files.push({ name: `${folder}/${file.name}`, data: file.data });
+      const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
+      const media = `${folder}/preview.png`;
+      files.push({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
       manifest.push({
         id: entry.id, source: entry.source, category: entry.category,
-        command: entry.command, folder, frameCount: capture.frameCount,
+        command: entry.command, folder, media, frameCount: capture.frameCount,
         durationSeconds: capture.durationSeconds, frameRate: 12,
-        width: 320, height: 320, format: "png-sequence",
+        width: 320, height: 320, format: "apng",
       });
     } catch (error) {
       check(adapter.signal);
@@ -69,8 +72,8 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   }
   files.push(textFile("manifest.json", {
     schemaVersion: 1,
-    format: "developer-png-sequences",
-    note: "Intermediate developer archive, not a PM Emotes NUI-ready media package",
+    format: "experimental-apng",
+    note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: manifest,
   }));
   files.push(textFile("report.json", {
