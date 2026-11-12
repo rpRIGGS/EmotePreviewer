@@ -136,3 +136,13 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - The selected directory is authoritative: selecting it reads its on-disk index, and every export verifies media again before incremental planning. Missing files are scheduled for regeneration.
 - This is **crash-tolerant publication, not a full transaction**: orphaned media from failed runs and obsolete generations are intentionally retained; automatic garbage collection is not yet implemented. External readers must consume the manifest, not scan folders or infer paths.
 - ZIP fallback uses the same versioned media paths. APNG playback, Windows host directory-picker compatibility, TypeScript build, and complete end-to-end testing remain unverified.
+
+
+## Incremental library maintenance milestone (2026-11-12)
+
+- The producer index now retains frame counts and durations, so a complete manifest generated from an incremental run preserves original timing metadata rather than filling unchanged entries with zeros (older indexes may still lack these fields).
+- Entries that are no longer eligible for catalog preview generation are classified as removed, not silently retained.
+- New `previewLibraryMaintenance.ts` plans cleanup by reading the published manifest **and** producer index, protecting every referenced media path. It only considers exact `previews/.../preview.png` paths and refuses invalid metadata or unexpected directory names.
+- The viewer exposes **Clean old previews** after a folder is selected. It first counts orphaned media, asks for explicit confirmation, and recalculates the protected set immediately before deletion.
+- Cleanup does not remove unrelated files or directories and intentionally leaves empty generation directories. Do not use it while another export process is writing to the same folder.
+- **Validation still required:** TypeScript build, browser File System Access API directory iteration support, Windows desktop host behavior, and full export/cleanup test with a sample preview library. Do not treat the cleanup UI as tested yet.
