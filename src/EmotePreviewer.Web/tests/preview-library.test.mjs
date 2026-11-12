@@ -41,11 +41,11 @@ function library({ manifest, index } = {}) {
   const root = new MockDirectory();
   const previews = new MockDirectory();
   root.add("previews", previews);
-  root.add("manifest.json", new MockFile(JSON.stringify(manifest ?? { entries: [
-    { media: "previews/wave/run1/preview.png" },
+  root.add("manifest.json", new MockFile(JSON.stringify(manifest ?? { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png" },
   ] })));
   if (index !== null) root.add("preview-index.json", new MockFile(JSON.stringify(index ?? {
-    entries: { wave: { media: "previews/wave/run1/preview.png" } },
+    schemaVersion: 1, renderVersion: "test", entries: { wave: { media: "previews/wave/run1/preview.png" } },
   })));
   const wave = new MockDirectory();
   previews.add("wave", wave);
@@ -123,10 +123,10 @@ async function loadRecovery() {
   const recoverySource = readFileSync(new URL("recoverPreviewLibrary.ts", base), "utf8");
   // Recovery imports type-bearing TS modules. Use TypeScript's compiler
   // via a temporary ESM data URL graph, without GTA assets or a browser.
-  const indexModule = ts.transpileModule(indexSource.replace(/^import type .*;$/gm, ""), {
+  const indexModule = ts.transpileModule(indexSource.replace(/^import .* from "\.\/batchPlan";?$/gm, ""), {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText;
-  const indexUrl = "data:text/javascript;base64," + Buffer.from(indexModule.replace(/import .* from "\.\/batchPlan";?/g, "")).toString("base64");
+  const indexUrl = "data:text/javascript;base64," + Buffer.from(indexModule).toString("base64");
   const verifyModule = ts.transpileModule(verifySource, {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText;
