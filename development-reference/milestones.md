@@ -120,3 +120,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Added **Verify preview folder** to the viewer. Missing files are classified for regeneration by `planIncrementalBatch`.
 - Incremental exports now refuse to skip indexed generated files unless the library was verified in the current session. **Rebuild all** remains available without verification.
 - **Limitations:** requires browser File System Access API; folder selection is user-initiated, not a native background scan. The chosen folder must be the root containing the indexed `previews/` directory. File existence/size does not validate APNG decoding or content hash. Export still generates a ZIP and does not install media automatically. No Windows build or FiveM NUI test has been completed.
+
+## Direct-to-folder incremental export
+
+- Batch coordinator now accepts an asynchronous per-file writer; when present, each encoded APNG is written immediately rather than accumulating all previews in a single in-memory ZIP. ZIP remains the fallback when no output directory is selected.
+- **Select preview folder** now retains the user-selected File System Access directory handle for the session, verifies indexed files, and uses it as the destination for direct incremental export.
+- Export writes `previews/<stem>/preview.png`, `preview-index.json`, `manifest.json`, and `report.json` to that folder. After successful completion, the index is saved locally and the folder is verified again. New/changed/failed media is updated; unchanged media is not overwritten.
+- **Remaining concerns:** browser directory permission/availability and Windows desktop host behavior require testing. ZIP fallback still retains output in memory. Direct export is not transactional if interrupted halfway through, so the previous index should be backed up before a large update. APNG compatibility and end-to-end build are unverified. This is not yet production-ready or PM Emotes NUI-tested.
