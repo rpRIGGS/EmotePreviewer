@@ -81,9 +81,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const width = adapter.capture?.width ?? 320;
   const height = adapter.capture?.height ?? 320;
   const maxSeconds = adapter.capture?.maxSeconds ?? 3;
+  const captureProfile = { fps, width, height, maxSeconds };
   if (!Number.isInteger(fps) || fps < 1 || fps > 60) throw new RangeError("Invalid batch frame rate");
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) throw new RangeError("Invalid batch dimensions");
   if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || maxSeconds > 30) throw new RangeError("Invalid batch duration");
+  if (Math.ceil(maxSeconds * fps) > 1800) throw new RangeError("Batch capture profile exceeds APNG frame budget");
   // Every export run writes immutable media paths. A failed/interrupted run
   // cannot overwrite previews referenced by the last published manifest.
   const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -194,13 +196,14 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   await emit(textFile("report.json", {
     schemaVersion: 1,
     planned: total, captured: manifest.length, failed: failures.length,
-    skipped: plan.skipped.length, failures, skippedEntries: plan.skipped,
+    skipped: plan.skipped.length, captureProfile, failures, skippedEntries: plan.skipped,
   }));
   // Commit the consumer manifest after media. Only advance the producer index
   // once that manifest has been successfully published.
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
+    captureProfile,
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: completeManifest,
   }));
