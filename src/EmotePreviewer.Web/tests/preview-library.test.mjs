@@ -153,6 +153,21 @@ test("recovery detects published files that are absent or empty", async () => {
   assert.equal(result.present.size, 0);
 });
 
+test("recovery propagates permission failures instead of claiming previews are missing", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  wave.getDirectoryHandle = async () => { throw new DOMException("Access revoked", "NotAllowedError"); };
+  await assert.rejects(() => recoverPreviewLibrary(root), /Access revoked/);
+});
+
+test("recovery treats empty published media as missing", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  (await wave.getDirectoryHandle("run1")).add("preview.png", new MockFile(""));
+  const result = await recoverPreviewLibrary(root);
+  assert.deepEqual(result.missing, ["wave"]);
+});
+
 test("recovery removes unpublished failed records", async () => {
   const { recoverPreviewLibrary } = await loadRecovery();
   const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
