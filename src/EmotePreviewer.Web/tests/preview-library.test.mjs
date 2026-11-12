@@ -29,7 +29,7 @@ class MockDirectory {
   }
   async getDirectoryHandle(name) {
     const handle = this.children.get(name);
-    if (handle?.kind !== "directory") throw Object.assign(new Error("Not found"), { name: "NotFoundError" });
+    if (handle?.kind !== "directory") throw new DOMException("Not found", "NotFoundError");
     return handle;
   }
   async *entries() { yield* this.children.entries(); }
