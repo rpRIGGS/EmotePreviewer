@@ -444,12 +444,28 @@ export function Viewer() {
       // Shared animations must be rendered with both characters when enabled;
       // avoid mutating the saved viewer preference during batch capture.
       const emotes = useAppStore.getState().entries;
-      if (!rebuildAll && !verifiedMedia && Object.values(previewIndex.entries).some((record) => record.status === "generated")) {
+      // A selected folder is the source of truth, not a potentially stale browser cache.
+      // Re-read its index and verify media immediately before planning each export.
+      let activeIndex = previewIndex;
+      let activeMedia = verifiedMedia;
+      if (previewDirectory) {
+        try {
+          const file = await (await previewDirectory.getFileHandle("preview-index.json")).getFile();
+          activeIndex = parsePreviewIndex(JSON.parse(await file.text()));
+        } catch (error) {
+          if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
+          activeIndex = emptyPreviewIndex();
+        }
+        const check = await verifyPreviewFiles(activeIndex, previewDirectory);
+        activeMedia = check.present;
+        setVerifiedMedia(check.present);
+      }
+      if (!rebuildAll && !activeMedia && Object.values(activeIndex.entries).some((record) => record.status === "generated")) {
         throw new Error("Verify the existing preview folder before an incremental update, or select Rebuild all.");
       }
       const ped = settings?.ped ?? DEFAULT_PED;
       const partnerPed = settings?.partnerPed ?? ped;
-      const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", verifiedMedia ?? undefined);
+      const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", activeMedia ?? undefined);
       const plan = incremental.plan;
       if (!plan.ready.length && !incremental.removed.length) {
         setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged`);
@@ -458,11 +474,14 @@ export function Viewer() {
       const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
       const result = await exportCatalogBatch(plan, {
         signal: abort.signal,
-        previousIndex: previewIndex,
+        previousIndex: activeIndex,
         fingerprints,
         catalog: planCatalogBatch(emotes).ready,
         writeFile: previewDirectory ? async (path, data) => {
           const parts = path.split("/");
+          if (parts.some((part) => !part || part === "." || part === ".." || part.includes("\\") || part.includes(":"))) {
+            throw new Error("Unsafe preview export path");
+          }
           let directory = previewDirectory;
           for (const part of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(part, { create: true });
           const handle = await directory.getFileHandle(parts[parts.length - 1], { create: true });
@@ -649,7 +668,16 @@ export function Viewer() {
               const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
               if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
               void picker.call(window).then(async (directory) => {
-                const result = await verifyPreviewFiles(previewIndex, directory);
+                let diskIndex: PreviewIndex;
+                try {
+                  const file = await (await directory.getFileHandle("preview-index.json")).getFile();
+                  diskIndex = parsePreviewIndex(JSON.parse(await file.text()));
+                } catch (error) {
+                  if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
+                  diskIndex = emptyPreviewIndex();
+                }
+                const result = await verifyPreviewFiles(diskIndex, directory);
+                setPreviewIndex(diskIndex);
                 setPreviewDirectory(directory);
                 return result;
               }).then((result) => {
