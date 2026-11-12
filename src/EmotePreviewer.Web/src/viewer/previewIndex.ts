@@ -9,6 +9,9 @@ export interface PreviewIndexRecord {
   media: string;
   status: "generated" | "failed";
   updatedAt: string;
+  /** Original metadata retained for unchanged previews in the complete manifest. */
+  frameCount?: number;
+  durationSeconds?: number;
 }
 export interface PreviewIndex {
   schemaVersion: 1;
@@ -61,7 +64,9 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
       (record.status !== "generated" && record.status !== "failed") || typeof record.updatedAt !== "string") continue;
     // Imported indexes are untrusted JSON; never accept prototype keys.
     if (id === "__proto__" || id === "constructor" || id === "prototype") continue;
-    entries[id] = { fingerprint: record.fingerprint, media: record.media, status: record.status, updatedAt: record.updatedAt };
+    const frameCount = typeof record.frameCount === "number" && Number.isFinite(record.frameCount) && record.frameCount > 0 ? record.frameCount : undefined;
+    const durationSeconds = typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 ? record.durationSeconds : undefined;
+    entries[id] = { fingerprint: record.fingerprint, media: record.media, status: record.status, updatedAt: record.updatedAt, frameCount, durationSeconds };
   }
   return { schemaVersion: 1, renderVersion: typeof input.renderVersion === "string" ? input.renderVersion : "", entries };
 }
@@ -84,7 +89,7 @@ export function planIncrementalBatch(
     else if (mode === "update") { unchanged.push(entry); continue; }
     ready.push(entry);
   }
-  const present = new Set(emotes.map((emote) => emote.id));
+  const present = new Set(full.ready.map((emote) => emote.id));
   const removed = Object.keys(index.entries).filter((id) => !present.has(id)).sort();
   return { plan: { ready, skipped: full.skipped }, unchanged, removed, added, changed, retry };
 }
