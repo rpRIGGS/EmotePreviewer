@@ -475,6 +475,7 @@ export function Viewer() {
       const result = await exportCatalogBatch(plan, {
         signal: abort.signal,
         previousIndex: activeIndex,
+        verifiedMedia: activeMedia ?? undefined,
         fingerprints,
         catalog: planCatalogBatch(emotes).ready,
         writeFile: previewDirectory ? async (path, data) => {
@@ -523,10 +524,17 @@ export function Viewer() {
       }
       }
       if (previewDirectory) {
-        setPreviewIndex(result.index);
-        localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(result.index));
-        const checked = await verifyPreviewFiles(result.index, previewDirectory);
+        // Re-open the published index rather than trusting an in-memory success
+        // after a write. The next update will always recheck the folder too.
+        const published = await (await previewDirectory.getFileHandle("preview-index.json")).getFile();
+        const installedIndex = parsePreviewIndex(JSON.parse(await published.text()));
+        const checked = await verifyPreviewFiles(installedIndex, previewDirectory);
+        setPreviewIndex(installedIndex);
+        localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(installedIndex));
         setVerifiedMedia(checked.present);
+        if (checked.missing.length) {
+          throw new Error(`Export completed but ${checked.missing.length} published preview files are missing; verify the folder and retry.`);
+        }
       }
       setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed${previewDirectory ? " · saved to selected folder" : " · ZIP downloaded"}`);
       // The exported preview-index.json is authoritative for future updates.
