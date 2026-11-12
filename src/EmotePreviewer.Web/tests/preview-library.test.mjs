@@ -45,7 +45,7 @@ function library({ manifest, index } = {}) {
     { id: "wave", media: "previews/wave/run1/preview.png" },
   ] })));
   if (index !== null) root.add("preview-index.json", new MockFile(JSON.stringify(index ?? {
-    schemaVersion: 1, renderVersion: "test", entries: { wave: { media: "previews/wave/run1/preview.png" } },
+    schemaVersion: 1, renderVersion: "test", entries: { wave: { media: "previews/wave/run1/preview.png", fingerprint: "prior", status: "generated", updatedAt: "2026-01-01" } },
   })));
   const wave = new MockDirectory();
   previews.add("wave", wave);
