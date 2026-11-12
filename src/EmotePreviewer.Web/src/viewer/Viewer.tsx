@@ -36,7 +36,7 @@ interface SlotSpec {
   props: PropDto[];
 }
 
-type ClipState = { kind: "idle" } | { kind: "loading" } | { kind: "ready"; meta: ClipMetaDto } | { kind: "error"; message: string };
+type ClipState = { kind: "idle" } | { kind: "loading" } | { kind: "ready"; key: string; meta: ClipMetaDto } | { kind: "error"; message: string };
 
 /**
  * Loads one layer's clip into the controller; the previous request is aborted when the selection changes quickly.
@@ -62,7 +62,7 @@ function useLayerClip(controllerRef: React.RefObject<ViewerController | null>, s
       .then((clip: LoadedClip) => {
         if (abort.signal.aborted) return;
         controllerRef.current?.loadClip(slot, layer, clip, { delay, loop }, true);
-        setState({ kind: "ready", meta: clip.meta });
+        setState({ kind: "ready", key: spec.key, meta: clip.meta });
       })
       .catch((err: unknown) => {
         if (abort.signal.aborted) return;
@@ -341,7 +341,7 @@ export function Viewer() {
   else if (!main.skeletonReady) view = main.skeletonError ? { kind: "error", message: main.skeletonError } : { kind: "waitingGta" };
   else {
     const state = main.clips[focusLayer];
-    if (state.kind === "ready") view = { kind: "ready", meta: state.meta, layer: focusLayer };
+    if (state.kind === "ready" && state.key === mainSpec.clips[focusLayer]?.key) view = { kind: "ready", meta: state.meta, layer: focusLayer };
     else if (state.kind === "error") view = { kind: "error", message: state.message };
     else view = { kind: "loading" };
   }
