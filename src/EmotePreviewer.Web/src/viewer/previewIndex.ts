@@ -67,7 +67,7 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
  * An index alone cannot prove a file is still present on disk. */
 export function planIncrementalBatch(
   emotes: readonly EmoteDto[], index: PreviewIndex, ped: string, partnerPed: string,
-  showPartner: boolean, mode: "update" | "rebuild" = "update",
+  showPartner: boolean, mode: "update" | "rebuild" = "update", verifiedMedia?: ReadonlySet<string>,
 ): IncrementalPlan {
   const full = planCatalogBatch(emotes);
   const byId = new Map(emotes.map((emote) => [emote.id, emote]));
@@ -77,7 +77,7 @@ export function planIncrementalBatch(
     const previous = index.entries[entry.id];
     const fingerprint = fingerprintEmote(byId.get(entry.id)!, ped, partnerPed, showPartner);
     if (!previous) added.push(entry.id);
-    else if (previous.status !== "generated") retry.push(entry.id);
+    else if (previous.status !== "generated" || (verifiedMedia && !verifiedMedia.has(entry.id))) retry.push(entry.id);
     else if (previous.fingerprint !== fingerprint || index.renderVersion !== PREVIEW_RENDER_VERSION) changed.push(entry.id);
     else if (mode === "update") { unchanged.push(entry); continue; }
     ready.push(entry);
