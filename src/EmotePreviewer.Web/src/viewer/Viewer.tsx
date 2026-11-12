@@ -12,6 +12,7 @@ import { exportCatalogBatch } from "./exportCatalogBatch";
 import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncrementalBatch, type PreviewIndex } from "./previewIndex";
 import { planCatalogBatch } from "./batchPlan";
 import { verifyPreviewFiles } from "./verifyPreviewFiles";
+import { planPreviewCleanup, deleteObsoletePreviews } from "./previewLibraryMaintenance";
 
 type ViewState =
   | { kind: "idle" }
@@ -697,6 +698,21 @@ export function Viewer() {
                 setExportError(error instanceof Error ? error.message : String(error));
               });
             }}>Select preview folder</button>
+          <button type="button" disabled={exporting || !previewDirectory}
+            title="Review obsolete generated media and remove only unreferenced preview files"
+            onClick={() => {
+              if (!previewDirectory) return;
+              void (async () => {
+                const plan = await planPreviewCleanup(previewDirectory);
+                if (!plan.obsolete.length) {
+                  setBatchProgress(`Cleanup checked ${plan.inspected} previews; none obsolete.`);
+                  return;
+                }
+                if (!window.confirm(`Delete ${plan.obsolete.length} unreferenced preview files? ${plan.retained} published previews will be retained. This cannot be undone.`)) return;
+                const removed = await deleteObsoletePreviews(previewDirectory);
+                setBatchProgress(`Removed ${removed} obsolete preview files; published media preserved.`);
+              })().catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)));
+            }}>Clean old previews</button>
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
             <input type="file" accept=".json,application/json" disabled={exporting} style={{ width: 120 }}
