@@ -13,7 +13,8 @@ export interface BatchProgress {
   failed: number;
 }
 export interface BatchResult {
-  archive: Blob;
+  archive: Blob | null;
+  index: PreviewIndex;
   captured: number;
   failed: number;
   skipped: number;
@@ -26,6 +27,8 @@ export interface BatchAdapter {
   signal?: AbortSignal;
   previousIndex?: PreviewIndex;
   fingerprints?: ReadonlyMap<string, string>;
+  /** Write files as each emote completes, avoiding an enormous in-memory ZIP. */
+  writeFile?: (path: string, data: Uint8Array) => Promise<void>;
 }
 
 function textFile(name: string, value: unknown): ExportFile {
@@ -39,6 +42,12 @@ function check(signal?: AbortSignal): void {
  * once. Failed entries are recorded without terminating the remaining batch. */
 export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter): Promise<BatchResult> {
   const files: ExportFile[] = [];
+  const emit = async (file: ExportFile): Promise<void> => {
+    check(adapter.signal);
+    if (adapter.writeFile) await adapter.writeFile(file.name, file.data);
+    else files.push(file);
+    check(adapter.signal);
+  };
   const failures: BatchSkip[] = [];
   const manifest: Array<{
     id: string; source: string; category: string; command: string;
@@ -64,7 +73,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       const folder = `previews/${entry.outputStem}`;
       const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
       const media = `${folder}/preview.png`;
-      files.push({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
+      await emit({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
       updatedIndex.entries[entry.id] = {
         fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
         status: "generated", updatedAt: new Date().toISOString(),
@@ -85,17 +94,17 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     }
     progress(i + 1, null);
   }
-  files.push(textFile("preview-index.json", updatedIndex));
-  files.push(textFile("manifest.json", {
+  await emit(textFile("preview-index.json", updatedIndex));
+  await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: manifest,
   }));
-  files.push(textFile("report.json", {
+  await emit(textFile("report.json", {
     schemaVersion: 1,
     planned: total, captured: manifest.length, failed: failures.length,
     skipped: plan.skipped.length, failures, skippedEntries: plan.skipped,
   }));
-  return { archive: makeZip(files), captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
+  return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
 }
