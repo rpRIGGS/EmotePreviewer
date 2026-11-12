@@ -116,6 +116,35 @@ test("recovery rejects a generated index without a manifest", async () => {
   await assert.rejects(() => recoverPreviewLibrary(root), /without a published manifest/);
 });
 
+test("recovery detects published files that are absent or empty", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  (await wave.getDirectoryHandle("run1")).children.delete("preview.png");
+  const result = await recoverPreviewLibrary(root);
+  assert.deepEqual(result.missing, ["wave"]);
+  assert.equal(result.present.size, 0);
+});
+
+test("recovery removes unpublished failed records", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    wave: { media: "previews/wave/run1/preview.png", fingerprint: "old", status: "generated", updatedAt: "2026-01-01" },
+    ghost: { media: "", fingerprint: "old", status: "failed", updatedAt: "2026-01-01" },
+  } } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.equal(Object.hasOwn(result.index.entries, "ghost"), false);
+});
+
+test("recovery rejects duplicate manifest identifiers", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png" },
+    { id: "wave", media: "previews/wave/run2/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published/);
+});
+
 async function loadRecovery() {
   const base = new URL("../src/viewer/", import.meta.url);
   const indexSource = readFileSync(new URL("previewIndex.ts", base), "utf8");
