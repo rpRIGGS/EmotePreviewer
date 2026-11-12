@@ -107,7 +107,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       await emit({ name: media, data: encoded });
       updatedIndex.entries[entry.id] = {
         fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
-        status: "generated", updatedAt: new Date().toISOString(),
+        status: "generated", updatedAt: new Date().toISOString(), frameCount, durationSeconds,
       };
       manifest.push({
         id: entry.id, source: entry.source, category: entry.category,
@@ -132,7 +132,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     return [captured ?? {
       id: item.id, source: item.source, category: item.category,
       command: item.command, folder: record.media.slice(0, record.media.lastIndexOf("/")),
-      media: record.media, frameCount: 0, durationSeconds: 0,
+      media: record.media, frameCount: record.frameCount ?? 0, durationSeconds: record.durationSeconds ?? 0,
       frameRate: 12, width: 320, height: 320, format: "apng" as const,
     }];
   });
