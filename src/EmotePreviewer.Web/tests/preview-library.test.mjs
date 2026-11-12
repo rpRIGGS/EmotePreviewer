@@ -16,7 +16,7 @@ const { planPreviewCleanup, deleteObsoletePreviews } = await import(
 class MockFile {
   kind = "file";
   constructor(content = "") { this.content = content; }
-  async getFile() { return { text: async () => this.content }; }
+  async getFile() { return { text: async () => this.content, size: this.content.length }; }
 }
 class MockDirectory {
   kind = "directory";
@@ -87,3 +87,52 @@ test("cleanup tolerates absent index and preserves manifest media", async () => 
   const { root } = library({ index: null });
   assert.equal((await planPreviewCleanup(root)).obsolete.length, 1);
 });
+
+test("recovery reconstructs missing index from published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.equal(result.index.entries.wave.media, "previews/wave/run1/preview.png");
+  assert.equal(result.index.entries.wave.fingerprint, "");
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery restores manifest media when index points at interrupted generation", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    wave: { media: "previews/wave/run2/preview.png", fingerprint: "new", status: "generated", updatedAt: "2026-01-01" },
+  } } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.equal(result.index.entries.wave.media, "previews/wave/run1/preview.png");
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery rejects a generated index without a manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  root.children.delete("manifest.json");
+  await assert.rejects(() => recoverPreviewLibrary(root), /without a published manifest/);
+});
+
+async function loadRecovery() {
+  const base = new URL("../src/viewer/", import.meta.url);
+  const indexSource = readFileSync(new URL("previewIndex.ts", base), "utf8");
+  const verifySource = readFileSync(new URL("verifyPreviewFiles.ts", base), "utf8");
+  const recoverySource = readFileSync(new URL("recoverPreviewLibrary.ts", base), "utf8");
+  // Recovery imports type-bearing TS modules. Use TypeScript's compiler
+  // via a temporary ESM data URL graph, without GTA assets or a browser.
+  const indexModule = ts.transpileModule(indexSource.replace(/^import type .*;$/gm, ""), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const indexUrl = "data:text/javascript;base64," + Buffer.from(indexModule.replace(/import .* from "\.\/batchPlan";?/g, "")).toString("base64");
+  const verifyModule = ts.transpileModule(verifySource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const verifyUrl = "data:text/javascript;base64," + Buffer.from(verifyModule).toString("base64");
+  const recoveryModule = ts.transpileModule(recoverySource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText.replace('from "./previewIndex"', `from "${indexUrl}"`).replace('from "./verifyPreviewFiles"', `from "${verifyUrl}"`);
+  return import("data:text/javascript;base64," + Buffer.from(recoveryModule).toString("base64"));
+}
