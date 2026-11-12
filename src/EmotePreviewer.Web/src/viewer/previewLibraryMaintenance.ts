@@ -67,11 +67,16 @@ export async function planPreviewCleanup(root: FileSystemDirectoryHandle): Promi
 
 export async function deleteObsoletePreviews(root: FileSystemDirectoryHandle): Promise<number> {
   const plan = await planPreviewCleanup(root);
+  let removed = 0;
   for (const relative of plan.obsolete) {
+    // Re-read publication state before each deletion. A separate window may
+    // publish a new manifest while this cleanup is in progress.
+    if ((await publishedPaths(root)).has(relative)) continue;
     const parts = relative.split("/");
     let directory = root;
     for (const segment of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(segment);
     await directory.removeEntry(parts[parts.length - 1]);
+    removed++;
   }
-  return plan.obsolete.length;
+  return removed;
 }
