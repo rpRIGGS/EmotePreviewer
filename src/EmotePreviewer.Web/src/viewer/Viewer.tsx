@@ -13,6 +13,7 @@ import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncremental
 import { planCatalogBatch } from "./batchPlan";
 import { verifyPreviewFiles } from "./verifyPreviewFiles";
 import { planPreviewCleanup, deleteObsoletePreviews } from "./previewLibraryMaintenance";
+import { recoverPreviewLibrary } from "./recoverPreviewLibrary";
 
 type ViewState =
   | { kind: "idle" }
@@ -450,16 +451,14 @@ export function Viewer() {
       let activeIndex = previewIndex;
       let activeMedia = verifiedMedia;
       if (previewDirectory) {
-        try {
-          const file = await (await previewDirectory.getFileHandle("preview-index.json")).getFile();
-          activeIndex = parsePreviewIndex(JSON.parse(await file.text()));
-        } catch (error) {
-          if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
-          activeIndex = emptyPreviewIndex();
+        const recovered = await recoverPreviewLibrary(previewDirectory);
+        activeIndex = recovered.index;
+        activeMedia = recovered.present;
+        setPreviewIndex(activeIndex);
+        setVerifiedMedia(activeMedia);
+        if (recovered.recovered || recovered.reconciled) {
+          setBatchProgress(`Recovered ${recovered.recovered} published previews; reconciled ${recovered.reconciled} unpublished index records.`);
         }
-        const check = await verifyPreviewFiles(activeIndex, previewDirectory);
-        activeMedia = check.present;
-        setVerifiedMedia(check.present);
       }
       if (!rebuildAll && !activeMedia && Object.values(activeIndex.entries).some((record) => record.status === "generated")) {
         throw new Error("Verify the existing preview folder before an incremental update, or select Rebuild all.");
@@ -677,21 +676,13 @@ export function Viewer() {
               const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
               if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
               void picker.call(window).then(async (directory) => {
-                let diskIndex: PreviewIndex;
-                try {
-                  const file = await (await directory.getFileHandle("preview-index.json")).getFile();
-                  diskIndex = parsePreviewIndex(JSON.parse(await file.text()));
-                } catch (error) {
-                  if (!(error instanceof DOMException && error.name === "NotFoundError")) throw error;
-                  diskIndex = emptyPreviewIndex();
-                }
-                const result = await verifyPreviewFiles(diskIndex, directory);
-                setPreviewIndex(diskIndex);
+                const recovered = await recoverPreviewLibrary(directory);
+                setPreviewIndex(recovered.index);
                 setPreviewDirectory(directory);
-                return result;
+                return recovered;
               }).then((result) => {
                 setVerifiedMedia(result.present);
-                setBatchProgress(`Verified ${result.present.size}/${result.checked} previews on disk; ${result.missing.length} missing will be regenerated`);
+                setBatchProgress(`Verified ${result.present.size} previews; ${result.missing.length} missing; ${result.recovered} recovered from manifest; ${result.reconciled} unpublished index records reconciled`);
                 setExportError(null);
               }).catch((error: unknown) => {
                 if (error instanceof DOMException && error.name === "AbortError") return;
