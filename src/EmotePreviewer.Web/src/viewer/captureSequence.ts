@@ -30,8 +30,9 @@ export async function captureSequence(controller: ViewerController, options: Cap
   if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
   if (!controller.hasPedMesh()) throw new Error("Ped mesh is not loaded");
   const duration = Math.min(controller.timeline.duration, maxSeconds);
-  if (!(duration > 0)) throw new Error("No loaded animation duration");
+  if (!(duration > 0) || !Number.isFinite(duration)) throw new Error("No valid loaded animation duration");
   const frameCount = Math.max(1, Math.ceil(duration * fps));
+  if (frameCount > 1800) throw new RangeError("Capture exceeds maximum APNG frame count");
   const files: ExportFile[] = [];
   const wasPlaying = controller.timeline.playing;
   controller.timeline.pause();
@@ -42,7 +43,10 @@ export async function captureSequence(controller: ViewerController, options: Cap
       // Give the UI a chance to paint progress between expensive WebGL reads.
       await new Promise<void>((resolve) => setTimeout(resolve, 0));
       if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
-      const png = controller.captureFramePng(index / fps, width, height);
+      // Avoid floating-point drift past the loaded clip endpoint. The last
+      // frame represents the last full frame interval before duration.
+      const sampleTime = Math.min(index / fps, duration);
+      const png = controller.captureFramePng(sampleTime, width, height);
       files.push({ name: `frames/${String(index).padStart(4, "0")}.png`, data: pngDataUrlBytes(png) });
       onProgress?.(index + 1, frameCount);
     }
