@@ -10,6 +10,7 @@ import { makeZip } from "./exportZip";
 import { captureSequence } from "./captureSequence";
 import { planCatalogBatch } from "./batchPlan";
 import { exportCatalogBatch } from "./exportCatalogBatch";
+import { emptyPreviewIndex, fingerprintEmote, parsePreviewIndex, planIncrementalBatch, type PreviewIndex } from "./previewIndex";
 
 type ViewState =
   | { kind: "idle" }
@@ -223,6 +224,11 @@ export function Viewer() {
   const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
   const [batchProgress, setBatchProgress] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState<PreviewIndex>(() => {
+    try { return parsePreviewIndex(JSON.parse(localStorage.getItem("emotePreviewer.previewIndex.v1") ?? "null")); }
+    catch { return emptyPreviewIndex(); }
+  });
+  const [rebuildAll, setRebuildAll] = useState(false);
   const batchAbortRef = useRef<AbortController | null>(null);
   const readyRef = useRef<{ id: string | null; ready: boolean; error: string | null }>({ id: null, ready: false, error: null });
 
@@ -434,10 +440,20 @@ export function Viewer() {
       useAppStore.getState().setManualClip(null);
       // Shared animations must be rendered with both characters when enabled;
       // avoid mutating the saved viewer preference during batch capture.
-      const plan = planCatalogBatch(useAppStore.getState().entries);
-      if (!plan.ready.length) throw new Error("No previewable animations found in the catalog");
+      const emotes = useAppStore.getState().entries;
+      const ped = settings?.ped ?? DEFAULT_PED;
+      const partnerPed = settings?.partnerPed ?? ped;
+      const incremental = planIncrementalBatch(emotes, previewIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update");
+      const plan = incremental.plan;
+      if (!plan.ready.length) {
+        setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed from catalog`);
+        return;
+      }
+      const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
       const result = await exportCatalogBatch(plan, {
         signal: abort.signal,
+        previousIndex: previewIndex,
+        fingerprints,
         onProgress: (p) => setBatchProgress(`Emotes ${p.completed}/${p.total} · captured ${p.captured} · failed ${p.failed}`),
         load: async (item, signal) => {
           useAppStore.getState().select(null);
@@ -469,7 +485,9 @@ export function Viewer() {
       } finally {
         setTimeout(() => URL.revokeObjectURL(url), 30000);
       }
-      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${result.skipped} skipped`);
+      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed`);
+      // The exported preview-index.json is authoritative for future updates.
+      // Import it after installing the new media to avoid marking missing files complete.
     } catch (error) {
       setExportError(error instanceof Error ? error.message : String(error));
     } finally {
@@ -601,6 +619,23 @@ export function Viewer() {
         </div>
         <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
           {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
+          <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting} /> Rebuild all</label>
+          <label style={{ fontSize: 12, cursor: "pointer" }}>
+            Import preview index
+            <input type="file" accept=".json,application/json" disabled={exporting} style={{ width: 120 }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                void file.text().then((content) => {
+                  const parsed = parsePreviewIndex(JSON.parse(content));
+                  setPreviewIndex(parsed);
+                  localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(parsed));
+                  setBatchProgress(`Loaded index with ${Object.keys(parsed.entries).length} records`);
+                  setExportError(null);
+                }).catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)));
+                e.target.value = "";
+              }} />
+          </label>
           {batchProgress && <span role="status" style={{ fontSize: 12 }}>{batchProgress}</span>}
           {batchAbortRef.current ? (
             <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
