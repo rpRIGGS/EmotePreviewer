@@ -476,6 +476,7 @@ export function Viewer() {
       const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
       const result = await exportCatalogBatch(plan, {
         signal: abort.signal,
+        capture: { fps: 12, width: 320, height: 320, maxSeconds: 3 },
         previousIndex: activeIndex,
         verifiedMedia: activeMedia ?? undefined,
         fingerprints,

@@ -30,6 +30,8 @@ export interface BatchAdapter {
   catalog?: readonly BatchEntry[];
   /** Existing published media verified on disk; a failed recapture must not erase it. */
   verifiedMedia?: ReadonlySet<string>;
+  /** Frame capture settings shared by all catalog entries. */
+  capture?: { fps?: number; maxSeconds?: number; width?: number; height?: number };
   /** Write files as each emote completes, avoiding an enormous in-memory ZIP. */
   writeFile?: (path: string, data: Uint8Array) => Promise<void>;
 }
@@ -75,6 +77,13 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     frameRate: number; width: number; height: number; format: "apng";
   }> = [];
   const total = plan.ready.length;
+  const fps = adapter.capture?.fps ?? 12;
+  const width = adapter.capture?.width ?? 320;
+  const height = adapter.capture?.height ?? 320;
+  const maxSeconds = adapter.capture?.maxSeconds ?? 3;
+  if (!Number.isInteger(fps) || fps < 1 || fps > 60) throw new RangeError("Invalid batch frame rate");
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) throw new RangeError("Invalid batch dimensions");
+  if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || maxSeconds > 30) throw new RangeError("Invalid batch duration");
   // Every export run writes immutable media paths. A failed/interrupted run
   // cannot overwrite previews referenced by the last published manifest.
   const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -98,9 +107,9 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     try {
       const controller = await adapter.load(entry, adapter.signal ?? new AbortController().signal);
       check(adapter.signal);
-      const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal });
+      const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal, fps, width, height, maxSeconds });
       const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
-      encoded = encodeApng(frameFiles.map((file) => file.data), 12);
+      encoded = encodeApng(frameFiles.map((file) => file.data), fps);
       frameCount = capture.frameCount;
       durationSeconds = capture.durationSeconds;
     } catch (error) {
@@ -129,8 +138,8 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       manifest.push({
         id: entry.id, source: entry.source, category: entry.category,
         command: entry.command, folder, media, frameCount,
-        durationSeconds, frameRate: 12,
-        width: 320, height: 320, format: "apng",
+        durationSeconds, frameRate: fps,
+        width, height, format: "apng",
       });
     }
     progress(i + 1, null);
