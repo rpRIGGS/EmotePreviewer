@@ -648,12 +648,6 @@ export function Viewer() {
               if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
               void picker.call(window).then(async (directory) => {
                 const result = await verifyPreviewFiles(previewIndex, directory);
-                // PM Emotes NUI currently expects a different WebP manifest.
-                // Refuse direct installation into its live preview folder until
-                // the media format and manifest contract are agreed.
-                if (directory.name.toLowerCase() === "previews") {
-                  throw new Error("Do not select PM Emotes' live NUI/previews folder yet: its WebP manifest is incompatible with experimental APNG exports. Select a separate staging folder.");
-                }
                 setPreviewDirectory(directory);
                 return result;
               }).then((result) => {
