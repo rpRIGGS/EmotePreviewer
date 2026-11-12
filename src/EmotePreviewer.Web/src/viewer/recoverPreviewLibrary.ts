@@ -36,7 +36,14 @@ function safeMedia(media: string): boolean {
  * on the next incremental update, but remain visible until replacement works. */
 export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Promise<RecoveredLibrary> {
   const rawIndex = await readJson(root, "preview-index.json");
-  const index = rawIndex === null ? emptyPreviewIndex() : parsePreviewIndex(rawIndex);
+  // The manifest is the committed source of truth. A truncated or unsupported
+  // index must not prevent reconstructing published media after a crash.
+  let index: PreviewIndex;
+  try {
+    index = rawIndex === null ? emptyPreviewIndex() : parsePreviewIndex(rawIndex);
+  } catch {
+    index = emptyPreviewIndex();
+  }
   const rawManifest = await readJson(root, "manifest.json");
   if (rawManifest === null) {
     if (Object.values(index.entries).some((record) => record.status === "generated")) {
