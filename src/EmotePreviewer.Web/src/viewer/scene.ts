@@ -174,18 +174,22 @@ export class Scene {
     const previousTarget = this.renderer.getRenderTarget();
     const previousBackground = this.scene.background;
     const previousGrid = this.grid.visible;
-    const previousAspect = this.camera.aspect;
+    // Use a fixed export camera, independent of the developer's orbit/zoom.
+    // Clone rather than modifying the interactive camera and OrbitControls.
+    const captureCamera = this.camera.clone();
+    captureCamera.position.set(2.2, 1.6, -2.6);
+    captureCamera.lookAt(0, 0.9, 0);
+    captureCamera.aspect = width / height;
+    captureCamera.updateProjectionMatrix();
     const previousClearAlpha = this.renderer.getClearAlpha();
     const previousClearColor = this.renderer.getClearColor(new THREE.Color()).clone();
     try {
       this.scene.background = null;
       this.grid.visible = false;
-      this.camera.aspect = width / height;
-      this.camera.updateProjectionMatrix();
       this.renderer.setRenderTarget(target);
       this.renderer.setClearColor(0x000000, 0);
       this.renderer.clear(true, true, true);
-      this.renderer.render(this.scene, this.camera);
+      this.renderer.render(this.scene, captureCamera);
 
       const pixels = new Uint8Array(width * height * 4);
       this.renderer.readRenderTargetPixels(target, 0, 0, width, height, pixels);
@@ -207,8 +211,6 @@ export class Scene {
       this.renderer.setClearColor(previousClearColor, previousClearAlpha);
       this.scene.background = previousBackground;
       this.grid.visible = previousGrid;
-      this.camera.aspect = previousAspect;
-      this.camera.updateProjectionMatrix();
       target.dispose();
       this.invalidate();
     }
