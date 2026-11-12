@@ -56,6 +56,9 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     frameRate: number; width: number; height: number; format: "apng";
   }> = [];
   const total = plan.ready.length;
+  // Every export run writes immutable media paths. A failed/interrupted run
+  // cannot overwrite previews referenced by the last published manifest.
+  const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
   const updatedIndex: PreviewIndex = {
     schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
     entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
@@ -71,7 +74,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       const controller = await adapter.load(entry, adapter.signal ?? new AbortController().signal);
       check(adapter.signal);
       const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal });
-      const folder = `previews/${entry.outputStem}`;
+      const folder = `previews/${entry.outputStem}/${runId}`;
       const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
       const media = `${folder}/preview.png`;
       await emit({ name: media, data: encodeApng(frameFiles.map((file) => file.data), 12) });
@@ -118,13 +121,14 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     planned: total, captured: manifest.length, failed: failures.length,
     skipped: plan.skipped.length, failures, skippedEntries: plan.skipped,
   }));
-  await emit(textFile("preview-index.json", updatedIndex));
-  // Publish the consumer manifest last, after all media and bookkeeping.
+  // Commit the consumer manifest after media. Only advance the producer index
+  // once that manifest has been successfully published.
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: completeManifest,
   }));
+  await emit(textFile("preview-index.json", updatedIndex));
   return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
 }
