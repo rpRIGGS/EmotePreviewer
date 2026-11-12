@@ -90,3 +90,9 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - The adapter selects catalog entries sequentially, waits for a ready clip and loaded ped mesh (45-second per-entry timeout), and restores the original viewer selection after completion/cancellation. It clears secondary layering during export.
 - Added a loading-transition guard so the next selection cannot immediately capture the previous emote's stale ready state.
 - **Not yet verified:** Windows/TypeScript build, live readiness transitions, per-emote visual accuracy, large batch memory consumption, and NUI-ready animated encoding. The archive remains a developer PNG-sequence ZIP.
+
+## Implementation log — batch readiness correctness
+
+- Tightened viewer clip state to retain the exact clip-spec key when asynchronous loads complete or refresh. A previously selected emote's `ready` state can no longer satisfy a different emote's readiness check merely because React has not run the next loading effect.
+- Removed the fragile requirement to observe a loading transition during polling; readiness now depends on the selected entry and its matching loaded clip key.
+- This is source-level hardening, not a claim that full batch capture was executed. Windows CI/build and representative rendering still require verification.
