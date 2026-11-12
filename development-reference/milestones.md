@@ -146,3 +146,12 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - The viewer exposes **Clean old previews** after a folder is selected. It first counts orphaned media, asks for explicit confirmation, and recalculates the protected set immediately before deletion.
 - Cleanup does not remove unrelated files or directories and intentionally leaves empty generation directories. Do not use it while another export process is writing to the same folder.
 - **Validation still required:** TypeScript build, browser File System Access API directory iteration support, Windows desktop host behavior, and full export/cleanup test with a sample preview library. Do not treat the cleanup UI as tested yet.
+
+
+## Regression-test gate for preview library maintenance (2026-11-12)
+
+- Added a Node built-in test suite for manifest/index-aware cleanup. Tests cover orphan detection, deletion of only obsolete files, index-only references after interrupted publication, unsafe manifest/index paths, and missing index handling.
+- The suite uses in-memory File System Access directory mocks; it does not require GTA assets or a Windows desktop session.
+- Run locally from `src/EmotePreviewer.Web`: `npm ci`, `npm run build`, then `npm run test:library`.
+- Windows GitHub Actions now requires these tests before publishing the executable artifact.
+- **Verification distinction:** tests are committed and wired into CI; this document does not claim they have passed. A successful CI run and hands-on Windows/FiveM playback verification are still release gates.
