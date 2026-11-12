@@ -45,6 +45,7 @@ function parsePng(png: Uint8Array): ParsedFrame {
   const imageData: Uint8Array[] = [];
   const ancillary: Uint8Array[] = [];
   let ended = false;
+  let sawHeader = false;
   while (offset + 12 <= png.length) {
     const length = u32(png, offset);
     if (length > png.length - offset - 12) throw new Error("Truncated PNG chunk");
@@ -52,10 +53,18 @@ function parsePng(png: Uint8Array): ParsedFrame {
     const payload = png.slice(offset + 8, offset + 8 + length);
     const expected = u32(png, offset + 8 + length);
     if (crc32(png.subarray(offset + 4, offset + 8 + length)) !== expected) throw new Error("PNG CRC mismatch");
-    if (type === "IHDR") ihdr = payload;
-    else if (type === "IDAT") imageData.push(payload);
+    if (type === "IHDR") {
+      if (sawHeader || offset !== 8 || payload.length !== 13) throw new Error("Invalid PNG header order");
+      ihdr = payload;
+      sawHeader = true;
+    }
+    else if (type === "IDAT") {
+      if (!sawHeader) throw new Error("PNG image data precedes header");
+      imageData.push(payload);
+    }
     else if (type === "IEND") { ended = true; break; }
     else if (type === "PLTE" || type === "tRNS") ancillary.push(chunk(type, payload));
+    else if ((type.charCodeAt(0) & 32) === 0) throw new Error(`Unsupported critical PNG chunk: ${type}`);
     offset += 12 + length;
   }
   if (!ended || !ihdr || ihdr.length !== 13 || !imageData.length) throw new Error("PNG missing required chunks");
