@@ -6,7 +6,8 @@ import { selectEntry, selectSecondary, useAppStore, type EmoteRow } from "../sha
 import type { ClipMetaDto, EmoteSlot, PropDto, ViewerSettings } from "../shared/types";
 import { ViewerController, type ClipTiming, type Slot } from "./controller";
 import type { CameraPreset } from "./scene";
-import { makeZip, pngDataUrlBytes, type ExportFile } from "./exportZip";
+import { makeZip } from "./exportZip";
+import { captureSequence } from "./captureSequence";
 
 type ViewState =
   | { kind: "idle" }
@@ -377,30 +378,12 @@ export function Viewer() {
     setExportError(null);
     setExportProgress(null);
     setExporting(true);
-    const wasPlaying = controller.timeline.playing;
     try {
-      controller.timeline.pause();
-      const fps = 12;
-      const duration = Math.min(controller.timeline.duration, 3);
-      if (duration <= 0) throw new Error("No loaded animation duration");
-      const frames = Math.max(1, Math.ceil(duration * fps));
       const safeId = entry.id.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 100);
-      const files: ExportFile[] = [];
-      setExportProgress({ done: 0, total: frames });
-      for (let i = 0; i < frames; i++) {
-        // Yield so the browser remains responsive and a user can see progress.
-        await new Promise<void>((resolve) => setTimeout(resolve, 0));
-        const png = controller.captureFramePng(i / fps, 320, 320);
-        files.push({ name: `frames/${String(i).padStart(4, "0")}.png`, data: pngDataUrlBytes(png) });
-        setExportProgress({ done: i + 1, total: frames });
-      }
-      const metadata = {
-        schemaVersion: 1, sourceId: entry.id, frameRate: fps,
-        frameCount: frames, width: 320, height: 320,
-        durationSeconds: duration, frameFormat: "png",
-        note: "Developer proof of concept; no encoded animation or PM Emotes manifest yet",
-      };
-      files.push({ name: "capture.json", data: new TextEncoder().encode(JSON.stringify(metadata, null, 2)) });
+      const { files } = await captureSequence(controller, {
+        sourceId: entry.id,
+        onProgress: (done, total) => setExportProgress({ done, total }),
+      });
       const blob = makeZip(files);
       const url = URL.createObjectURL(blob);
       try {
@@ -414,7 +397,6 @@ export function Viewer() {
     } catch (error) {
       setExportError(error instanceof Error ? error.message : String(error));
     } finally {
-      if (wasPlaying) controller.timeline.play();
       setExporting(false);
       setExportProgress(null);
     }
