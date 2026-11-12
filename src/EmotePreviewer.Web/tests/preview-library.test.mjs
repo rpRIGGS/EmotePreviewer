@@ -86,6 +86,24 @@ test("cleanup preserves media published by another window before deletion", asyn
   assert.ok((await wave.getDirectoryHandle("run2")).children.has("preview.png"));
 });
 
+test("cleanup tolerates an orphan removed concurrently", async () => {
+  const { root, wave } = library();
+  const run2 = await wave.getDirectoryHandle("run2");
+  const originalRemove = run2.removeEntry.bind(run2);
+  run2.removeEntry = async (name) => {
+    await originalRemove(name);
+    throw new DOMException("Already removed", "NotFoundError");
+  };
+  assert.equal(await deleteObsoletePreviews(root), 0);
+});
+
+test("cleanup propagates permission failures during deletion", async () => {
+  const { root, wave } = library();
+  const run2 = await wave.getDirectoryHandle("run2");
+  run2.removeEntry = async () => { throw new DOMException("Access revoked", "NotAllowedError"); };
+  await assert.rejects(() => deleteObsoletePreviews(root), /Access revoked/);
+});
+
 test("cleanup protects index-only media after interrupted publication", async () => {
   const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "previews/wave/run2/preview.png" } } } });
   assert.equal((await planPreviewCleanup(root)).obsolete.length, 0);
