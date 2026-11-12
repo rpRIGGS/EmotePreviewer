@@ -24,6 +24,12 @@ jobs:
           cache: npm
           cache-dependency-path: src/EmotePreviewer.Web/package-lock.json
 
+      - name: Frontend typecheck and production bundle
+        working-directory: src/EmotePreviewer.Web
+        run: |
+          npm ci
+          npm run build
+
       - name: Build
         run: dotnet build EmotePreviewer.slnx -c Release
 
