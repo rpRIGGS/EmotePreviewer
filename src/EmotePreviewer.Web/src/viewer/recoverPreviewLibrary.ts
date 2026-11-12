@@ -1,4 +1,4 @@
-import { emptyPreviewIndex, parsePreviewIndex, type PreviewIndex } from "./previewIndex";
+import { emptyPreviewIndex, parsePreviewIndex, PREVIEW_RENDER_VERSION, type PreviewIndex } from "./previewIndex";
 import { verifyPreviewFiles } from "./verifyPreviewFiles";
 
 export interface RecoveredLibrary {
@@ -59,14 +59,17 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     }
     published.set(record.id, {
       media: record.media,
-      frameCount: typeof record.frameCount === "number" && record.frameCount > 0 ? record.frameCount : undefined,
-      durationSeconds: typeof record.durationSeconds === "number" && record.durationSeconds > 0 ? record.durationSeconds : undefined,
+      frameCount: typeof record.frameCount === "number" && Number.isFinite(record.frameCount) && record.frameCount > 0 ? record.frameCount : undefined,
+      durationSeconds: typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 ? record.durationSeconds : undefined,
     });
   }
   let recovered = 0, reconciled = 0;
   for (const [id, record] of published) {
     const old = Object.hasOwn(index.entries, id) ? index.entries[id] : undefined;
     if (old?.status === "generated" && old.media === record.media) {
+      // A matching path is not sufficient if the previous index was written
+      // for a different renderer; invalidate its fingerprint to force retry.
+      if (index.renderVersion !== PREVIEW_RENDER_VERSION) old.fingerprint = "";
       if (!old.frameCount && record.frameCount) old.frameCount = record.frameCount;
       if (!old.durationSeconds && record.durationSeconds) old.durationSeconds = record.durationSeconds;
       continue;
