@@ -113,17 +113,18 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       frameRate: 12, width: 320, height: 320, format: "apng" as const,
     }];
   });
+  await emit(textFile("report.json", {
+    schemaVersion: 1,
+    planned: total, captured: manifest.length, failed: failures.length,
+    skipped: plan.skipped.length, failures, skippedEntries: plan.skipped,
+  }));
   await emit(textFile("preview-index.json", updatedIndex));
+  // Publish the consumer manifest last, after all media and bookkeeping.
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: completeManifest,
-  }));
-  await emit(textFile("report.json", {
-    schemaVersion: 1,
-    planned: total, captured: manifest.length, failed: failures.length,
-    skipped: plan.skipped.length, failures, skippedEntries: plan.skipped,
   }));
   return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
 }
