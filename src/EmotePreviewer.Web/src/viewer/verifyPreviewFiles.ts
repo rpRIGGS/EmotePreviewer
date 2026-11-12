@@ -28,7 +28,10 @@ export async function verifyPreviewFiles(
       const file = await (await dir.getFileHandle(segments[segments.length - 1])).getFile();
       if (file.size > 0) present.add(id);
       else missing.push(id);
-    } catch {
+    } catch (error) {
+      // Missing media is recoverable. Permission revocation, disk I/O errors,
+      // and other failures must not be mistaken for a deleted preview.
+      if (!(error instanceof DOMException && (error.name === "NotFoundError" || error.name === "TypeMismatchError"))) throw error;
       missing.push(id);
     }
   }
