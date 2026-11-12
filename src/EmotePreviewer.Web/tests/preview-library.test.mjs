@@ -24,7 +24,7 @@ class MockDirectory {
   add(name, handle) { this.children.set(name, handle); return this; }
   async getFileHandle(name) {
     const handle = this.children.get(name);
-    if (handle?.kind !== "file") throw Object.assign(new Error("Not found"), { name: "NotFoundError" });
+    if (handle?.kind !== "file") throw new DOMException("Not found", "NotFoundError");
     return handle;
   }
   async getDirectoryHandle(name) {
