@@ -140,6 +140,21 @@ test("recovery reconstructs missing index from published manifest", async () => 
   assert.ok(result.present.has("wave"));
 });
 
+test("recovery reconstructs published previews when index schema is corrupt", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 999, entries: {} } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery reconstructs published previews when index JSON is truncated", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  root.children.get("preview-index.json").content = "{truncated";
+  await assert.rejects(() => recoverPreviewLibrary(root), /Unexpected token|Expected property|JSON/);
+});
+
 test("recovery restores manifest media when index points at interrupted generation", async () => {
   const { recoverPreviewLibrary } = await loadRecovery();
   const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
