@@ -58,7 +58,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const total = plan.ready.length;
   const updatedIndex: PreviewIndex = {
     schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
-    entries: { ...(adapter.previousIndex?.entries ?? {}) },
+    entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
   };
   const progress = (completed: number, currentId: string | null) =>
     adapter.onProgress?.({ completed, total, currentId, captured: manifest.length, failed: failures.length });
@@ -103,7 +103,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   }
   const capturedById = new Map(manifest.map((item) => [item.id, item]));
   const completeManifest = catalog.flatMap((item) => {
-    const record = updatedIndex.entries[item.id];
+    const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
     if (!record || record.status !== "generated" || !record.media) return [];
     const captured = capturedById.get(item.id);
     return [captured ?? {
