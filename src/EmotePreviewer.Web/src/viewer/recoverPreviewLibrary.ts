@@ -66,7 +66,11 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
   let recovered = 0, reconciled = 0;
   for (const [id, record] of published) {
     const old = Object.hasOwn(index.entries, id) ? index.entries[id] : undefined;
-    if (old?.status === "generated" && old.media === record.media) continue;
+    if (old?.status === "generated" && old.media === record.media) {
+      if (!old.frameCount && record.frameCount) old.frameCount = record.frameCount;
+      if (!old.durationSeconds && record.durationSeconds) old.durationSeconds = record.durationSeconds;
+      continue;
+    }
     index.entries[id] = {
       fingerprint: "", media: record.media, status: "generated",
       updatedAt: new Date().toISOString(), frameCount: record.frameCount,
