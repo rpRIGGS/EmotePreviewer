@@ -445,11 +445,16 @@ export function Viewer() {
           if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
           useAppStore.getState().select(item.id);
           const deadline = Date.now() + 45000;
+          const selectedAt = Date.now();
+          let observedLoading = false;
           while (Date.now() < deadline) {
             if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
             const state = readyRef.current;
             if (state.id === item.id && state.error) throw new Error(state.error);
-            if (state.id === item.id && state.ready && controllerRef.current) return controllerRef.current;
+            if (state.id === item.id && !state.ready) observedLoading = true;
+            // Wait for the new selection to pass through loading before
+            // accepting ready; React effects can briefly expose old clip state.
+            if (observedLoading && Date.now() - selectedAt >= 200 && state.id === item.id && state.ready && controllerRef.current) return controllerRef.current;
             await new Promise<void>((resolve) => setTimeout(resolve, 100));
           }
           throw new Error("Timed out waiting for animation and ped mesh (45 seconds)");
