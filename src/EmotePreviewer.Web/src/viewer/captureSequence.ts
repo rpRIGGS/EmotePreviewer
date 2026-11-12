@@ -24,6 +24,10 @@ export async function captureSequence(controller: ViewerController, options: Cap
   if (!sourceId.trim()) throw new Error("A source ID is required");
   if (!Number.isInteger(fps) || fps < 1 || fps > 60) throw new RangeError("Frame rate must be between 1 and 60");
   if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || maxSeconds > 30) throw new RangeError("Maximum duration must be between 0 and 30 seconds");
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) {
+    throw new RangeError("Capture dimensions must be positive integers no greater than 2048");
+  }
+  if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
   if (!controller.hasPedMesh()) throw new Error("Ped mesh is not loaded");
   const duration = Math.min(controller.timeline.duration, maxSeconds);
   if (!(duration > 0)) throw new Error("No loaded animation duration");
@@ -47,7 +51,7 @@ export async function captureSequence(controller: ViewerController, options: Cap
       data: new TextEncoder().encode(JSON.stringify({
         schemaVersion: 1, sourceId, frameRate: fps, frameCount, width, height,
         durationSeconds: duration, frameFormat: "png",
-        note: "Developer PNG sequence; animated encoding and PM Emotes manifest not yet implemented",
+        note: "Developer PNG frame sequence; the catalog batch exporter encodes animated APNG separately",
       }, null, 2)),
     });
     return { files, frameCount, durationSeconds: duration };
