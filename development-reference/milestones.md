@@ -104,3 +104,12 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Updated viewer batch button and ZIP name to identify animated preview output. The separate single-selected-emote developer button still exports raw PNG frames.
 - **Format status: experimental.** APNG must be tested for actual animation, transparency, loop behavior, file size, and FiveM Chromium/NUI playback before choosing it as final PM Emotes media. This is not yet a copy-ready PM Emotes package.
 - **Validation outstanding:** TypeScript/.NET build, Windows GTA rendering, batch memory behavior, and actual APNG decoding/playback. Local GitHub clone remains DNS-blocked; GitHub connector commits work.
+
+## Incremental preview update implementation
+
+- `viewer/previewIndex.ts` defines versioned preview-index records and fingerprints the actual rendering inputs (animation, ped, props, partner configuration, rendering version), not merely display labels.
+- `planIncrementalBatch` classifies new, changed, failed/retry, unchanged and removed catalog IDs; update mode skips unchanged records, rebuild mode forces all supported animations.
+- Batch ZIP now contains `preview-index.json` with successful and failed outcomes alongside `manifest.json`, `report.json` and APNG media.
+- Viewer now provides **Import preview index** (JSON stored in browser localStorage) and **Rebuild all** controls. Default mode exports only new/changed/failed items relative to imported index. The index is **not automatically marked installed** after export: import the updated index only after copying the associated media into the preview library.
+- **Important limitation:** browser-local index cannot verify that media files actually exist in the installed PM Emotes folder. Full disk-backed verification and persistent native Windows application state are not yet implemented. An index with missing media can incorrectly classify an emote as unchanged; use rebuild if unsure. Index import is an explicit step, not automatic folder scanning.
+- **Not yet validated:** TypeScript build, APNG playback in FiveM Chromium, Windows rendering, end-to-end incremental installation and missing-preview fallback in PM Emotes NUI.
