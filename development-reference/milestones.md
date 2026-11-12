@@ -1,6 +1,6 @@
 # Development milestones and verification
 
-**Current stage:** Initial renderer capture implementation; build and visual validation pending.
+**Current stage:** Selected-emote PNG ZIP proof of concept implemented; build and visual validation pending.
 
 ## 1 — Renderer and export feasibility
 - [x] Locate renderer/camera/scene and animation timing entry points in source.
@@ -53,3 +53,11 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Added `ViewerController.captureFramePng(timeSeconds,width,height)`: seek, pose at exact time, capture, restore timeline.
 - **Not yet verified:** TypeScript build, WebGL alpha correctness, textures settling before capture, camera framing, batch/export UI, encoding, PM Emotes playback.
 - The capture primitive is intentionally not exposed as a player-facing UI yet. Next implementation must add a developer export workflow, including readiness checks and batch output.
+
+## Implementation log — PNG sequence export prototype
+
+- Added `viewer/exportZip.ts`: dependency-free ZIP (STORE) builder with CRC32 and PNG data URL conversion.
+- Added `Export PNG frames` to the viewer, enabled only for a loaded emote with a loaded ped mesh and Mesh enabled. It captures up to 3 seconds at 12 fps in 320×320 transparent PNG frames, with `capture.json` metadata, and downloads a ZIP. Export temporarily pauses and then restores playback.
+- This is a **single-selected-emote developer proof of concept**, not batch export, WebP/WebM encoding, or PM Emotes packaging.
+- **Validation blocked:** GitHub source is accessible through the connector, but the execution container could not resolve github.com to clone/build. TypeScript compile and real WebGL alpha testing remain outstanding; do not mark as tested.
+- Next: build/typecheck and actual PNG transparency test, then batch capture and encoder/manifest work. Capture currently uses the viewer's active camera; standardized framing is not yet implemented.
