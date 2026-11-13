@@ -18,8 +18,9 @@ function u32(view: DataView, at: number, n: number): void { view.setUint32(at, n
 
 export function makeZip(files: ExportFile[]): Blob {
   if (files.length > 65535) throw new RangeError("Too many files");
-  const local: Uint8Array[] = [];
-  const central: Uint8Array[] = [];
+  // BlobPart in current TypeScript DOM typings requires ArrayBuffer-backed views.
+  const local: Uint8Array<ArrayBuffer>[] = [];
+  const central: Uint8Array<ArrayBuffer>[] = [];
   let offset = 0;
   const names = new Set<string>();
   for (const file of files) {
