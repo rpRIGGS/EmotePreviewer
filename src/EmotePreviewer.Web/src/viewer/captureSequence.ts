@@ -36,6 +36,7 @@ export async function captureSequence(controller: ViewerController, options: Cap
   const files: ExportFile[] = [];
   const wasPlaying = controller.timeline.playing;
   controller.timeline.pause();
+  controller.beginCapture?.();
   try {
     onProgress?.(0, frameCount);
     for (let index = 0; index < frameCount; index++) {
@@ -60,6 +61,7 @@ export async function captureSequence(controller: ViewerController, options: Cap
     });
     return { files, frameCount, durationSeconds: duration };
   } finally {
+    controller.endCapture?.();
     if (wasPlaying) controller.timeline.play();
   }
 }

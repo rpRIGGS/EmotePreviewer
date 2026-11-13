@@ -32,6 +32,11 @@ export class Scene {
   /** Set by anything that changed what is on screen outside the tick (mesh or texture loaded, toggle, resize, theme). */
   private needsRender = true;
   private readonly target = new THREE.Vector3(0, 0.9, 0);
+  private lockedCaptureCamera: THREE.PerspectiveCamera | null = null;
+
+  /** Lock export framing for the duration of one animated preview. */
+  beginCapture(): void { this.lockedCaptureCamera = null; }
+  endCapture(): void { this.lockedCaptureCamera = null; }
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -176,8 +181,9 @@ export class Scene {
     const previousGrid = this.grid.visible;
     // Use a fixed export camera, independent of the developer's orbit/zoom.
     // Clone rather than modifying the interactive camera and OrbitControls.
-    const captureCamera = this.camera.clone();
+    const captureCamera = this.lockedCaptureCamera?.clone() ?? this.camera.clone();
     captureCamera.aspect = width / height;
+    if (!this.lockedCaptureCamera) {
     // Frame the actual animated meshes (including partner and attached props),
     // rather than assuming every emote fits a standing ped at the origin.
     // Lights, the floor grid and invisible helpers are excluded.
@@ -223,6 +229,8 @@ export class Scene {
     }
     captureCamera.position.copy(center).add(new THREE.Vector3(0.55, 0.20, -0.82).normalize().multiplyScalar(distance));
     captureCamera.lookAt(center);
+    this.lockedCaptureCamera = captureCamera.clone();
+    }
     captureCamera.updateProjectionMatrix();
     const previousClearAlpha = this.renderer.getClearAlpha();
     const previousClearColor = this.renderer.getClearColor(new THREE.Color()).clone();

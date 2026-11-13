@@ -295,6 +295,9 @@ export class ViewerController {
    * Poses the existing rigs at an exact timeline time, captures a transparent
    * frame, then restores the viewer's previous timeline position.
    */
+  beginCapture(): void { this.scene.beginCapture(); }
+  endCapture(): void { this.scene.endCapture(); }
+
   captureFramePng(timeSeconds: number, width = 320, height = 320): string {
     if (!Number.isFinite(timeSeconds) || timeSeconds < 0 || timeSeconds > this.timeline.duration) {
       throw new RangeError("Capture time must fall within the loaded timeline");
