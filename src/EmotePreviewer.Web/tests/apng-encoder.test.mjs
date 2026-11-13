@@ -84,7 +84,7 @@ test("APNG refuses frame dimension mismatches", () => {
 
 test("APNG detects corrupted frame checksums", () => {
   const bytes = png();
-  bytes[bytes.length - 7] ^= 0xff;
+  bytes[bytes.length - 4] ^= 0xff;
   assert.throws(() => encodeApng([bytes]), /CRC mismatch/);
 });
 
