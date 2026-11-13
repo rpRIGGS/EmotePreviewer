@@ -77,7 +77,8 @@ test("unchanged verified previews are not regenerated", async () => {
   const index = emptyPreviewIndex();
   const { fingerprintEmote } = await import(asUrl(indexJs));
   index.entries.wave = { fingerprint: fingerprintEmote(item, "ped", "ped", false),
-    media: "previews/wave/run1/preview.png", status: "generated", updatedAt: "2026-11-12" };
+    media: "previews/wave/run1/preview.png", status: "generated", updatedAt: "2026-11-12",
+    frameCount: 24, durationSeconds: 2 };
   const result = planIncrementalBatch([item], index, "ped", "ped", false, "update", new Set(["wave"]));
   assert.deepEqual(result.unchanged.map((entry) => entry.id), ["wave"]);
   assert.deepEqual(result.plan.ready, []);
