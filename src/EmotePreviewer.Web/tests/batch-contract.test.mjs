@@ -84,6 +84,7 @@ test("publishes a verified unchanged preview without recapturing", async () => {
         updatedAt: "2026-11-12T00:00:00Z", frameCount: 12, durationSeconds: 1 } },
     },
     verifiedMedia: new Set(["one"]),
+    summary: { unchanged: 1, removed: 2, added: 0, changed: 0, retry: 0 },
     writeFile: async (path, bytes) => { writes.set(path, JSON.parse(new TextDecoder().decode(bytes))); },
     load: async () => { throw new Error("unexpected capture"); },
   });
@@ -92,6 +93,9 @@ test("publishes a verified unchanged preview without recapturing", async () => {
   assert.equal(writes.get("manifest.json").entries.length, 1);
   assert.equal(writes.get("manifest.json").entries[0].media, media);
   assert.equal(writes.get("preview-index.json").entries.one.status, "generated");
+  assert.equal(writes.get("report.json").published, 1);
+  assert.equal(writes.get("report.json").unchanged, 1);
+  assert.equal(writes.get("report.json").removed, 2);
 });
 test("does not publish an unverified imported preview", async () => {
   const e = entry("one");

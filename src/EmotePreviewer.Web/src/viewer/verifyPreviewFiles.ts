@@ -1,4 +1,5 @@
 import type { PreviewIndex } from "./previewIndex";
+import { inspectPreviewApng } from "./inspectPreviewApng";
 
 export interface PreviewDiskCheck {
   present: Set<string>;
@@ -26,12 +27,13 @@ export async function verifyPreviewFiles(
       let dir = root;
       for (const segment of segments.slice(0, -1)) dir = await dir.getDirectoryHandle(segment);
       const file = await (await dir.getFileHandle(segments[segments.length - 1])).getFile();
-      // The media is a PNG/APNG, not just an arbitrary nonempty file.
-      // Checking the fixed signature catches partial/incorrect copies before
-      // an incremental update marks them safe to retain.
-      const header = new Uint8Array(await file.slice(0, 8).arrayBuffer());
-      const pngSignature = [137, 80, 78, 71, 13, 10, 26, 10];
-      if (file.size >= 33 && pngSignature.every((byte, at) => header[at] === byte)) present.add(id);
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      let info;
+      try { info = inspectPreviewApng(bytes); }
+      catch { missing.push(id); continue; }
+      // The index is also untrusted. Retain media only when its bytes agree
+      // with the capture metadata that the consumer manifest will publish.
+      if (record.frameCount === info.frameCount && record.durationSeconds === info.frameCount / info.frameRate) present.add(id);
       else missing.push(id);
     } catch (error) {
       // Missing media is recoverable. Permission revocation, disk I/O errors,

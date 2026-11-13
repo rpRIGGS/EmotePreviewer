@@ -105,11 +105,12 @@ function useLayerClip(controllerRef: React.RefObject<ViewerController | null>, s
  * Drives one rig of the controller from a spec: loads the ped's skeleton (from the server's cache before indexing,
  * from the game data afterwards), then the mannequin, the props and the clips. A null spec empties the rig.
  */
-function useRigSlot(controllerRef: React.RefObject<ViewerController | null>, slot: Slot, spec: SlotSpec | null, gtaReady: boolean, statusSkeleton: string | null, showMesh: boolean, catalogRevision: number) {
+function useRigSlot(controllerRef: React.RefObject<ViewerController | null>, slot: Slot, spec: SlotSpec | null, gtaReady: boolean, statusSkeleton: string | null, showMesh: boolean, showProps: boolean, catalogRevision: number) {
   const [rigPed, setRigPed] = useState<string | null>(null);
   const [skeletonError, setSkeletonError] = useState<string | null>(null);
   const [meshState, setMeshState] = useState<"none" | "loading" | "ready" | "error">("none");
   const [hasCloth, setHasCloth] = useState(false);
+  const [propStatus, setPropStatus] = useState<{ key: string; state: "loading" | "ready" | "error"; message?: string } | null>(null);
   const ped = spec?.ped ?? null;
   const skeletonReady = rigPed !== null && ped !== null && rigPed.toLowerCase() === ped.toLowerCase();
 
@@ -181,21 +182,33 @@ function useRigSlot(controllerRef: React.RefObject<ViewerController | null>, slo
   const clipKeys = LAYERS.map((l) => spec?.clips[l]?.key ?? "").join("|");
   useEffect(() => {
     const controller = controllerRef.current;
-    if (!spec || props.length === 0 || !skeletonReady || (!spec.clips.primary && !spec.clips.secondary)) {
+    if (!spec || !skeletonReady || (!spec.clips.primary && !spec.clips.secondary)) {
       controller?.clearProps(slot);
+      setPropStatus({ key: propKey, state: "ready" });
+      return;
+    }
+    const wanted = props.filter((p) => p.available !== false && p.model);
+    if (wanted.length === 0) {
+      controller?.clearProps(slot);
+      setPropStatus({ key: propKey, state: "ready" });
       return;
     }
     const abort = new AbortController();
-    const wanted = props.filter((p) => p.available !== false && p.model);
+    setPropStatus({ key: propKey, state: "loading" });
     Promise.all(
       wanted.map((prop) =>
         api
           .propMesh(prop.model, abort.signal)
-          .then((mesh): { prop: typeof prop; mesh: LoadedMesh | null } => ({ prop, mesh }))
-          .catch(() => ({ prop, mesh: null })),
+          .then((mesh): { prop: typeof prop; mesh: LoadedMesh } => ({ prop, mesh })),
       ),
     ).then((loaded) => {
-      if (!abort.signal.aborted) controllerRef.current?.setProps(slot, loaded);
+      if (abort.signal.aborted) return;
+      controllerRef.current?.setProps(slot, loaded);
+      setPropStatus({ key: propKey, state: "ready" });
+    }).catch((error: unknown) => {
+      if (abort.signal.aborted) return;
+      controllerRef.current?.clearProps(slot);
+      setPropStatus({ key: propKey, state: "error", message: error instanceof Error ? error.message : String(error) });
     });
     return () => abort.abort();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -204,7 +217,9 @@ function useRigSlot(controllerRef: React.RefObject<ViewerController | null>, slo
   const primary = useLayerClip(controllerRef, slot, "primary", spec?.clips.primary ?? null, skeletonReady, catalogRevision);
   const secondary = useLayerClip(controllerRef, slot, "secondary", spec?.clips.secondary ?? null, skeletonReady, catalogRevision);
 
-  return { rigPed, skeletonReady, skeletonError, clips: { primary, secondary } as Record<EmoteSlot, ClipState>, meshState, hasCloth };
+  const propsReady = !showProps || (propStatus?.key === propKey && propStatus.state === "ready");
+  const propError = showProps && propStatus?.key === propKey && propStatus.state === "error" ? propStatus.message ?? "Prop mesh failed to load" : null;
+  return { rigPed, skeletonReady, skeletonError, clips: { primary, secondary } as Record<EmoteSlot, ClipState>, meshState, hasCloth, propsReady, propError };
 }
 
 /**
@@ -289,687 +304,193 @@ export function Viewer() {
   // While the server is gone the "exited" overlay (blurred, full screen) covers the canvas; drawing under it would
   // only make the compositor re-blur the whole window every frame, so the loop stops until the connection is back.
   useEffect(() => controllerRef.current?.scene.setPaused(connected === false), [connected]);
-  useEffect(() => controllerRef.current?.setHelpers(showHelpers), [showHelpers]);
-  useEffect(() => controllerRef.current?.setRootMotion(rootMotion), [rootMotion]);
-  useEffect(() => controllerRef.current?.setPropsVisible(showProps), [showProps]);
-  useEffect(() => controllerRef.current?.setMeshVisible(showMesh), [showMesh]);
-  useEffect(() => controllerRef.current?.setTextures(showTextures), [showTextures]);
-  useEffect(() => controllerRef.current?.setCloth(showCloth), [showCloth]);
-
-  // The main ped's two animation slots follow the game: an emote whose flag says SECONDARY plays only its upper body,
-  // over the primary or, with none, over the movement style's idle (the clip's leg tracks are dropped, as in game);
-  // anything else is the primary, whole body. The lower list only offers secondaries and, while it is open, the upper
-  // list only primaries, so the two never compete for a slot. A manual clip is a whole-body experiment. Animal peds
-  // have no idle clip here, so their secondaries play whole-body instead. With nothing picked the rig just stands.
-  const entryPlayable = entry !== null && (manualClip !== null || entry.previewable);
-  const idleSet = idleClipSet(activePed);
-  const entryLayer: EmoteSlot = entry && entry.slot === "secondary" && manualClip === null && idleSet !== null ? "secondary" : "primary";
-  const layers: Record<EmoteSlot, EmoteRow | null> = { primary: null, secondary: null };
-  if (entry && entryPlayable) layers[entryLayer] = entry;
-  if (secondary && secondary.previewable && !layers.secondary) layers.secondary = secondary;
-
-  const clipOf = (e: EmoteRow, layer: EmoteSlot): ClipSpec => {
-    if (e === entry && manualClip) {
-      return { key: `manual:${manualClip.dictionary}/${manualClip.clip}@${activePed}`, timing: { delay: 0, loop: e.loop }, load: (signal) => api.dictionaryClip(manualClip.dictionary, manualClip.clip, activePed, signal) };
-    }
-    // The start delay belongs to the shared-emote pair of the selected entry; a layered secondary starts at once.
-    const delay = e === entry ? e.startDelayMs / 1000 : 0;
-    return { key: `emote:${e.id}@${activePed}#${layer}`, timing: { delay, loop: e.loop }, load: (signal) => api.emoteClip(e.id, activePed, signal) };
-  };
-  const idleSpec: ClipSpec | null =
-    !layers.primary && layers.secondary && gtaReady && idleSet ? { key: `idle:${idleSet}@${activePed}`, timing: { delay: 0, loop: true }, load: (signal) => api.clipSetClip(idleSet, "idle", activePed, signal) } : null;
-  const mainSpec: SlotSpec = {
-    ped: activePed,
-    clips: {
-      primary: layers.primary ? clipOf(layers.primary, "primary") : idleSpec,
-      secondary: layers.secondary ? clipOf(layers.secondary, "secondary") : null,
-    },
-    props: [...(layers.primary?.props ?? []), ...(layers.secondary?.props ?? [])],
-  };
-  // The partner rig exists only for shared emotes with a resolved, previewable partner while the toggle is on. A
-  // manual clip is a solo experiment on the main ped, so the partner steps aside.
-  const partnerActive = showPartner && entryPlayable && manualClip === null && partner !== null && partner.previewable;
-  const partnerSpec: SlotSpec | null =
-    partnerActive && partner
-      ? {
-          ped: partnerPed,
-          clips: {
-            primary: { key: `emote:${partner.id}@${partnerPed}`, timing: { delay: partner.startDelayMs / 1000, loop: partner.loop }, load: (signal) => api.emoteClip(partner.id, partnerPed, signal) },
-            secondary: null,
-          },
-          props: partner.props,
-        }
-      : null;
-
-  const catalogRevision = useAppStore((s) => s.catalogRevision);
-  const main = useRigSlot(controllerRef, "main", mainSpec, gtaReady, statusSkeleton, showMesh, catalogRevision);
-  const second = useRigSlot(controllerRef, "partner", partnerSpec, gtaReady, statusSkeleton, showMesh, catalogRevision);
-
-  // Placement follows the selected entry; the controller applies it once both rigs exist.
-  const placement = partnerActive ? (partner?.placement ?? null) : null;
-  useEffect(() => controllerRef.current?.setPlacement(placement), [placement]);
-
-  // Playing state mirrors the timeline: a loaded clip autoplays, anything else stops it.
-  useEffect(() => {
-    setPlaying(controllerRef.current?.timeline.playing ?? false);
-  }, [main.clips.primary, main.clips.secondary]);
-
-  // The overlay and the transport follow the selected entry, or the secondary while nothing is selected.
-  const focus = entry ?? secondary;
-  const focusLayer: EmoteSlot = entry ? entryLayer : "secondary";
-  let view: ViewState;
-  if (!focus) view = { kind: "idle" };
-  else if (entry && !entryPlayable) view = { kind: "notPreviewable", reason: entry.previewReason ?? "kind" };
-  else if (!entry && secondary && !secondary.previewable) view = { kind: "notPreviewable", reason: secondary.previewReason ?? "kind" };
-  else if (!main.skeletonReady) view = main.skeletonError ? { kind: "error", message: main.skeletonError } : { kind: "waitingGta" };
-  else {
-    const state = main.clips[focusLayer];
-    if (state.kind === "ready" && state.key === mainSpec.clips[focusLayer]?.key) view = { kind: "ready", meta: state.meta, layer: focusLayer };
-    else if (state.kind === "error") view = { kind: "error", message: state.message };
-    else view = { kind: "loading" };
+  useEffect(() => controllerRef.current?.setHelpers(}y��-�G����ƭy�otype" ||
+    !record || typeof record !== "object" ||
+    typeof record.fingerprint !== "string" || typeof record.media !== "string" ||
+    (record.status !== "generated" && record.status !== "failed"))) {
+    throw new Error("Invalid previous preview index record");
   }
-  // The asynchronous batch adapter reads the latest React readiness snapshot.
-  // Never capture a previously selected animation while the next clip loads.
-  readyRef.current = {
-    id: entry?.id ?? null,
-    ready: view.kind === "ready" && showMesh && main.meshState === "ready" && (!partnerActive || (second.clips.primary.kind === "ready" && second.meshState === "ready")),
-    error: view.kind === "error" ? view.message : main.meshState === "error" ? "Ped mesh failed to load" : null,
+  const updatedIndex: PreviewIndex = {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, publicationId: runId,
+    entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
   };
-  const primaryMeta = main.clips.primary.kind === "ready" ? main.clips.primary.meta : null;
-
-  // Space toggles playback unless a form control has the focus.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.code !== "Space") return;
-      const target = e.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "SELECT" || target.tagName === "TEXTAREA" || target.tagName === "BUTTON")) return;
-      e.preventDefault();
-      toggle();
-    };
-    addEventListener("keydown", onKey);
-    return () => removeEventListener("keydown", onKey);
+  const progress = (completed: number, currentId: string | null) =>
+    adapter.onProgress?.({ completed, total, currentId, captured: manifest.length, failed: failures.length });
+  progress(0, null);
+  for (let i = 0; i < total; i++) {
+    check(adapter.signal);
+    const entry = plan.ready[i];
+    progress(i, entry.id);
+    // Capture/encode failures are per-emote and should not stop the catalog.
+    // Filesystem failures are different: abort immediately so we never publish
+    // a manifest that claims to reference media that could not be installed.
+    let encoded: Uint8Array | null = null;
+    let frameCount = 0;
+    let durationSeconds = 0;
+    try {
+      const controller = await adapter.load(entry, adapter.signal ?? new AbortController().signal);
+      check(adapter.signal);
+      const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal, fps, width, height, maxSeconds });
+      const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
+      encoded = encodeApng(frameFiles.map((file) => file.data), fps);
+      frameCount = capture.frameCount;
+      durationSeconds = capture.durationSeconds;
+    } catch (error) {
+      check(adapter.signal);
+      failures.push({ id: entry.id, reason: error instanceof Error ? error.message : String(error) });
+      // Preserve verified last-known-good media. Keep its original fingerprint
+      // so the next incremental update still attempts regeneration.
+      const previous = Object.hasOwn(updatedIndex.entries, entry.id) ? updatedIndex.entries[entry.id] : undefined;
+      if (previous?.status === "generated" && previous.media && adapter.writeFile && adapter.verifiedMedia?.has(entry.id) &&
+          Number.isInteger(previous.frameCount) && (previous.frameCount ?? 0) > 0 &&
+          Number.isFinite(previous.durationSeconds) && (previous.durationSeconds ?? 0) > 0 &&
+          (previous.durationSeconds ?? 0) <= maxSeconds &&
+          previous.frameCount === Math.ceil((previous.durationSeconds ?? 0) * fps)) {
+        // Keep the old preview visible, but invalidate its fingerprint so the
+        // next update retries even if the rendering inputs are unchanged.
+        updatedIndex.entries[entry.id] = { ...previous, fingerprint: "" };
+        retainedAfterFailure.add(entry.id);
+      } else {
+        updatedIndex.entries[entry.id] = {
+          fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
+          status: "failed", updatedAt: new Date().toISOString(),
+        };
+      }
+    }
+    if (encoded) {
+      const folder = `previews/${entry.outputStem}/${runId}`;
+      const media = `${folder}/preview.png`;
+      // Do not catch writer errors here: incomplete exports must never publish
+      // a new manifest or index.
+      await emit({ name: media, data: encoded });
+      updatedIndex.entries[entry.id] = {
+        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
+        status: "generated", updatedAt: new Date().toISOString(), frameCount, durationSeconds,
+      };
+      manifest.push({
+        id: entry.id, source: entry.source, category: entry.category,
+        command: entry.command, folder, media, frameCount,
+        durationSeconds, frameRate: fps,
+        width, height, format: "apng",
+      });
+    }
+    progress(i + 1, null);
+  }
+  // A delta export must still publish a complete manifest.
+  const catalog = adapter.catalog ?? plan.ready;
+  const currentIds = catalogIdSet;
+  for (const id of Object.keys(updatedIndex.entries)) {
+    if (!currentIds.has(id)) delete updatedIndex.entries[id];
+  }
+  const capturedById = new Map(manifest.map((item) => [item.id, item]));
+  // ZIP output must be self-contained. Only direct-to-folder export can
+  // reference existing verified media from a previous generation.
+  const completeManifest = catalog.flatMap((item) => {
+    const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
+    if (!record || record.status !== "generated" || !record.media) return [];
+    // Only newly written media or previously verified on-disk media may be
+    // published. An imported index alone is not evidence that a file exists.
+    if (!capturedById.has(item.id) && (!adapter.writeFile || !adapter.verifiedMedia?.has(item.id))) return [];
+    const captured = capturedById.get(item.id);
+    return [captured ?? {
+      id: item.id, source: item.source, category: item.category,
+      command: item.command, folder: record.media.slice(0, record.media.lastIndexOf("/")),
+      media: record.media, frameCount: record.frameCount ?? 0, durationSeconds: record.durationSeconds ?? 0,
+      frameRate: fps, width, height, format: "apng" as const,
+    }];
   });
-
-  const toggle = useCallback(() => {
-    const controller = controllerRef.current;
-    if (!controller || controller.timeline.duration <= 0) return;
-    controller.timeline.toggle();
-    setPlaying(controller.timeline.playing);
-  }, []);
-
-  const setPref = (patch: Partial<ViewerSettings>) => {
-    if (!settings) return;
-    void saveSettings({ ...settings, viewer: { ...settings.viewer, ...patch } }).catch(() => undefined);
-  };
-
-  /**
-   * Developer-only proof of concept: export the currently selected, fully loaded
-   * emote as a deterministic PNG frame sequence. This does not yet encode WebP/WebM
-   * or batch across the catalog.
-   */
-  const exportSelected = async () => {
-    const controller = controllerRef.current;
-    if (!controller || !entry || view.kind !== "ready" || exporting || maintenanceLockRef.current) return;
-    setExportError(null);
-    setExportProgress(null);
-    setExporting(true);
-    try {
-      const safeId = entry.id.replace(/[^a-zA-Z0-9_-]+/g, "_").slice(0, 100);
-      const { files } = await captureSequence(controller, {
-        sourceId: entry.id,
-        onProgress: (done, total) => setExportProgress({ done, total }),
-      });
-      const blob = makeZip(files);
-      const url = URL.createObjectURL(blob);
-      try {
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `emote-capture-${safeId || "preview"}.zip`;
-        link.click();
-      } finally {
-        setTimeout(() => URL.revokeObjectURL(url), 30000);
-      }
-    } catch (error) {
-      setExportError(error instanceof Error ? error.message : String(error));
-    } finally {
-      setExporting(false);
-      setExportProgress(null);
-    }
-  };
-
-  const exportBatch = async () => {
-    if (exporting || maintenanceLockRef.current || !gtaReady || !showMesh || main.meshState === "error") return;
-    const abort = new AbortController();
-    batchAbortRef.current = abort;
-    setExporting(true);
-    setExportError(null);
-    setLastBatchResult(null);
-    setBatchProgress("Preparing catalog…");
-    const original = useAppStore.getState();
-    const originalId = original.selectedId;
-    const originalLayering = original.layering;
-    const originalSecondary = original.secondaryId;
-    const originalManual = original.manualClip;
-    try {
-      // Keep one visible emote at a time. A prior secondary clip can
-      // otherwise contaminate the export of the next selected animation.
-      useAppStore.getState().setLayering(false);
-      useAppStore.getState().setSecondary(null);
-      useAppStore.getState().setManualClip(null);
-      // Shared animations must be rendered with both characters when enabled;
-      // avoid mutating the saved viewer preference during batch capture.
-      const emotes = useAppStore.getState().entries;
-      // A selected folder is the source of truth, not a potentially stale browser cache.
-      // Re-read its index and verify media immediately before planning each export.
-      let activeIndex = previewIndex;
-      let activeMedia = verifiedMedia;
-      if (previewDirectory) {
-        const recovered = await recoverPreviewLibrary(previewDirectory);
-        activeIndex = recovered.index;
-        activeMedia = recovered.present;
-        setPreviewIndex(activeIndex);
-        setVerifiedMedia(activeMedia);
-        if (recovered.recovered || recovered.reconciled) {
-          setBatchProgress(`Recovered ${recovered.recovered} published previews; reconciled ${recovered.reconciled} unpublished index records.`);
-        }
-      }
-      if (previewDirectory && !rebuildAll && !activeMedia && Object.values(activeIndex.entries).some((record) => record.status === "generated")) {
-        throw new Error("Verify the existing preview folder before an incremental update, or select Rebuild all.");
-      }
-      const ped = settings?.ped ?? DEFAULT_PED;
-      const partnerPed = settings?.partnerPed ?? ped;
-      // ZIP downloads must be self-contained; force a full catalog rebuild when
-      // there is no selected output folder, regardless of incremental toggle.
-      const exportMode = !previewDirectory || rebuildAll ? "rebuild" : "update";
-      const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, exportMode, activeMedia ?? undefined);
-      const plan = incremental.plan;
-      // Validate the entire catalog even when an incremental update is a no-op.
-      // A changed/ambiguous source must not be silently treated as published.
-      const fullCatalog = planCatalogBatch(emotes).ready;
-      const identities = new Set<string>();
-      const stems = new Set<string>();
-      for (const item of fullCatalog) {
-        if (!item.id.trim() || !item.source?.trim() || !item.category?.trim() || !item.command?.trim()) {
-          throw new Error("Export catalog contains an empty preview identity field");
-        }
-        const identity = JSON.stringify([item.source.toLowerCase(), item.category.toLowerCase(), item.command.toLowerCase()]);
-        if (identities.has(identity) || stems.has(item.outputStem)) {
-          throw new Error("Ambiguous preview catalog; duplicate identity or output path");
-        }
-        identities.add(identity);
-        stems.add(item.outputStem);
-      }
-      if (!plan.ready.length && !incremental.removed.length && previewDirectory) {
-        // A no-op update is still a completed operation. Give the developer a
-        // truthful summary rather than leaving the previous result cleared.
-        setLastBatchResult({
-          captured: 0, failed: 0, skipped: plan.skipped.length,
-          unchanged: incremental.unchanged.length, removed: 0,
-          destination: "Selected folder",
-        });
-        setBatchProgress(`Up to date: ${incremental.unchanged.length} unchanged, ${plan.skipped.length} unsupported; no files written`);
-        return;
-      }
-      const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
-      const result = await exportCatalogBatch(plan, {
-        signal: abort.signal,
-        capture: { fps: 12, width: 320, height: 320, maxSeconds: 3 },
-        previousIndex: activeIndex,
-        verifiedMedia: activeMedia ?? undefined,
-        fingerprints,
-        catalog: fullCatalog,
-        writeFile: previewDirectory ? async (path, data) => {
-          const parts = path.split("/");
-          if (parts.some((part) => !part || part === "." || part === ".." || part.includes("\\") || part.includes(":"))) {
-            throw new Error("Unsafe preview export path");
-          }
-          let directory = previewDirectory;
-          for (const part of parts.slice(0, -1)) directory = await directory.getDirectoryHandle(part, { create: true });
-          const handle = await directory.getFileHandle(parts[parts.length - 1], { create: true });
-          const writable = await handle.createWritable();
-          try { await writable.write(new Blob([new Uint8Array(data)])); await writable.close(); }
-          catch (error) {
-            // Aborting a failed write is best-effort; an abort failure must not
-            // replace the original filesystem error that caused the export to stop.
-            try { await writable.abort(); } catch { /* preserve original error */ }
-            throw error;
-          }
-        } : undefined,
-        onProgress: (p) => setBatchProgress(`Emotes ${p.completed}/${p.total} · captured ${p.captured} · failed ${p.failed}`),
-        load: async (item, signal) => {
-          useAppStore.getState().select(null);
-          // Force a React render and clip teardown before selecting the next
-          // entry; do not reuse the previous clip's ready state.
-          await new Promise<void>((resolve) => setTimeout(resolve, 50));
-          if (signal.aborted) throw new DOMException("Batch cancelled", "AbortError");
-          useAppStore.getState().select(item.id);
-          return waitForBatchReady({
-            id: item.id, signal, timeoutMs: 45000,
-            snapshot: () => ({ ...readyRef.current, controller: controllerRef.current }),
-          });
-        },
-      });
-      if (result.archive) {
-      const url = URL.createObjectURL(result.archive);
-      try {
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "emote-catalog-apng-previews.zip";
-        link.click();
-      } finally {
-        setTimeout(() => URL.revokeObjectURL(url), 30000);
-      }
-      }
-      if (previewDirectory) {
-        // Re-open the published index rather than trusting an in-memory success
-        // after a write. The next update will always recheck the folder too.
-        const published = await (await previewDirectory.getFileHandle("preview-index.json")).getFile();
-        const installedIndex = parsePreviewIndex(JSON.parse(await published.text()));
-        const checked = await verifyPreviewFiles(installedIndex, previewDirectory);
-        setPreviewIndex(installedIndex);
-        localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(installedIndex));
-        setVerifiedMedia(checked.present);
-        if (checked.missing.length) {
-          throw new Error(`Export completed but ${checked.missing.length} published preview files are missing; verify the folder and retry.`);
-        }
-      }
-      setLastBatchResult({ captured: result.captured, failed: result.failed, skipped: result.skipped, unchanged: incremental.unchanged.length, removed: incremental.removed.length, destination: previewDirectory ? "Selected folder" : "ZIP download" });
-      setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed${previewDirectory ? " · saved to selected folder" : " · ZIP downloaded"}`);
-      // The exported preview-index.json is authoritative for future updates.
-      // Import it after installing the new media to avoid marking missing files complete.
-    } catch (error) {
-      setExportError(error instanceof Error ? error.message : String(error));
-      setBatchProgress(abort.signal.aborted ? "Batch cancelled; previously published previews remain intact." : "Batch interrupted; check the preview folder before retrying.");
-    } finally {
-      useAppStore.getState().select(originalId);
-      useAppStore.getState().setLayering(originalLayering);
-      if (originalLayering) useAppStore.getState().setSecondary(originalSecondary);
-      useAppStore.getState().setManualClip(originalManual);
-      batchAbortRef.current = null;
-      setExporting(false);
-    }
-  };
-
-  const camera = (preset: CameraPreset) => controllerRef.current?.setCamera(preset);
-
-  // Ped switchers in the HUD: popovers with the same picker as the settings page. Write settings.ped / settings.partnerPed.
-  const [pedMenu, setPedMenu] = useState<"main" | "partner" | null>(null);
-  const pedList = usePedList(gtaReady && pedMenu !== null);
-  const pedMenuRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!pedMenu) return;
-    const onDown = (e: PointerEvent) => {
-      if (!pedMenuRef.current?.contains(e.target as Node)) setPedMenu(null);
+  // The published index and manifest must describe the same installed media.
+  // An imported index may contain stale generated entries that were never
+  // copied to this folder; those are NOT a valid source for future deltas.
+  const publishedMedia = new Map(completeManifest.map((entry) => [entry.id, entry.media]));
+  for (const item of catalog) {
+    const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
+    if (!record || record.status !== "generated") continue;
+    if (publishedMedia.get(item.id) === record.media) continue;
+    // Do not invent an installed file or preserve its fingerprint as current.
+    // Mark it failed so the next incremental pass retries the missing preview.
+    updatedIndex.entries[item.id] = {
+      fingerprint: record.fingerprint,
+      media: "",
+      status: "failed",
+      updatedAt: new Date().toISOString(),
     };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setPedMenu(null);
-    };
-    addEventListener("pointerdown", onDown);
-    addEventListener("keydown", onKey);
-    return () => {
-      removeEventListener("pointerdown", onDown);
-      removeEventListener("keydown", onKey);
-    };
-  }, [pedMenu]);
-  // The popover stays open after a pick so several peds can be tried in a row; Esc, the button or a click outside closes it.
-  const choosePed = (ped: string) => {
-    if (!settings) return;
-    if (pedMenu === "partner") {
-      const partnerPedNext = ped === settings.ped ? null : ped;
-      if (partnerPedNext === settings.partnerPed) return;
-      void saveSettings({ ...settings, partnerPed: partnerPedNext }).catch(() => undefined);
-    } else {
-      if (ped === settings.ped) return;
-      void saveSettings({ ...settings, ped }).catch(() => undefined);
-    }
-  };
-
-  const hasPartner = partner !== null;
-  const anyProps = mainSpec.props.length > 0 || (partner?.props.length ?? 0) > 0;
-  return (
-    <section className="viewer">
-      <div className="viewer-stage">
-        <canvas ref={canvasRef} className="viewer-canvas" />
-        <div className="viewer-hud" ref={pedMenuRef}>
-          <span className="viewer-hud-group peds">
-            <button type="button" className={`ped-button mono${pedMenu === "main" ? " on" : ""}`} aria-haspopup="listbox" aria-expanded={pedMenu === "main"} disabled={!gtaReady} title={t("viewer.ped.title")} onClick={() => setPedMenu((v) => (v === "main" ? null : "main"))}>
-              {activePed}
-              {entry?.ped && animalPeds ? <span className="tag">{t("viewer.ped.animal")}</span> : null}
-            </button>
-            {partnerActive && (
-              <button type="button" className={`ped-button mono${pedMenu === "partner" ? " on" : ""}`} aria-haspopup="listbox" aria-expanded={pedMenu === "partner"} disabled={!gtaReady} title={t("viewer.partner.ped.title")} onClick={() => setPedMenu((v) => (v === "partner" ? null : "partner"))}>
-                <span className="tag">{t("viewer.partner.tag")}</span>
-                {partnerPed}
-                {partner?.ped && animalPeds ? <span className="tag">{t("viewer.ped.animal")}</span> : null}
-              </button>
-            )}
-          </span>
-          {pedMenu && (
-            <div className="ped-popover" role="dialog" aria-label={pedMenu === "partner" ? t("settings.partnerPed.title") : t("settings.ped.title")}>
-              {pedMenu === "partner" && settings?.partnerPed && (
-                <button type="button" className="link" onClick={() => choosePed(settings.ped)}>
-                  {t("viewer.partner.same")}
-                </button>
-              )}
-              {pedList ? <PedPicker peds={pedList} selected={pedMenu === "partner" ? (settings?.partnerPed ?? settings?.ped ?? DEFAULT_PED) : (settings?.ped ?? DEFAULT_PED)} onSelect={choosePed} autoFocus /> : <p className="hint">{t("common.loading")}</p>}
-            </div>
-          )}
-          <button type="button" className={showHelpers ? "on" : ""} aria-pressed={showHelpers} onClick={() => setPref({ showHelperBones: !showHelpers })} title="MH_ / PH_ / IK_ / RB_">
-            {t("viewer.helperBones")}
-          </button>
-          <button type="button" className={rootMotion ? "on" : ""} aria-pressed={rootMotion} disabled={primaryMeta !== null && !primaryMeta.hasRootMotion} onClick={() => setPref({ rootMotion: !rootMotion })}>
-            {t("viewer.rootMotion")}
-          </button>
-          <button type="button" className={showProps ? "on" : ""} aria-pressed={showProps} disabled={!anyProps} onClick={() => setPref({ showProps: !showProps })}>
-            {t("viewer.props")}
-          </button>
-          <button type="button" className={showMesh ? "on" : ""} aria-pressed={showMesh} disabled={!gtaReady} title={main.meshState === "error" || second.meshState === "error" ? t("viewer.mesh.failed") : undefined} onClick={() => setPref({ showMesh: !showMesh })}>
-            {t("viewer.mesh")}
-            {showMesh && (main.meshState === "loading" || second.meshState === "loading") && <span className="spinner" aria-hidden="true" />}
-          </button>
-          <button type="button" className={showTextures ? "on" : ""} aria-pressed={showTextures} disabled={!gtaReady} onClick={() => setPref({ showTextures: !showTextures })}>
-            {t("viewer.textures")}
-          </button>
-          <button
-            type="button"
-            className={showCloth ? "on" : ""}
-            aria-pressed={showCloth}
-            disabled={!gtaReady || !showMesh || !(main.hasCloth || second.hasCloth)}
-            title={t("viewer.cloth.title")}
-            onClick={() => setPref({ showCloth: !showCloth })}
-          >
-            {t("viewer.cloth")}
-          </button>
-          <button
-            type="button"
-            className={animalPeds ? "on" : ""}
-            aria-pressed={animalPeds}
-            disabled={!entry?.ped && !partner?.ped}
-            title={entry?.ped ? t("viewer.animalPed.title", { ped: entry.ped }) : partner?.ped ? t("viewer.animalPed.title", { ped: partner.ped }) : undefined}
-            onClick={() => setPref({ animalPeds: !animalPeds })}
-          >
-            {t("viewer.animalPed")}
-          </button>
-          <button type="button" className={showPartner ? "on" : ""} aria-pressed={showPartner} disabled={!hasPartner} title={t("viewer.partner.title")} onClick={() => setPref({ showPartner: !showPartner })}>
-            {t("viewer.partner")}
-            {partnerActive && second.clips.primary.kind === "loading" && <span className="spinner" aria-hidden="true" />}
-          </button>
-          <span className="viewer-hud-group" role="group" aria-label={t("viewer.camera")}>
-            <button type="button" onClick={() => camera("front")}>{t("viewer.camera.front")}</button>
-            <button type="button" onClick={() => camera("side")}>{t("viewer.camera.side")}</button>
-            <button type="button" onClick={() => camera("top")}>{t("viewer.camera.top")}</button>
-            <button type="button" onClick={() => camera("reset")}>{t("viewer.camera.reset")}</button>
-          </span>
-        </div>
-        <div className="viewer-axes mono">
-          {main.rigPed ?? ""}
-          {second.rigPed && partnerActive ? ` + ${second.rigPed}` : ""}
-          {main.rigPed ? " · " : ""}
-          {t("viewer.axes")}
-        </div>
-        <div style={{ position: "absolute", right: 12, bottom: 12, zIndex: 5, display: "flex", alignItems: "center", gap: 8 }}>
-          {exportError && <span role="alert" style={{ color: "#ff9c9c", fontSize: 12 }}>{exportError}</span>}
-          <label style={{ fontSize: 12 }}><input type="checkbox" checked={rebuildAll} onChange={(e) => setRebuildAll(e.target.checked)} disabled={exporting || maintenanceBusy} /> Rebuild all</label>
-          <button type="button" disabled={exporting || maintenanceBusy} title="Select the preview library folder for direct incremental export and verification"
-            onClick={() => {
-              const picker = (window as Window & { showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
-              if (!picker) { setExportError("Directory verification requires a browser supporting the File System Access API."); return; }
-              void picker.call(window).then(async (directory) => {
-                const recovered = await recoverPreviewLibrary(directory);
-                setPreviewIndex(recovered.index);
-                setPreviewDirectory(directory);
-                return recovered;
-              }).then((result) => {
-                setVerifiedMedia(result.present);
-                setBatchProgress(`Verified ${result.present.size} previews; ${result.missing.length} missing; ${result.recovered} recovered from manifest; ${result.reconciled} unpublished index records reconciled`);
-                setExportError(null);
-              }).catch((error: unknown) => {
-                if (error instanceof DOMException && error.name === "AbortError") return;
-                setExportError(error instanceof Error ? error.message : String(error));
-              });
-            }}>Select preview folder</button>
-          {previewDirectory && <span title="Current direct-export destination" style={{ fontSize: 12 }}>Folder: {previewDirectory.name}</span>}
-          <button type="button" disabled={exporting || maintenanceBusy || !previewDirectory}
-            title="Review obsolete generated media and remove only unreferenced preview files"
-            onClick={() => {
-              if (!previewDirectory || exporting || maintenanceLockRef.current) return;
-              maintenanceLockRef.current = true;
-              setMaintenanceBusy(true);
-              void (async () => {
-                const plan = await planPreviewCleanup(previewDirectory);
-                if (!plan.obsolete.length) {
-                  setBatchProgress(`Cleanup checked ${plan.inspected} previews; none obsolete.`);
-                  return;
-                }
-                if (!window.confirm(`Delete ${plan.obsolete.length} unreferenced preview files? ${plan.retained} published previews will be retained. This cannot be undone.`)) return;
-                const removed = await deleteObsoletePreviews(previewDirectory);
-                setBatchProgress(`Removed ${removed} obsolete preview files; published media preserved.`);
-              })().catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)))
-                .finally(() => { maintenanceLockRef.current = false; setMaintenanceBusy(false); });
-            }}>Clean old previews</button>
-          {previewDirectory && <button type="button" disabled={exporting || maintenanceBusy} onClick={() => {
-            setPreviewDirectory(null);
-            setVerifiedMedia(null);
-            setBatchProgress("Preview folder disconnected; exports will download a ZIP.");
-          }}>Disconnect folder</button>}
-          <label style={{ fontSize: 12, cursor: "pointer" }}>
-            Import preview index
-            <input type="file" accept=".json,application/json" disabled={exporting || maintenanceBusy} style={{ width: 120 }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                void file.text().then((content) => {
-                  const parsed = parsePreviewIndex(JSON.parse(content));
-                  setPreviewIndex(parsed);
-                  setVerifiedMedia(null);
-                  localStorage.setItem("emotePreviewer.previewIndex.v1", JSON.stringify(parsed));
-                  setBatchProgress(`Loaded index with ${Object.keys(parsed.entries).length} records`);
-                  setExportError(null);
-                }).catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)));
-                e.target.value = "";
-              }} />
-          </label>
-          <button type="button" disabled={exporting || maintenanceBusy} aria-expanded={showExportPlan}
-            onClick={() => setShowExportPlan((open) => !open)}>
-            {showExportPlan ? "Hide export plan" : "Review export plan"}
-          </button>
-          {showExportPlan && (
-            <div role="region" aria-label="Preview export plan" style={{
-              position: "absolute", right: 0, bottom: 48, width: 360, maxWidth: "90vw",
-              padding: 14, borderRadius: 8, background: "#171d29", color: "#fff",
-              boxShadow: "0 6px 24px #0008", fontSize: 12, lineHeight: 1.7,
-            }}>
-              <strong>PowerMoves preview production</strong>
-              <div>Destination: {exportDestination}</div>
-              <div>Mode: {rebuildAll ? "Rebuild all" : "Incremental update"}</div>
-              <div>Ready to capture: {exportPlan.plan.ready.length} · Unchanged: {exportPlan.unchanged.length}</div>
-              <div>New: {exportPlan.added.length} · Changed: {exportPlan.changed.length} · Retry: {exportPlan.retry.length}</div>
-              <div>Removed: {exportPlan.removed.length} · Unsupported: {exportPlan.plan.skipped.length}</div>
-              <div>Installed media verified: {verifiedMedia?.size ?? 0}</div>
-              {!previewDirectory && <div style={{ color: "#ffd28b" }}>
-                No preview folder selected. ZIP output contains only media generated in this run;
-                select a folder to preserve unchanged previews.
-              </div>}
-              {!gtaReady && <div style={{ color: "#ffd28b" }}>GTA V Legacy assets are not ready.</div>}
-              {!showMesh && <div style={{ color: "#ffd28b" }}>Enable the ped mesh before exporting.</div>}
-            </div>
-          )}
-          {lastBatchResult && <button type="button" onClick={() => {
-            const report = [
-              "PowerMoves Development — EmotePreviewer export summary",
-              `Captured: ${lastBatchResult.captured}`,
-              `Failed: ${lastBatchResult.failed}`,
-              `Unsupported/skipped: ${lastBatchResult.skipped}`,
-              `Unchanged: ${lastBatchResult.unchanged}`,
-              `Removed: ${lastBatchResult.removed}`,
-              `Destination: ${lastBatchResult.destination}`,
-              "Runtime and FiveM playback verification remain pending.",
-            ].join("\n");
-            const url = URL.createObjectURL(new Blob([report], { type: "text/plain" }));
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = "emotepreviewer-export-summary.txt";
-            link.click();
-            setTimeout(() => URL.revokeObjectURL(url), 30000);
-          }}>Download export summary</button>}
-          {batchProgress && <span role="status" style={{ fontSize: 12 }}>{batchProgress}</span>}
-          {batchAbortRef.current ? (
-            <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
-          ) : (
-            <button type="button" onClick={() => void exportBatch()} disabled={exporting || maintenanceBusy || !gtaReady || !showMesh} title="Export all previewable animations as experimental transparent animated PNG previews">
-              Export catalog animated previews
-            </button>
-          )}
-          <button type="button" onClick={() => void exportSelected()} disabled={view.kind !== "ready" || exporting || maintenanceBusy || !showMesh || main.meshState !== "ready"} title="Developer proof of concept: ZIP of transparent PNG frames (requires loaded ped mesh)">
-            {exporting ? `Capturing ${exportProgress?.done ?? 0}/${exportProgress?.total ?? "…"}…` : "Export PNG frames"}
-          </button>
-        </div>
-        <ViewerOverlay view={view} />
-      </div>
-      <Transport controllerRef={controllerRef} playing={playing} onToggle={toggle} enabled={view.kind === "ready"} meta={view.kind === "ready" ? view.meta : null} layer={view.kind === "ready" ? view.layer : "primary"} />
-    </section>
-  );
-}
-
-function ViewerOverlay({ view }: { view: ViewState }) {
-  const t = useT();
-  const status = useAppStore((s) => s.status);
-  if (view.kind === "ready") return null;
-  let text: string;
-  let sub: string | null = null;
-  switch (view.kind) {
-    case "idle":
-      text = t("viewer.state.idle");
-      break;
-    case "loading":
-      text = t("viewer.state.loading");
-      break;
-    case "waitingGta":
-      text = t("viewer.state.waitingGta");
-      sub = status ? describeGta(status.gta, status.progressDone, status.progressTotal, t) : null;
-      break;
-    case "notPreviewable":
-      text = t("viewer.state.notPreviewable");
-      sub = t(`reason.${view.reason}` as "reason.kind");
-      break;
-    default:
-      text = t("viewer.state.error", { message: view.message });
   }
-  return (
-    <div className={`viewer-overlay ${view.kind}`} role="status">
-      <p>{text}</p>
-      {sub && <p className="sub">{sub}</p>}
-    </div>
-  );
-}
-
-function describeGta(state: string, done: number, total: number, t: ReturnType<typeof useT>): string {
-  switch (state) {
-    case "indexing":
-      return total > 0 ? t("status.indexingProgress", { done, total }) : t("status.indexing");
-    case "missingGta":
-      return t("status.missingGta");
-    case "missingKeys":
-      return t("status.missingKeys");
-    default:
-      return "";
+  // The PM Emotes consumer indexes the original source/category/command triple.
+  // Reject ambiguous exports before publication instead of silently dropping
+  // an entry or assigning the wrong animated preview in the NUI.
+  const identityKeys = new Set<string>();
+  const publishedIds = new Set<string>();
+  for (const item of completeManifest) {
+    const identity = JSON.stringify([item.source.toLowerCase(), item.category.toLowerCase(), item.command.toLowerCase()]);
+    if (identityKeys.has(identity)) throw new Error(`Duplicate published preview identity: ${identity}`);
+    if (publishedIds.has(item.id)) throw new Error(`Duplicate published preview ID: ${item.id}`);
+    identityKeys.add(identity);
+    publishedIds.add(item.id);
+    if (!item.source || !item.category || !item.command || !item.id) {
+      throw new Error("Published preview identity contains an empty field");
+    }
   }
-}
-
-interface TransportProps {
-  controllerRef: React.RefObject<ViewerController | null>;
-  playing: boolean;
-  enabled: boolean;
-  meta: ClipMetaDto | null;
-  /** The layer of the main ped whose clip the frame counter shows. */
-  layer: EmoteSlot;
-  onToggle: () => void;
-}
-
-/**
- * Play / scrub / speed / loop over the shared timeline (as long as the longest clip incl. its start delay); the frame
- * counter shows the selected entry's clip. Re-renders only itself ~30× per second while a clip plays.
- */
-function Transport({ controllerRef, playing, enabled, meta, layer, onToggle }: TransportProps) {
-  const t = useT();
-  const [time, setTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [loop, setLoop] = useState(true);
-  const [speed, setSpeed] = useState(1);
-  const scrubbing = useRef(false);
-  const fps = meta?.fps ?? 30;
-
-  useEffect(() => {
-    let frame = 0;
-    let last = 0;
-    const loopFn = (now: number) => {
-      frame = requestAnimationFrame(loopFn);
-      if (now - last < 33) return;
-      last = now;
-      const controller = controllerRef.current;
-      if (!controller) return;
-      setDuration(controller.timeline.duration);
-      if (!scrubbing.current) setTime(controller.timeline.time);
-    };
-    frame = requestAnimationFrame(loopFn);
-    return () => cancelAnimationFrame(frame);
-  }, [controllerRef]);
-
-  const seek = (value: number) => {
-    const controller = controllerRef.current;
-    if (!controller) return;
-    controller.seek(value);
-    setTime(value);
-  };
-
-  const clipTime = controllerRef.current?.layerTime("main", layer) ?? 0;
-  const frameIndex = Math.min(meta ? meta.frames - 1 : 0, Math.round(clipTime * fps));
-  return (
-    <div className="transport">
-      <button type="button" className="play" onClick={onToggle} disabled={!enabled} aria-label={playing ? t("viewer.pause") : t("viewer.play")}>
-        {playing ? "❚❚" : "▶"}
-      </button>
-      <input
-        type="range"
-        min={0}
-        max={Math.max(0.001, duration)}
-        step={1 / fps}
-        value={Math.min(time, duration)}
-        disabled={!enabled}
-        aria-label={t("viewer.frame")}
-        onPointerDown={() => (scrubbing.current = true)}
-        onPointerUp={() => (scrubbing.current = false)}
-        onChange={(e) => seek(Number(e.target.value))}
-      />
-      <span className="time mono">
-        <b>{time.toFixed(2)}</b> / {duration.toFixed(2)} s · f <b>{frameIndex}</b>
-        {meta ? `/${meta.frames - 1}` : ""}
-      </span>
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={loop}
-          onChange={(e) => {
-            setLoop(e.target.checked);
-            controllerRef.current?.setLoop(e.target.checked);
-          }}
-        />
-        {t("viewer.loop")}
-      </label>
-      <select
-        value={speed}
-        aria-label={t("viewer.speed")}
-        onChange={(e) => {
-          const v = Number(e.target.value);
-          setSpeed(v);
-          controllerRef.current?.setSpeed(v);
-        }}
-      >
-        <option value={0.25}>0.25×</option>
-        <option value={0.5}>0.5×</option>
-        <option value={1}>1×</option>
-        <option value={2}>2×</option>
-      </select>
-    </div>
-  );
+  // A verified file is not proof that imported capture metadata is valid.
+  // Check number types before arithmetic: NaN otherwise slips through every
+  // comparison and can be published as a plausible manifest record.
+  for (const item of completeManifest) {
+    if (!Number.isInteger(item.frameCount) || item.frameCount < 1 ||
+        !Number.isFinite(item.durationSeconds) || item.durationSeconds <= 0 ||
+        !Number.isInteger(item.frameRate) || item.frameRate < 1 ||
+        !Number.isInteger(item.width) || item.width < 1 ||
+        !Number.isInteger(item.height) || item.height < 1) {
+      throw new Error(`Incomplete preview capture metadata: ${item.id}`);
+    }
+    if (item.frameRate !== fps || item.width !== width || item.height !== height) {
+      throw new Error(`Preview profile mismatch for ${item.id}`);
+    }
+    if (item.durationSeconds > maxSeconds || item.frameCount > Math.ceil(maxSeconds * fps) ||
+        item.frameCount !== Math.ceil(item.durationSeconds * fps)) {
+      throw new Error(`Preview duration/frame mismatch for ${item.id}`);
+    }
+  }
+  // A complete manifest must never contain duplicate paths, even when the
+  // identities differ. Each APNG is owned by exactly one catalog entry.
+  const publishedPaths = new Set<string>();
+  for (const item of completeManifest) {
+    if (publishedPaths.has(item.media)) {
+      throw new Error(`Multiple preview identities reference the same media: ${item.media}`);
+    }
+    publishedPaths.add(item.media);
+  }
+  // Validate all final publication references before emitting metadata.
+  // Media paths must remain within our immutable preview tree.
+  for (const item of completeManifest) {
+    if (!/^previews\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/preview\.png$/.test(item.media)) {
+      throw new Error(`Unsafe published media path for ${item.id}`);
+    }
+  }
+  check(adapter.signal);
+  await emit(textFile("report.json", {
+    schemaVersion: 1,
+    planned: total, captured: manifest.length, failed: failures.length,
+    published: completeManifest.length,
+    retainedAfterFailure: retainedAfterFailure.size,
+    added: adapter.summary?.added ?? 0,
+    changed: adapter.summary?.changed ?? 0,
+    retry: adapter.summary?.retry ?? 0,
+    unchanged: adapter.summary?.unchanged ?? 0,
+    removed: adapter.summary?.removed ?? 0,
+    skipped: plan.skipped.length, captureProfile, failures, skippedEntries: plan.skipped,
+  }));
+  // Stage the producer index first. The consumer manifest is the LAST
+  // publication write: failure before it leaves the previous manifest intact,
+  // and recovery reconciles any staged index records against that manifest.
+  // This is a recoverable commit protocol, not a multi-file atomic rename.
+  await emit(textFile("preview-index.json", updatedIndex));
+  await emit(textFile("manifest.json", {
+    schemaVersion: 1,
+    publicationId: runId,
+    format: "experimental-apng",
+    captureProfile,
+    note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
+    entries: completeManifest,
+  }));
+  return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
 }
