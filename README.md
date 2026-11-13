@@ -1,23 +1,23 @@
-# PowerMoves EmotePreviewer
+# PowerMoves Development — EmotePreviewer
 
-**A PowerMoves Development tool for PowerMoves Roleplay (PowerMoves RP).**
+**Windows developer tool for PowerMoves Roleplay (PowerMoves RP).** Built on [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer), retaining upstream attribution and MIT licensing.
 
-This fork extends [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer) toward an offline production workflow for creating optimized, locally hosted animation previews for **PM Emotes**, the PowerMoves RP FiveM emote interface.
+## Current status
+The original GTA V Legacy viewer and the PowerMoves preview-production pipeline are **implemented in source**: transparent capture, APNG encoding, catalog batch, full ZIP/direct-folder export, incremental index, manifest/report, recovery, cleanup and developer UI. This is **not yet a delivered Windows executable**. Remaining work is source reconciliation, corrections, executable packaging and user desktop acceptance—not planning or rebuilding these features.
 
-**Development status:** Milestones 1–4 have source implementations; Milestone 5 is undergoing source audit and hardening. Build and runtime acceptance have not been established. Experimental batch APNG capture, incremental preview indexes, direct-to-folder export, and guarded cleanup are implemented in source. Windows runtime behavior, generated APNG playback in FiveM Chromium, and end-to-end PM Emotes integration remain **unverified**. Do not treat the current exporter as production-ready.
+**Authoritative task list:** [Development completion checklist](development-reference/completion-checklist.md). Checkboxes distinguish implemented source from remaining work; no current Windows/GTA/FiveM execution success is claimed.
 
-### PowerMoves development
+**Build configuration:** `.github/workflows/build.yml` runs Node tests/build, .NET build/tests and self-contained win-x64 executable publication. The presence of the workflow is not proof that an artifact has been produced.
 
-- [Development reference and project decisions](development-reference/README.md)
-- [Preview export and integration architecture](development-reference/preview-export-architecture.md)
-- [Milestones and verification checklist](development-reference/milestones.md)
-- [Original developer's technical guide](Docs/development.md)
+**Output contract:** experimental 320×320 / 12 fps / up to 3 seconds APNG previews, `manifest.json`, `preview-index.json`, `report.json`; standalone ZIP full rebuild or direct-to-folder incremental export. The separate PM Emotes resource consumes the exported preview library. No preview generator runs inside FiveM.
 
-**Approach:** Keep all preview rendering in this Windows development utility. PM Emotes only consumes the exported media and manifest; PM AutoShot is retired. The APNG format remains experimental pending FiveM NUI playback validation.
-
-**Build verification:** GitHub Actions runs frontend `npm ci && npm run build`, Windows .NET solution build and tests, and publishes a Windows executable artifact. A successful workflow and actual Windows/PM Emotes playback testing are still required before release.
-
-**Attribution:** The original EmotePreviewer is created by [Acc-Off](https://github.com/Acc-Off) and distributed under the [MIT License](LICENSE). This fork is maintained for PowerMoves RP by PowerMoves Development. The original documentation follows below.
+## Project references
+- [Authoritative implementation and delivery checklist](development-reference/completion-checklist.md)
+- [Active milestone status](development-reference/milestones.md)
+- [Implemented export architecture](development-reference/preview-export-architecture.md)
+- [Source audit and defect history](development-reference/source-inventory-2026-11-12.md)
+- [Development reference index](development-reference/README.md)
+- [Upstream technical guide](Docs/development.md)
 
 ---
 

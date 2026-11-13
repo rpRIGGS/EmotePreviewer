@@ -62,3 +62,8 @@ Regression coverage added for interrupted publication recovery: mismatched index
 **Checks not completed:** an actual TypeScript typecheck, Node test execution, .NET compilation, Windows desktop launch, real GTA capture, APNG playback, or PM Emotes acceptance. These cannot be represented as passing. The review accessed the identified export/viewer/library source modules and test files through the repository connector; it was not a recursive checkout or exhaustive audit of every original upstream backend file. No claim of a fully verified release is justified.
 
 **Remaining release gate:** execute existing frontend tests/build and .NET/Windows build when available, address any failures, generate a real preview catalog, and verify consumer playback. Source features are present; release readiness remains unverified.
+
+
+## Authoritative status reconciliation — 2026-11-12
+
+The current active checklist is [completion-checklist.md](completion-checklist.md). Earlier inventory statements describing report → manifest → index publication, rejection of an initial staged index without a manifest, or unimplemented standalone ZIP safeguards are historical and **superseded**. Current code publishes report → index → manifest, discards an initial staged index when no manifest exists (commit `55ab268`), and allows standalone ZIP rebuild without a selected folder (commit `270c8d1`). The producer's main feature set is implemented in source, but the remaining source audit, developer checks, Windows executable packaging and user acceptance are open. Do not label them as planning-stage features or as finished deliveries.

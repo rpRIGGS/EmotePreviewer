@@ -1,37 +1,20 @@
 # PowerMoves Development — EmotePreviewer reference
 
-## Purpose
-This folder is the project-specific source of truth for the PowerMoves RP EmotePreviewer fork. It supplements, rather than replaces, the original developer's `Docs/development.md`.
+This directory documents the implemented Windows producer, known defects and remaining delivery work. The [completion checklist](completion-checklist.md) is the **single authoritative execution backlog**. Historical milestone and inventory notes are supporting records, not competing planning lists.
 
-**Owner:** PowerMoves Development  
-**Target platform:** Offline Windows developer tool, producing preview media consumed by the PM Emotes FiveM NUI.  
-**Upstream:** https://github.com/Acc-Off/EmotePreviewer  
-**Consumer:** PowerMoves RP / PM Emotes.
-
-## Confirmed foundation
-- The upstream viewer reads GTA V Legacy archives and resource Lua catalogs, decodes animation clips, and renders peds and attached props with three.js.
-- The application uses a .NET 10 local API and React/TypeScript frontend.
-- It supports local resource folders, shared emotes, walk styles, props, and custom resource files.
-- The upstream documentation does **not** establish an automated media-export feature.
-
-## Approved direction
-1. Extend the existing offline renderer rather than recreate animation playback inside FiveM.
-2. Export an optimized, local preview library for PM Emotes; PM Emotes displays media, not GTA archive assets.
-3. Current source implementation produces experimental APNG at 320×320 and 12 fps; retain the format as provisional until real FiveM Chromium playback is verified.
-4. Generate stable, deterministic catalog-to-file mappings and a manifest.
-5. Preserve original viewer operation and upstream attribution.
-6. Do not embed game archive keys or copyrighted GTA game assets in the repository or exported source packages.
-
-## Scope boundaries
-- The exporter is a **development-time tool**, not a FiveM server resource.
-- PM Emotes retains its existing gameplay and NoPixel-inspired interface; only the preview-loading contract is under consideration.
-- Batch export, manifest/index generation, recovery, and folder workflow are implemented in source. No successful CI run, Windows runtime capture, server test, or generated production preview library is claimed.
+## Project
+- Producer: `rpRIGGS/EmotePreviewer` (`main`), standalone Windows .NET 10 + React/Three.js GTA V Legacy animation viewer/exporter.
+- Consumer: `rpRIGGS/pm-emotes` (`master`), separate FiveM resource that displays generated local previews.
+- Upstream: [Acc-Off/EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer), MIT license.
+- Media: APNG 320×320, 12 fps, max 3s, currently experimental until user desktop/FiveM acceptance.
+- No game encryption keys or extracted GTA assets in repository. No preview generation inside FiveM.
 
 ## Documents
-- [Architecture and open technical questions](preview-export-architecture.md)
-- [Milestones and acceptance checks](milestones.md)
-- [Current implementation inventory](source-inventory-2026-11-12.md)
-- [Original technical guide](../Docs/development.md)
+1. [Completion checklist — implemented and outstanding](completion-checklist.md)
+2. [Active milestone status](milestones.md)
+3. [Implemented preview export architecture](preview-export-architecture.md)
+4. [Source inventory and defect history](source-inventory-2026-11-12.md)
+5. [Original developer guide](../Docs/development.md)
 
-## Working conventions
-Document architectural decisions before modifying the preview contract. Prefer substantial, coherent implementation milestones with verification rather than isolated speculative changes. Keep upstream documentation and licensing intact.
+## Status discipline
+Implemented source is marked [x]; unperformed delivery, build and user acceptance is marked [ ]. No claims of a successful Windows executable or FiveM playback without evidence. The user performs desktop and FiveM acceptance; build checks are developer work, not a reason to halt source development. No Microsoft/GitHub outage is an established dependency.
