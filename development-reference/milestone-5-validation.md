@@ -29,3 +29,7 @@ Milestone 5 source hardening and the CI verification workflow can be completed w
 ## Frame-profile invariants
 
 The manifest publisher now checks that every newly captured or retained APNG reports the active render profile (12 fps, 320×320) and that frame count equals the ceiling of duration times frame rate, within the configured maximum duration. Existing-media verification alone cannot authorize a stale record with incompatible capture metadata. Invalid records stop manifest publication rather than entering the consumer library.
+
+## Invalid coordinator inputs
+
+Reject malformed batch plan/catalog arrays before any export work begins. Empty incremental plans remain supported when a valid complete catalog is supplied.

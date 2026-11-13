@@ -48,6 +48,12 @@ function check(signal?: AbortSignal): void {
 export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter): Promise<BatchResult> {
   // Refuse ambiguous catalogs before writing a single file. Duplicate IDs
   // would otherwise let one capture silently replace another in the index.
+  // Validate the complete catalog even when no emotes need recapturing.
+  // Otherwise a no-op incremental export can silently publish ambiguous IDs.
+  const completeCatalog = adapter.catalog ?? plan.ready;
+  if (!Array.isArray(completeCatalog) || !Array.isArray(plan.ready) || !Array.isArray(plan.skipped)) {
+    throw new Error("Invalid batch export plan or catalog");
+  }
   const catalogIds = (adapter.catalog ?? plan.ready).map((entry) => entry.id);
   const catalogIdSet = new Set(catalogIds);
   if (catalogIdSet.size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
