@@ -17,3 +17,11 @@ Before the first capture or filesystem write, the batch exporter now checks that
 ## Case-folded identity collision prevention
 
 The PM Emotes resolver compares command names case-insensitively. Preflight and publication uniqueness therefore normalize source/category/command to lowercase for collision detection while preserving original spellings in the manifest. This prevents an export containing both `wave` and `WAVE` from passing producer validation but becoming ambiguous to the consumer.
+
+## Final publication checks (source implementation)
+
+Before publishing metadata, the exporter rejects any complete manifest that reuses a media path across distinct entries or contains missing/invalid frame count, duration, frame rate, width or height. Retained incremental previews must carry valid capture metadata; old imported index records without it are not silently published as valid captures. The publication check runs after media generation but before the new manifest and index are emitted.
+
+## Development completion versus deferred runtime acceptance
+
+Milestone 5 source hardening and the CI verification workflow can be completed without a running FiveM server. **Milestone 5 runtime acceptance remains pending** until the existing Windows build, Node regression suites, APNG playback and end-to-end export/import checks execute successfully. Do not infer a passing test result from source review or a successful GitHub commit.

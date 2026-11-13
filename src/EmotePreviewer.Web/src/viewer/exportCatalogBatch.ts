@@ -198,7 +198,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       id: item.id, source: item.source, category: item.category,
       command: item.command, folder: record.media.slice(0, record.media.lastIndexOf("/")),
       media: record.media, frameCount: record.frameCount ?? 0, durationSeconds: record.durationSeconds ?? 0,
-      frameRate: 12, width: 320, height: 320, format: "apng" as const,
+      frameRate: fps, width, height, format: "apng" as const,
     }];
   });
   // The published index and manifest must describe the same installed media.
@@ -231,6 +231,22 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     publishedIds.add(item.id);
     if (!item.source || !item.category || !item.command || !item.id) {
       throw new Error("Published preview identity contains an empty field");
+    }
+  }
+  // A complete manifest must never contain duplicate paths, even when the
+  // identities differ. Each APNG is owned by exactly one catalog entry.
+  const publishedPaths = new Set<string>();
+  for (const item of completeManifest) {
+    if (publishedPaths.has(item.media)) {
+      throw new Error(`Multiple preview identities reference the same media: ${item.media}`);
+    }
+    publishedPaths.add(item.media);
+    if (!Number.isInteger(item.frameCount) || item.frameCount < 1 ||
+        !Number.isFinite(item.durationSeconds) || item.durationSeconds <= 0 ||
+        !Number.isInteger(item.frameRate) || item.frameRate < 1 ||
+        !Number.isInteger(item.width) || item.width < 1 ||
+        !Number.isInteger(item.height) || item.height < 1) {
+      throw new Error(`Incomplete preview capture metadata: ${item.id}`);
     }
   }
   // Validate all final publication references before emitting metadata.
