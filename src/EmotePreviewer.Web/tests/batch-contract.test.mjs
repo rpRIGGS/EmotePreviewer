@@ -149,3 +149,13 @@ test("rejects cancellation before writing report or manifest", async () => {
   }), /Batch export cancelled/);
   assert.deepEqual(writes, []);
 });
+
+test("preflight does not publish any metadata for a malformed imported index", async () => {
+  const writes = [];
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    previousIndex: { schemaVersion: 1, entries: { bad: { status: "generated", fingerprint: null, media: "x" } } },
+    writeFile: async (name) => { writes.push(name); },
+    load: async () => { throw new Error("unexpected load"); },
+  }), /Invalid previous preview index record/);
+  assert.deepEqual(writes, []);
+});

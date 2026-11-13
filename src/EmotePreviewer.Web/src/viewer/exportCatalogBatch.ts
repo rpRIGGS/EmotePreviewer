@@ -59,7 +59,12 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       plan.ready.some((entry) => !entry || typeof entry !== "object")) {
     throw new Error("Invalid batch catalog entry");
   }
-  // Reject unsafe imported IDs before using them as object-map keys.\n  if (completeCatalog.some((entry) => typeof entry.id !== "string" ||\n      entry.id === "__proto__" || entry.id === "constructor" || entry.id === "prototype")) {\n    throw new Error("Unsafe export catalog identifier");\n  }\n  const catalogIds = completeCatalog.map((entry) => entry.id);
+  // Reject unsafe imported IDs before using them as object-map keys.
+  if (completeCatalog.some((entry) => typeof entry.id !== "string" ||
+      entry.id === "__proto__" || entry.id === "constructor" || entry.id === "prototype")) {
+    throw new Error("Unsafe export catalog identifier");
+  }
+  const catalogIds = completeCatalog.map((entry) => entry.id);
   const catalogIdSet = new Set(catalogIds);
   if (catalogIdSet.size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
   if (plan.ready.some((entry) => !catalogIdSet.has(entry.id))) throw new Error("Export plan contains an emote absent from the full catalog.");
@@ -136,7 +141,16 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       Array.isArray(adapter.previousIndex.entries))) {
     throw new Error("Invalid previous preview index");
   }
-  // Imported index objects can contain malformed records. Treat them as\n  // untrusted and never carry unknown record shapes into publication.\n  if (adapter.previousIndex && Object.entries(adapter.previousIndex.entries).some(([id, record]) =>\n    id === "__proto__" || id === "constructor" || id === "prototype" ||\n    !record || typeof record !== "object" ||\n    typeof record.fingerprint !== "string" || typeof record.media !== "string" ||\n    (record.status !== "generated" && record.status !== "failed"))) {\n    throw new Error("Invalid previous preview index record");\n  }\n  const updatedIndex: PreviewIndex = {
+  // Imported index objects can contain malformed records. Treat them as
+  // untrusted and never carry unknown record shapes into publication.
+  if (adapter.previousIndex && Object.entries(adapter.previousIndex.entries).some(([id, record]) =>
+    id === "__proto__" || id === "constructor" || id === "prototype" ||
+    !record || typeof record !== "object" ||
+    typeof record.fingerprint !== "string" || typeof record.media !== "string" ||
+    (record.status !== "generated" && record.status !== "failed"))) {
+    throw new Error("Invalid previous preview index record");
+  }
+  const updatedIndex: PreviewIndex = {
     schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
     entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
   };
@@ -287,7 +301,8 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       throw new Error(`Unsafe published media path for ${item.id}`);
     }
   }
-  check(adapter.signal);\n  await emit(textFile("report.json", {
+  check(adapter.signal);
+  await emit(textFile("report.json", {
     schemaVersion: 1,
     planned: total, captured: manifest.length, failed: failures.length,
     skipped: plan.skipped.length, captureProfile, failures, skippedEntries: plan.skipped,
