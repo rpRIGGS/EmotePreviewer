@@ -86,6 +86,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) throw new RangeError("Invalid batch dimensions");
   if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || maxSeconds > 30) throw new RangeError("Invalid batch duration");
   if (Math.ceil(maxSeconds * fps) > 1800) throw new RangeError("Batch capture profile exceeds APNG frame budget");
+  // The current incremental fingerprint identifies precisely this production
+  // profile. Different profiles require a new render version and fingerprint.
+  if (fps !== 12 || width !== 320 || height !== 320 || maxSeconds !== 3) {
+    throw new Error("Unsupported capture profile for current preview render version");
+  }
   // Every export run writes immutable media paths. A failed/interrupted run
   // cannot overwrite previews referenced by the last published manifest.
   const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;

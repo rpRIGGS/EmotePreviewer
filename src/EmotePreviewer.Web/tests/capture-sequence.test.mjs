@@ -50,3 +50,21 @@ test("invalid capture profile is rejected before rendering", async () => {
   await assert.rejects(() => captureSequence(rig, { sourceId: "wave", maxSeconds: 31 }), /Maximum duration/);
   assert.equal(rig.times.length, 0);
 });
+
+test("capture cleanup restores playback even if camera setup fails", async () => {
+  const rig = controller();
+  rig.beginCapture = () => { throw new Error("Camera initialization failed"); };
+  rig.endCapture = () => {};
+  await assert.rejects(() => captureSequence(rig, { sourceId: "wave" }), /Camera initialization failed/);
+  assert.equal(rig.timeline.playing, true);
+});
+test("capture cleanup releases camera lock after a frame error", async () => {
+  const rig = controller();
+  let ended = 0;
+  rig.beginCapture = () => {};
+  rig.endCapture = () => { ended++; };
+  rig.captureFramePng = () => { throw new Error("WebGL readback failed"); };
+  await assert.rejects(() => captureSequence(rig, { sourceId: "wave" }), /WebGL readback failed/);
+  assert.equal(ended, 1);
+  assert.equal(rig.timeline.playing, true);
+});
