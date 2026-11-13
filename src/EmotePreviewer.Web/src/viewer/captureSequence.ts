@@ -40,8 +40,10 @@ export async function captureSequence(controller: ViewerController, options: Cap
   try {
     // Include beginCapture in the protected region. If camera setup throws,
     // the developer's playback must still be restored.
-    controller.beginCapture?.();
+    // Mark capture active before setup: beginCapture may change camera or
+    // renderer state and then throw. Always attempt matching cleanup.
     captureStarted = true;
+    controller.beginCapture?.();
     onProgress?.(0, frameCount);
     for (let index = 0; index < frameCount; index++) {
       if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
