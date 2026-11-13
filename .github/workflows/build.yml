@@ -4,6 +4,7 @@ name: Build
 # The decoder regression tests skip themselves when the locally generated fixture is absent.
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, master]
   pull_request:
@@ -59,6 +60,14 @@ jobs:
 
       - name: Publish (self-contained, single file)
         run: dotnet publish src/EmotePreviewer.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:SkipWebBuild=true -o out/publish
+
+      - name: Verify published Windows executable
+        shell: pwsh
+        run: |
+          if (!(Test-Path "out/publish/EmotePreviewer.exe")) { throw "Missing published executable" }
+          $exe = Get-Item "out/publish/EmotePreviewer.exe"
+          if ($exe.Length -le 0) { throw "Published executable is empty" }
+          Write-Host "Verified Windows executable: $($exe.Length) bytes"
 
       - uses: actions/upload-artifact@v4
         with:
