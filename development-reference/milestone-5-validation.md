@@ -45,3 +45,7 @@ The incremental planner now schedules recapture of existing media when its retai
 ## Additional incremental contract cases
 
 The index parser now treats nonintegral frame counts and capture metadata exceeding the fixed profile as invalid, ensuring the incremental planner schedules regeneration. Tests cover added, changed, retry and rebuild plan membership. These are source-level regression cases; their execution remains to be verified.
+
+## Publication safety pass
+
+The exporter now rejects prototype-sensitive catalog IDs and malformed imported index records before writes. The index parser ignores array-shaped records. Cancellation is checked immediately before publishing metadata, including for no-op incremental batches. Added preflight and cancellation regression cases. Runtime validation is still a separate acceptance gate.

@@ -126,3 +126,26 @@ test("rejects invalid retained metadata before publishing a manifest", async () 
   }), /Incomplete preview capture metadata/);
   assert.deepEqual(writes, []);
 });
+
+test("rejects prototype-sensitive catalog identifiers", async () => {
+  await assert.rejects(run([entry("__proto__")]), /Unsafe export catalog identifier/);
+});
+test("rejects malformed imported index records before publishing", async () => {
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    previousIndex: { schemaVersion: 1, entries: { ghost: null } },
+    writeFile: async () => { throw new Error("unexpected write"); },
+    load: async () => { throw new Error("unexpected load"); },
+  }), /Invalid previous preview index record/);
+});
+test("rejects cancellation before writing report or manifest", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const writes = [];
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    signal: controller.signal,
+    catalog: [],
+    writeFile: async (path) => { writes.push(path); },
+    load: async () => { throw new Error("unexpected load"); },
+  }), /Batch export cancelled/);
+  assert.deepEqual(writes, []);
+});

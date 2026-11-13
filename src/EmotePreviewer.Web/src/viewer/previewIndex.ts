@@ -58,7 +58,7 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
   }
   const entries: Record<string, PreviewIndexRecord> = Object.create(null);
   for (const [id, raw] of Object.entries(input.entries)) {
-    if (!raw || typeof raw !== "object") continue;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const record = raw as Record<string, unknown>;
     if (typeof record.fingerprint !== "string" || typeof record.media !== "string" ||
       (record.status !== "generated" && record.status !== "failed") || typeof record.updatedAt !== "string") continue;
