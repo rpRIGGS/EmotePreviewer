@@ -69,3 +69,60 @@ test("rejects malformed previous index before capture", async () => {
     load: async () => { throw new Error("unexpected load"); },
   }), /Invalid previous preview index/);
 });
+
+// A valid no-op incremental export must still publish a complete manifest
+// from verified on-disk media, without invoking the animation renderer.
+test("publishes a verified unchanged preview without recapturing", async () => {
+  const e = entry("one");
+  const media = "previews/stem_one/run_1/preview.png";
+  const writes = new Map();
+  const result = await exportCatalogBatch({ ready: [], skipped: [] }, {
+    catalog: [e],
+    previousIndex: {
+      schemaVersion: 1, renderVersion: "apng-320x320-12fps-v1",
+      entries: { one: { fingerprint: "stable", media, status: "generated",
+        updatedAt: "2026-11-12T00:00:00Z", frameCount: 12, durationSeconds: 1 } },
+    },
+    verifiedMedia: new Set(["one"]),
+    writeFile: async (path, bytes) => { writes.set(path, JSON.parse(new TextDecoder().decode(bytes))); },
+    load: async () => { throw new Error("unexpected capture"); },
+  });
+  assert.equal(result.captured, 0);
+  assert.equal(result.failed, 0);
+  assert.equal(writes.get("manifest.json").entries.length, 1);
+  assert.equal(writes.get("manifest.json").entries[0].media, media);
+  assert.equal(writes.get("preview-index.json").entries.one.status, "generated");
+});
+test("does not publish an unverified imported preview", async () => {
+  const e = entry("one");
+  const writes = new Map();
+  const result = await exportCatalogBatch({ ready: [], skipped: [] }, {
+    catalog: [e],
+    previousIndex: {
+      schemaVersion: 1, renderVersion: "apng-320x320-12fps-v1",
+      entries: { one: { fingerprint: "stable", media: "previews/stem_one/run_1/preview.png",
+        status: "generated", updatedAt: "2026-11-12T00:00:00Z", frameCount: 12, durationSeconds: 1 } },
+    },
+    writeFile: async (path, bytes) => { writes.set(path, JSON.parse(new TextDecoder().decode(bytes))); },
+    load: async () => { throw new Error("unexpected capture"); },
+  });
+  assert.equal(result.captured, 0);
+  assert.equal(writes.get("manifest.json").entries.length, 0);
+  assert.equal(writes.get("preview-index.json").entries.one.status, "failed");
+});
+test("rejects invalid retained metadata before publishing a manifest", async () => {
+  const e = entry("one");
+  const writes = [];
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    catalog: [e],
+    previousIndex: {
+      schemaVersion: 1, renderVersion: "apng-320x320-12fps-v1",
+      entries: { one: { fingerprint: "stable", media: "previews/stem_one/run_1/preview.png",
+        status: "generated", updatedAt: "2026-11-12T00:00:00Z", frameCount: NaN, durationSeconds: 1 } },
+    },
+    verifiedMedia: new Set(["one"]),
+    writeFile: async (path) => { writes.push(path); },
+    load: async () => { throw new Error("unexpected capture"); },
+  }), /Incomplete preview capture metadata/);
+  assert.deepEqual(writes, []);
+});
