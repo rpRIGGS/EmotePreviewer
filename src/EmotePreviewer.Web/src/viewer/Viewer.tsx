@@ -473,7 +473,7 @@ export function Viewer() {
           setBatchProgress(`Recovered ${recovered.recovered} published previews; reconciled ${recovered.reconciled} unpublished index records.`);
         }
       }
-      if (!rebuildAll && !activeMedia && Object.values(activeIndex.entries).some((record) => record.status === "generated")) {
+      if (previewDirectory && !rebuildAll && !activeMedia && Object.values(activeIndex.entries).some((record) => record.status === "generated")) {
         throw new Error("Verify the existing preview folder before an incremental update, or select Rebuild all.");
       }
       const ped = settings?.ped ?? DEFAULT_PED;
