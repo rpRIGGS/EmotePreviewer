@@ -772,7 +772,7 @@ export function Viewer() {
               `Removed: ${lastBatchResult.removed}`,
               `Destination: ${lastBatchResult.destination}`,
               "Runtime and FiveM playback verification remain pending.",
-            ].join("\\n");
+            ].join("\n");
             const url = URL.createObjectURL(new Blob([report], { type: "text/plain" }));
             const link = document.createElement("a");
             link.href = url;
