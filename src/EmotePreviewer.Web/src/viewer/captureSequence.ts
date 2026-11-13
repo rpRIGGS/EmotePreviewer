@@ -36,8 +36,12 @@ export async function captureSequence(controller: ViewerController, options: Cap
   const files: ExportFile[] = [];
   const wasPlaying = controller.timeline.playing;
   controller.timeline.pause();
+  let captureStarted = false;
   try {
+    // Include beginCapture in the protected region. If camera setup throws,
+    // the developer's playback must still be restored.
     controller.beginCapture?.();
+    captureStarted = true;
     onProgress?.(0, frameCount);
     for (let index = 0; index < frameCount; index++) {
       if (signal?.aborted) throw new DOMException("Export cancelled", "AbortError");
@@ -61,7 +65,7 @@ export async function captureSequence(controller: ViewerController, options: Cap
     });
     return { files, frameCount, durationSeconds: duration };
   } finally {
-    try { controller.endCapture?.(); }
+    try { if (captureStarted) controller.endCapture?.(); }
     finally { if (wasPlaying) controller.timeline.play(); }
   }
 }
