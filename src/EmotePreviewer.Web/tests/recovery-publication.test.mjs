@@ -45,3 +45,16 @@ test("legacy manifests force safe regeneration", async () => {
   const result = await recover(root(undefined, undefined));
   assert.equal(result.index.entries.wave.fingerprint, "");
 });
+
+test("index staged before first manifest publication is discarded", async () => {
+  const staged = root("staged", "staged");
+  const original = staged.getFileHandle;
+  staged.getFileHandle = async (name) => {
+    if (name === "manifest.json") throw new DOMException("Not found", "NotFoundError");
+    return original(name);
+  };
+  const result = await recover(staged);
+  assert.equal(Object.keys(result.index.entries).length, 0);
+  assert.equal(result.reconciled, 1);
+  assert.equal(result.recovered, 0);
+});

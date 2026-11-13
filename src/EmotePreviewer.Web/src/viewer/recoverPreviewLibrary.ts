@@ -46,11 +46,9 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
   }
   const rawManifest = await readJson(root, "manifest.json");
   if (rawManifest === null) {
-    if (Object.values(index.entries).some((record) => record.status === "generated")) {
-      throw new Error("Preview index exists without a published manifest. Recovery refused; preserve the folder and inspect it.");
-    }
-    // Without a manifest there is no published library. Failed index records
-    // are uncommitted attempts and must not survive recovery.
+    // The manifest is the commit marker. A crash after staging the index
+    // but before publishing the manifest leaves no committed previews.
+    // Drop all staged records; never reuse their fingerprints.
     const reconciled = Object.keys(index.entries).length;
     index.entries = Object.create(null) as PreviewIndex["entries"];
     return { index, present: new Set(), missing: [], recovered: 0, reconciled };
