@@ -228,6 +228,7 @@ export function Viewer() {
   const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
   const [batchProgress, setBatchProgress] = useState<string | null>(null);
+  const [showExportPlan, setShowExportPlan] = useState(false);
   const [previewIndex, setPreviewIndex] = useState<PreviewIndex>(() => {
     try { return parsePreviewIndex(JSON.parse(localStorage.getItem("emotePreviewer.previewIndex.v1") ?? "null")); }
     catch { return emptyPreviewIndex(); }
@@ -243,6 +244,7 @@ export function Viewer() {
   const status = useAppStore((s) => s.status);
   const connected = useAppStore((s) => s.connected);
   const settings = useAppStore((s) => s.settings);
+  const catalogEntries = useAppStore((s) => s.entries);
   const entry = useAppStore(selectEntry);
   const secondary = useAppStore(selectSecondary);
   const manualClip = useAppStore((s) => s.manualClip);
@@ -256,6 +258,12 @@ export function Viewer() {
   const showCloth = settings?.viewer.showCloth ?? true;
   const animalPeds = settings?.viewer.animalPeds ?? true;
   const showPartner = settings?.viewer.showPartner ?? true;
+  const exportPlan = planIncrementalBatch(
+    catalogEntries, previewIndex, settings?.ped ?? DEFAULT_PED,
+    settings?.partnerPed ?? settings?.ped ?? DEFAULT_PED,
+    showPartner, rebuildAll ? "rebuild" : "update", verifiedMedia ?? undefined,
+  );
+  const exportDestination = previewDirectory ? "Selected preview folder" : "Self-contained ZIP download";
   const gtaReady = status?.gta === "ready";
   const statusSkeleton = status?.skeleton ?? null;
   // Animal emotes switch the viewer to their animal ped; everything else uses the configured one.
@@ -725,6 +733,31 @@ export function Viewer() {
                 e.target.value = "";
               }} />
           </label>
+          <button type="button" disabled={exporting || maintenanceBusy} aria-expanded={showExportPlan}
+            onClick={() => setShowExportPlan((open) => !open)}>
+            {showExportPlan ? "Hide export plan" : "Review export plan"}
+          </button>
+          {showExportPlan && (
+            <div role="region" aria-label="Preview export plan" style={{
+              position: "absolute", right: 0, bottom: 48, width: 360, maxWidth: "90vw",
+              padding: 14, borderRadius: 8, background: "#171d29", color: "#fff",
+              boxShadow: "0 6px 24px #0008", fontSize: 12, lineHeight: 1.7,
+            }}>
+              <strong>PowerMoves preview production</strong>
+              <div>Destination: {exportDestination}</div>
+              <div>Mode: {rebuildAll ? "Rebuild all" : "Incremental update"}</div>
+              <div>Ready to capture: {exportPlan.plan.ready.length} · Unchanged: {exportPlan.unchanged.length}</div>
+              <div>New: {exportPlan.added.length} · Changed: {exportPlan.changed.length} · Retry: {exportPlan.retry.length}</div>
+              <div>Removed: {exportPlan.removed.length} · Unsupported: {exportPlan.plan.skipped.length}</div>
+              <div>Installed media verified: {verifiedMedia?.size ?? 0}</div>
+              {!previewDirectory && <div style={{ color: "#ffd28b" }}>
+                No preview folder selected. ZIP output contains only media generated in this run;
+                select a folder to preserve unchanged previews.
+              </div>}
+              {!gtaReady && <div style={{ color: "#ffd28b" }}>GTA V Legacy assets are not ready.</div>}
+              {!showMesh && <div style={{ color: "#ffd28b" }}>Enable the ped mesh before exporting.</div>}
+            </div>
+          )}
           {batchProgress && <span role="status" style={{ fontSize: 12 }}>{batchProgress}</span>}
           {batchAbortRef.current ? (
             <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
