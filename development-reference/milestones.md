@@ -2,10 +2,10 @@
 
 > **Active execution plan (November 12, 2026):** The historical numbered phases below document earlier development and are not the current five-milestone work breakdown. The active Milestone 1 is **export/recovery safety**: immutable preview paths, manifest-first publication, index reconciliation, verified media checks, conservative cleanup, and regression/build gates. The active Milestone 2 is animation production; Milestone 3 is Windows desktop workflow; Milestone 4 is PM Emotes consumption; Milestone 5 is end-to-end release verification. Do not confuse the historical phases with the current milestones.
 >
-> **Milestone 1:** Implementation complete; CI/Windows validation deferred to the integration verification gate. This is not a blocker for subsequent implementation milestones. **Milestone 2:** Implementation complete at source level; capture, stable framing, APNG encoding, sequential batch loading, failure/retry handling, incremental publication, and regression cases are in place. Windows/CI, actual GTA rendering and FiveM playback validation remain deferred to Milestone 5. **Milestone 3:** Active — Windows desktop workflow. APNG remains experimental until actual playback is observed.
+> **Milestone 1:** Implementation complete; CI/Windows validation deferred to the integration verification gate. This is not a blocker for subsequent implementation milestones. **Milestone 2:** Implementation complete at source level; capture, stable framing, APNG encoding, sequential batch loading, failure/retry handling, incremental publication, and regression cases are in place. Windows/CI, actual GTA rendering and FiveM playback validation remain deferred to Milestone 5. **Milestone 3:** Source implementation complete — desktop preview folder selection/disconnection, preflight export plan, update/rebuild, progress/cancellation, cleanup and export summaries. Windows runtime usability and build verification remain deferred to Milestone 5. **Milestone 4:** Active — PM Emotes consumer integration. APNG remains experimental until actual playback is observed.
 
 
-**Current active stage:** Milestone 3 — Windows desktop workflow. The historical phase checklist below is retained for traceability; it is not the active implementation sequence.
+**Current active stage:** Milestone 4 — PM Emotes manifest consumption. The historical phase checklist below is retained for traceability; it is not the active implementation sequence.
 
 ## 1 — Renderer and export feasibility
 - [x] Locate renderer/camera/scene and animation timing entry points in source.
@@ -198,3 +198,10 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Automated source regression suites cover APNG structure/corruption, capture timing/cancellation, readiness, index planning and library maintenance. Test execution results are not asserted here.
 
 **Milestone 3 starting scope:** Polish the Windows desktop developer workflow for choosing PM Emotes sources, selecting GTA Legacy assets and output destination, viewing progress/failures, controlling update/rebuild, and producing a clear export summary. Do not introduce in-FiveM preview generation or revive PM AutoShot.
+
+
+## Active Milestone 3 handoff — November 12, 2026
+
+**Source implementation complete; Windows verification deferred.** The developer UI supports preview library folder selection, verified media checks, recover/cleanup actions, folder disconnection and ZIP fallback, rebuild-all toggle, an export preflight showing added/changed/retry/removed/unchanged/unsupported counts and readiness warnings, batch progress/cancellation, and a downloadable post-export summary. It retains the upstream GTA V Legacy asset and resource configuration workflow. No claim is made that the Windows build or actual File System Access permission behavior has been tested.
+
+**Milestone 4 starts:** Reconcile the exact PM Emotes catalog identifier and manifest lookup contract, install local APNG previews and a lightweight lazy-loading NUI fallback. PM Emotes remains responsible for playback only, not rendering or generating previews.
