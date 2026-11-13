@@ -177,9 +177,52 @@ export class Scene {
     // Use a fixed export camera, independent of the developer's orbit/zoom.
     // Clone rather than modifying the interactive camera and OrbitControls.
     const captureCamera = this.camera.clone();
-    captureCamera.position.set(2.2, 1.6, -2.6);
-    captureCamera.lookAt(0, 0.9, 0);
     captureCamera.aspect = width / height;
+    // Frame the actual animated meshes (including partner and attached props),
+    // rather than assuming every emote fits a standing ped at the origin.
+    // Lights, the floor grid and invisible helpers are excluded.
+    this.scene.updateMatrixWorld(true);
+    const bounds = new THREE.Box3();
+    const partBounds = new THREE.Box3();
+    let geometryCount = 0;
+    this.scene.traverseVisible((object) => {
+      if (object === this.grid || object instanceof THREE.Light) return;
+      if (!(object instanceof THREE.Mesh) && !(object instanceof THREE.SkinnedMesh)) return;
+      const mesh = object as THREE.Mesh;
+      if (!mesh.geometry?.attributes.position) return;
+      // Skinned meshes need their deformed world-space bounds, not the
+      // unposed geometry's bind-pose bounding box.
+      if (object instanceof THREE.SkinnedMesh) {
+        object.computeBoundingBox();
+        if (!object.boundingBox) return;
+        partBounds.copy(object.boundingBox).applyMatrix4(object.matrixWorld);
+      } else {
+        if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+        if (!mesh.geometry.boundingBox) return;
+        partBounds.copy(mesh.geometry.boundingBox).applyMatrix4(mesh.matrixWorld);
+      }
+      if (!partBounds.isEmpty()) {
+        bounds.union(partBounds);
+        geometryCount++;
+      }
+    });
+    const center = new THREE.Vector3(0, 0.9, 0);
+    let distance = 3.5;
+    if (geometryCount && !bounds.isEmpty()) {
+      bounds.getCenter(center);
+      const size = bounds.getSize(new THREE.Vector3());
+      const halfVertical = Math.max(size.y * 0.5, 0.45);
+      const halfHorizontal = Math.max(size.x * 0.5, size.z * 0.5, 0.4);
+      const verticalFov = THREE.MathUtils.degToRad(captureCamera.fov);
+      const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * captureCamera.aspect);
+      distance = Math.max(
+        halfVertical / Math.tan(verticalFov / 2),
+        halfHorizontal / Math.tan(horizontalFov / 2),
+      ) * 1.45 + size.z * 0.5;
+      distance = THREE.MathUtils.clamp(distance, 2.5, 60);
+    }
+    captureCamera.position.copy(center).add(new THREE.Vector3(0.55, 0.20, -0.82).normalize().multiplyScalar(distance));
+    captureCamera.lookAt(center);
     captureCamera.updateProjectionMatrix();
     const previousClearAlpha = this.renderer.getClearAlpha();
     const previousClearColor = this.renderer.getClearColor(new THREE.Color()).clone();
