@@ -70,7 +70,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     if (!entry.id || !entry.source || !entry.category || !entry.command) {
       throw new Error("Export catalog contains an empty preview identity field.");
     }
-    const identity = JSON.stringify([entry.source, entry.category, entry.command]);
+    const identity = JSON.stringify([entry.source.toLowerCase(), entry.category.toLowerCase(), entry.command.toLowerCase()]);
     if (identities.has(identity)) {
       throw new Error(`Duplicate export catalog preview identity: ${identity}`);
     }
@@ -224,7 +224,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const identityKeys = new Set<string>();
   const publishedIds = new Set<string>();
   for (const item of completeManifest) {
-    const identity = JSON.stringify([item.source, item.category, item.command]);
+    const identity = JSON.stringify([item.source.toLowerCase(), item.category.toLowerCase(), item.command.toLowerCase()]);
     if (identityKeys.has(identity)) throw new Error(`Duplicate published preview identity: ${identity}`);
     if (publishedIds.has(item.id)) throw new Error(`Duplicate published preview ID: ${item.id}`);
     identityKeys.add(identity);

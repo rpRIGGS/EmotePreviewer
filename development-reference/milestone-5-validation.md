@@ -13,3 +13,7 @@ Suggested validation sequence: (1) run the EmotePreviewer TypeScript and .NET ch
 ## Preflight validation hardening
 
 Before the first capture or filesystem write, the batch exporter now checks that every entry in the complete catalog has a nonempty source/category/command/ID, that each source/category/command triple is unique, and that every planned capture exactly matches its complete-catalog entry including the output stem. This closes the failure mode where duplicate identities would be discovered only after writing many APNG files. The post-capture manifest uniqueness check remains defense in depth.
+
+## Case-folded identity collision prevention
+
+The PM Emotes resolver compares command names case-insensitively. Preflight and publication uniqueness therefore normalize source/category/command to lowercase for collision detection while preserving original spellings in the manifest. This prevents an export containing both `wave` and `WAVE` from passing producer validation but becoming ambiguous to the consumer.
