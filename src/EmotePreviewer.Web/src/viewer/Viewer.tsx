@@ -484,7 +484,14 @@ export function Viewer() {
       const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, exportMode, activeMedia ?? undefined);
       const plan = incremental.plan;
       if (!plan.ready.length && !incremental.removed.length && previewDirectory) {
-        setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged`);
+        // A no-op update is still a completed operation. Give the developer a
+        // truthful summary rather than leaving the previous result cleared.
+        setLastBatchResult({
+          captured: 0, failed: 0, skipped: plan.skipped.length,
+          unchanged: incremental.unchanged.length, removed: 0,
+          destination: "Selected folder",
+        });
+        setBatchProgress(`Up to date: ${incremental.unchanged.length} unchanged, ${plan.skipped.length} unsupported; no files written`);
         return;
       }
       const fingerprints = new Map(emotes.map((e) => [e.id, fingerprintEmote(e, ped, partnerPed, showPartner)]));
