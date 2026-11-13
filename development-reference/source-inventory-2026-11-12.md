@@ -42,3 +42,7 @@ Changed the selected-folder metadata publication order to report → producer in
 ## ZIP archive hardening
 
 The classic STORE-only ZIP writer now rejects duplicate archive names, path traversal, Windows-style path separators and drive components, and offsets exceeding classic ZIP's 32-bit size limit. Dedicated source regression cases cover unsafe paths, duplicates and a valid archive.
+
+## Critical syntax repair
+
+The source inventory found literal backslash-n sequences accidentally committed into TypeScript code in batchPlan.ts and exportCatalogBatch.ts. They were replaced with actual line breaks. This was a source-breaking defect and demonstrates why the previous source-complete declarations were premature. Build execution remains deferred.
