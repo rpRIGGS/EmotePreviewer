@@ -2,10 +2,10 @@
 
 > **Active execution plan (November 12, 2026):** The historical numbered phases below document earlier development and are not the current five-milestone work breakdown. The active Milestone 1 is **export/recovery safety**: immutable preview paths, manifest-first publication, index reconciliation, verified media checks, conservative cleanup, and regression/build gates. The active Milestone 2 is animation production; Milestone 3 is Windows desktop workflow; Milestone 4 is PM Emotes consumption; Milestone 5 is end-to-end release verification. Do not confuse the historical phases with the current milestones.
 >
-> **Milestone 1:** Implementation complete; CI/Windows validation deferred to the integration verification gate. This is not a blocker for subsequent implementation milestones. **Milestone 2:** Animation capture/encoding work is active; APNG format remains experimental until actual Windows rendering and FiveM playback are observed.
+> **Milestone 1:** Implementation complete; CI/Windows validation deferred to the integration verification gate. This is not a blocker for subsequent implementation milestones. **Milestone 2:** Implementation complete at source level; capture, stable framing, APNG encoding, sequential batch loading, failure/retry handling, incremental publication, and regression cases are in place. Windows/CI, actual GTA rendering and FiveM playback validation remain deferred to Milestone 5. **Milestone 3:** Active — Windows desktop workflow. APNG remains experimental until actual playback is observed.
 
 
-**Current stage:** Selected-emote PNG ZIP proof of concept implemented; build and visual validation pending.
+**Current active stage:** Milestone 3 — Windows desktop workflow. The historical phase checklist below is retained for traceability; it is not the active implementation sequence.
 
 ## 1 — Renderer and export feasibility
 - [x] Locate renderer/camera/scene and animation timing entry points in source.
@@ -185,3 +185,16 @@ Do not mark tasks complete without actual evidence. No live FiveM test, exported
 - Wired the animation suite into the combined `npm test` command and Linux/Windows CI jobs.
 - Capture now validates dimensions and pre-aborted requests before frame work.
 - Remaining: run the suite/build, verify real GTA V Legacy animations/props/partner rigs and transparent captures, validate APNG decoding in target FiveM Chromium, and resolve issues observed during real exports.
+
+
+## Active Milestone 2 implementation handoff — November 12, 2026
+
+**Implementation status: complete for the approved development scope.** This does not certify Windows execution, generated media quality, or FiveM playback. Those checks belong to the deferred Milestone 5 verification gate.
+
+- Capture: deterministic timeline sampling with cancellation, bounded frame count, transparent offscreen PNG readback, playback restoration, and per-sequence camera locking after mesh-aware framing.
+- Production: sequential catalog queue with exact-entry readiness, timeouts, per-emote failures, partner/prop rendering through the existing viewer, and APNG frame encoding.
+- Publishing: immutable per-run preview paths, versioned index, complete consumer manifest, failure report, verified-media retention, crash recovery and conservative orphan cleanup.
+- Incremental updates: input fingerprints, added/changed/retry/removed classifications, verification of installed files, last-known-good preservation with forced retry after failed recapture.
+- Automated source regression suites cover APNG structure/corruption, capture timing/cancellation, readiness, index planning and library maintenance. Test execution results are not asserted here.
+
+**Milestone 3 starting scope:** Polish the Windows desktop developer workflow for choosing PM Emotes sources, selecting GTA Legacy assets and output destination, viewing progress/failures, controlling update/rebuild, and producing a clear export summary. Do not introduce in-FiveM preview generation or revive PM AutoShot.
