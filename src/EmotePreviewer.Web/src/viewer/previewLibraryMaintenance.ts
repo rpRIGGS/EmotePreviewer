@@ -3,7 +3,7 @@ export interface CleanupPlan { obsolete: string[]; retained: number; inspected: 
 
 function safePath(path: string): boolean {
   const parts = path.split("/");
-  return parts.length >= 3 && parts[0] === "previews" &&
+  return parts.length === 4 && parts[0] === "previews" &&
     parts.slice(1, -1).every((p) => /^[a-zA-Z0-9_-]+$/.test(p)) &&
     parts[parts.length - 1] === "preview.png";
 }
