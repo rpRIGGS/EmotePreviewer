@@ -16,6 +16,8 @@ export interface PreviewIndexRecord {
 export interface PreviewIndex {
   schemaVersion: 1;
   renderVersion: string;
+  /** Identifies the manifest that committed this index; absent in legacy libraries. */
+  publicationId?: string;
   entries: Record<string, PreviewIndexRecord>;
 }
 export interface IncrementalPlan {
@@ -72,7 +74,8 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
     const durationSeconds = typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 && record.durationSeconds <= 3 ? record.durationSeconds : undefined;
     entries[id] = { fingerprint: record.fingerprint, media: record.media, status: record.status, updatedAt: record.updatedAt, frameCount, durationSeconds };
   }
-  return { schemaVersion: 1, renderVersion: typeof input.renderVersion === "string" ? input.renderVersion : "", entries };
+  return { schemaVersion: 1, renderVersion: typeof input.renderVersion === "string" ? input.renderVersion : "",
+    publicationId: typeof input.publicationId === "string" && /^[a-zA-Z0-9_-]+$/.test(input.publicationId) ? input.publicationId : undefined, entries };
 }
 /** Caller must ensure retained media actually exists in the installed preview library.
  * An index alone cannot prove a file is still present on disk. */

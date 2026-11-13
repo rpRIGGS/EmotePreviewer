@@ -60,6 +60,15 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     !Array.isArray((rawManifest as { entries?: unknown }).entries)) {
     throw new Error("Invalid published manifest. Recovery refused.");
   }
+  const manifestId = (rawManifest as { publicationId?: unknown }).publicationId;
+  // A staged index can be newer than the last committed manifest if a write
+  // failed. Never trust its fingerprints until both publication IDs match.
+  // Legacy manifests lack an ID: conservatively retry rather than assume.
+  const matchingPublication = typeof manifestId === "string" &&
+    /^[a-zA-Z0-9_-]+$/.test(manifestId) && index.publicationId === manifestId;
+  if (!matchingPublication) {
+    index.publicationId = undefined;
+  }
   const published = new Map<string, { media: string; frameCount?: number; durationSeconds?: number }>();
   for (const item of (rawManifest as { entries: unknown[] }).entries) {
     if (!item || typeof item !== "object") throw new Error("Invalid published preview record.");
@@ -80,7 +89,7 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     if (old?.status === "generated" && old.media === record.media) {
       // A matching path is not sufficient if the previous index was written
       // for a different renderer; invalidate its fingerprint to force retry.
-      if (index.renderVersion !== PREVIEW_RENDER_VERSION) old.fingerprint = "";
+      if (!matchingPublication || index.renderVersion !== PREVIEW_RENDER_VERSION) old.fingerprint = "";
       if (!old.frameCount && record.frameCount) old.frameCount = record.frameCount;
       if (!old.durationSeconds && record.durationSeconds) old.durationSeconds = record.durationSeconds;
       continue;
@@ -100,6 +109,7 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
       reconciled++;
     }
   }
+  if (matchingPublication) index.publicationId = manifestId;
   // If the manifest is ahead of the index, all entries with an unknown
   // fingerprint are retried, while verified media remains usable.
   const check = await verifyPreviewFiles(index, root);

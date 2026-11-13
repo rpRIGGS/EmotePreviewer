@@ -156,7 +156,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     throw new Error("Invalid previous preview index record");
   }
   const updatedIndex: PreviewIndex = {
-    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, publicationId: runId,
     entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
   };
   const progress = (completed: number, currentId: string | null) =>
@@ -323,6 +323,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   await emit(textFile("preview-index.json", updatedIndex));
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
+    publicationId: runId,
     format: "experimental-apng",
     captureProfile,
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",

@@ -46,3 +46,7 @@ The classic STORE-only ZIP writer now rejects duplicate archive names, path trav
 ## Critical syntax repair
 
 The source inventory found literal backslash-n sequences accidentally committed into TypeScript code in batchPlan.ts and exportCatalogBatch.ts. They were replaced with actual line breaks. This was a source-breaking defect and demonstrates why the previous source-complete declarations were premature. Build execution remains deferred.
+
+## Publication consistency audit correction
+
+Identified a genuine flaw in the previously added manifest-last protocol: a staged producer index could retain a newer fingerprint for a media path still present in the older manifest, causing an update to skip needed recapture. Added a shared publication ID to the index and manifest and made recovery invalidate fingerprints whenever publication IDs disagree (or are absent in legacy manifests). This forces safe regeneration rather than silently trusting uncommitted metadata. Runtime checks remain outstanding.
