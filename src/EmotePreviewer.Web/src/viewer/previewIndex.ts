@@ -68,8 +68,8 @@ export function parsePreviewIndex(value: unknown): PreviewIndex {
     // records have no installed media and are always eligible for retry.
     if (record.status === "generated" && !/^previews\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/preview\.png$/.test(record.media as string)) continue;
     if (record.status === "failed" && record.media !== "") continue;
-    const frameCount = typeof record.frameCount === "number" && Number.isFinite(record.frameCount) && record.frameCount > 0 ? record.frameCount : undefined;
-    const durationSeconds = typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 ? record.durationSeconds : undefined;
+    const frameCount = typeof record.frameCount === "number" && Number.isInteger(record.frameCount) && record.frameCount > 0 && record.frameCount <= 36 ? record.frameCount : undefined;
+    const durationSeconds = typeof record.durationSeconds === "number" && Number.isFinite(record.durationSeconds) && record.durationSeconds > 0 && record.durationSeconds <= 3 ? record.durationSeconds : undefined;
     entries[id] = { fingerprint: record.fingerprint, media: record.media, status: record.status, updatedAt: record.updatedAt, frameCount, durationSeconds };
   }
   return { schemaVersion: 1, renderVersion: typeof input.renderVersion === "string" ? input.renderVersion : "", entries };

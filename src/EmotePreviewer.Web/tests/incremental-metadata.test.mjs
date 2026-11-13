@@ -36,3 +36,24 @@ test("missing or invalid retained capture metadata schedules recapture", () => {
     assert.equal(result.plan.ready.length, 1);
   }
 });
+
+test("new entries are scheduled for capture", () => {
+  const result = planIncrementalBatch([emote], {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, entries: {},
+  }, "mp_m_freemode_01", "mp_f_freemode_01", false, "update", new Set());
+  assert.deepEqual(result.added, ["wave"]);
+  assert.equal(result.plan.ready.length, 1);
+});
+test("unverified generated media retries even with matching fingerprint", () => {
+  const result = planIncrementalBatch([emote], {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, entries: { wave: record },
+  }, "mp_m_freemode_01", "mp_f_freemode_01", false, "update", new Set());
+  assert.deepEqual(result.retry, ["wave"]);
+  assert.equal(result.plan.ready.length, 1);
+});
+test("rebuild schedules valid previews again", () => {
+  const result = planIncrementalBatch([emote], {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, entries: { wave: record },
+  }, "mp_m_freemode_01", "mp_f_freemode_01", false, "rebuild", new Set(["wave"]));
+  assert.equal(result.plan.ready.length, 1);
+});

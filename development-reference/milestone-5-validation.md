@@ -41,3 +41,7 @@ Capture metadata is checked for finite numeric values before duration/frame arit
 ## Incremental source completion
 
 The incremental planner now schedules recapture of existing media when its retained frame metadata is absent, inconsistent, or exceeds the fixed three-second render profile. This avoids turning an old incomplete index into a late export-wide failure. Export preflight rejects null catalog records, non-string identity fields, and malformed prior index containers. Dedicated regression tests cover unchanged valid metadata and invalid retained records.
+
+## Additional incremental contract cases
+
+The index parser now treats nonintegral frame counts and capture metadata exceeding the fixed profile as invalid, ensuring the incremental planner schedules regeneration. Tests cover added, changed, retry and rebuild plan membership. These are source-level regression cases; their execution remains to be verified.
