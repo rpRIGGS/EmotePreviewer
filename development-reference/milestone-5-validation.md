@@ -25,3 +25,7 @@ Before publishing metadata, the exporter rejects any complete manifest that reus
 ## Development completion versus deferred runtime acceptance
 
 Milestone 5 source hardening and the CI verification workflow can be completed without a running FiveM server. **Milestone 5 runtime acceptance remains pending** until the existing Windows build, Node regression suites, APNG playback and end-to-end export/import checks execute successfully. Do not infer a passing test result from source review or a successful GitHub commit.
+
+## Frame-profile invariants
+
+The manifest publisher now checks that every newly captured or retained APNG reports the active render profile (12 fps, 320×320) and that frame count equals the ceiling of duration times frame rate, within the configured maximum duration. Existing-media verification alone cannot authorize a stale record with incompatible capture metadata. Invalid records stop manifest publication rather than entering the consumer library.

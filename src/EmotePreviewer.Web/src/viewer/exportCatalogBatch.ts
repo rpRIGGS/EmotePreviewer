@@ -233,6 +233,18 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       throw new Error("Published preview identity contains an empty field");
     }
   }
+  // Never publish a previously generated file with a stale or incompatible
+  // rendering profile. A verified path proves existence, not that its
+  // frame timing and dimensions match this manifest's declared profile.
+  for (const item of completeManifest) {
+    if (item.frameRate !== fps || item.width !== width || item.height !== height) {
+      throw new Error(`Preview profile mismatch for ${item.id}`);
+    }
+    if (item.durationSeconds > maxSeconds || item.frameCount > Math.ceil(maxSeconds * fps) ||
+        item.frameCount !== Math.ceil(item.durationSeconds * fps)) {
+      throw new Error(`Preview duration/frame mismatch for ${item.id}`);
+    }
+  }
   // A complete manifest must never contain duplicate paths, even when the
   // identities differ. Each APNG is owned by exactly one catalog entry.
   const publishedPaths = new Set<string>();
