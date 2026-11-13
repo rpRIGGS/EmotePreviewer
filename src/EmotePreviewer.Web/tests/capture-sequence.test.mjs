@@ -69,12 +69,12 @@ test("capture cleanup releases camera lock after a frame error", async () => {
   assert.equal(rig.timeline.playing, true);
 });
 
-test("capture cleanup does not call endCapture when setup itself failed", async () => {
+test("capture cleanup attempts endCapture when setup partially failed", async () => {
   const rig = controller();
   let ended = 0;
   rig.beginCapture = () => { throw new Error("setup failed"); };
   rig.endCapture = () => { ended++; };
   await assert.rejects(() => captureSequence(rig, { sourceId: "wave" }), /setup failed/);
-  assert.equal(ended, 0);
+  assert.equal(ended, 1);
   assert.equal(rig.timeline.playing, true);
 });
