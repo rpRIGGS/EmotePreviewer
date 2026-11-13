@@ -54,13 +54,16 @@ export async function planPreviewCleanup(root: FileSystemDirectoryHandle): Promi
   const walk = async (directory: FileSystemDirectoryHandle, prefix: string): Promise<void> => {
     const iterable = directory as FileSystemDirectoryHandle & { entries(): AsyncIterable<[string, FileSystemHandle]> };
     for await (const [name, handle] of iterable.entries()) {
-      if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error("Unexpected directory entry. Cleanup refused.");
       const relative = `${prefix}/${name}`;
-      if (handle.kind === "directory") await walk(handle as FileSystemDirectoryHandle, relative);
-      else if (safePath(relative)) {
+      if (handle.kind === "directory") {
+        if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error("Unexpected directory entry. Cleanup refused.");
+        await walk(handle as FileSystemDirectoryHandle, relative);
+      } else if (name === "preview.png" && safePath(relative)) {
         inspected++;
         if (protectedPaths.has(relative)) retained++;
         else obsolete.push(relative);
+      } else {
+        throw new Error("Unexpected directory entry. Cleanup refused.");
       }
     }
   };
