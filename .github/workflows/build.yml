@@ -69,7 +69,35 @@ jobs:
           if ($exe.Length -le 0) { throw "Published executable is empty" }
           Write-Host "Verified Windows executable: $($exe.Length) bytes"
 
+      - name: Verify bundled UI and prepare Windows distribution
+        shell: pwsh
+        run: |
+          $exe = Resolve-Path "out/publish/EmotePreviewer.exe"
+          $distribution = "out/distribution"
+          New-Item -ItemType Directory -Force -Path $distribution | Out-Null
+          Copy-Item $exe "$distribution/EmotePreviewer.exe"
+          @'
+          PowerMoves Development - EmotePreviewer (Windows x64)
+
+          1. Extract this ZIP to a folder on your Windows desktop.
+          2. Double-click EmotePreviewer.exe.
+          3. Set the GTA V Legacy game directory and required GTA key files in Settings.
+          4. Select your emote resource/catalog and load the animation assets.
+          5. Select an output folder, then use Batch Export to generate APNG previews.
+          6. Copy the exported preview library to the separate PM Emotes resource.
+
+          The application hosts its own local web UI and opens it in your browser.
+          Keep the application running while using that UI. GTA game files and
+          decryption keys are not bundled or distributed with this application.
+          '@ | Set-Content "$distribution/START-HERE.txt" -Encoding UTF8
+          $hash = (Get-FileHash "$distribution/EmotePreviewer.exe" -Algorithm SHA256).Hash
+          "EmotePreviewer.exe SHA256: $hash" | Set-Content "$distribution/SHA256.txt" -Encoding ascii
+          Compress-Archive -Path "$distribution/*" -DestinationPath "out/EmotePreviewer-win-x64.zip" -Force
+          if ((Get-Item "out/EmotePreviewer-win-x64.zip").Length -le 0) { throw "Windows distribution ZIP is empty" }
+
       - uses: actions/upload-artifact@v4
         with:
           name: EmotePreviewer-win-x64
-          path: out/publish/EmotePreviewer.exe
+          path: out/EmotePreviewer-win-x64.zip
+          if-no-files-found: error
+          retention-days: 30
