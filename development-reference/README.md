@@ -17,4 +17,4 @@ This directory documents the implemented Windows producer, known defects and rem
 5. [Original developer guide](../Docs/development.md)
 
 ## Status discipline
-Implemented source is marked [x]; unperformed delivery, build and user acceptance is marked [ ]. No claims of a successful Windows executable or FiveM playback without evidence. The user performs desktop and FiveM acceptance; build checks are developer work, not a reason to halt source development. No Microsoft/GitHub outage is an established dependency.
+Implemented source is marked [x]; unperformed delivery, build and user acceptance is marked [ ]. Windows build and tests succeeded in [Actions run 43362399158](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43362399158), producing `EmotePreviewer-win-x64`; final audit and desktop acceptance remain open. No claims of real GTA capture or FiveM playback without evidence. The user performs desktop and FiveM acceptance; build checks are developer work, not a reason to halt source development. No Microsoft/GitHub outage is an established dependency.
