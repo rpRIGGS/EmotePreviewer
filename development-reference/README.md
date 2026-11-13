@@ -17,7 +17,7 @@ This folder is the project-specific source of truth for the PowerMoves RP EmoteP
 ## Approved direction
 1. Extend the existing offline renderer rather than recreate animation playback inside FiveM.
 2. Export an optimized, local preview library for PM Emotes; PM Emotes displays media, not GTA archive assets.
-3. Keep the media format undecided until representative WebP/WebM exports are tested for alpha, playback, size, and FiveM NUI behavior.
+3. Current source implementation produces experimental APNG at 320×320 and 12 fps; retain the format as provisional until real FiveM Chromium playback is verified.
 4. Generate stable, deterministic catalog-to-file mappings and a manifest.
 5. Preserve original viewer operation and upstream attribution.
 6. Do not embed game archive keys or copyrighted GTA game assets in the repository or exported source packages.
@@ -25,11 +25,12 @@ This folder is the project-specific source of truth for the PowerMoves RP EmoteP
 ## Scope boundaries
 - The exporter is a **development-time tool**, not a FiveM server resource.
 - PM Emotes retains its existing gameplay and NoPixel-inspired interface; only the preview-loading contract is under consideration.
-- No export implementation, server test, or generated preview library is claimed complete.
+- Batch export, manifest/index generation, recovery, and folder workflow are implemented in source. No successful CI run, Windows runtime capture, server test, or generated production preview library is claimed.
 
 ## Documents
 - [Architecture and open technical questions](preview-export-architecture.md)
 - [Milestones and acceptance checks](milestones.md)
+- [Current implementation inventory](source-inventory-2026-11-12.md)
 - [Original technical guide](../Docs/development.md)
 
 ## Working conventions
