@@ -9,3 +9,7 @@ Source hardening: reject duplicate published full identities and IDs before emit
 **Not yet verified:** Windows desktop capture and encoding, actual APNG playback in FiveM CEF, end-to-end exported asset installation, PM Emotes Node regression execution, placeholder and switching behavior in-game, and performance. A GitHub connector read does not constitute running these tests.
 
 Suggested validation sequence: (1) run the EmotePreviewer TypeScript and .NET checks on Windows; (2) export a small mixed catalog including shared and duplicate-command cases; (3) inspect manifest and verify every media path exists; (4) run `node --test tests/preview-*.test.mjs` in PM Emotes; (5) install the export and test APNG/fallback/focus switching in FiveM; (6) measure resource use with a larger catalog.
+
+## Preflight validation hardening
+
+Before the first capture or filesystem write, the batch exporter now checks that every entry in the complete catalog has a nonempty source/category/command/ID, that each source/category/command triple is unique, and that every planned capture exactly matches its complete-catalog entry including the output stem. This closes the failure mode where duplicate identities would be discovered only after writing many APNG files. The post-capture manifest uniqueness check remains defense in depth.

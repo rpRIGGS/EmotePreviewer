@@ -63,6 +63,29 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   const catalogStems = (adapter.catalog ?? plan.ready).map((entry) => entry.outputStem);
   if (catalogStems.some((stem) => !/^[a-zA-Z0-9_-]+$/.test(stem))) throw new Error("Unsafe preview output stem in export catalog.");
   if (new Set(catalogStems).size !== catalogStems.length) throw new Error("Duplicate preview output stems in export catalog.");
+  // Validate every catalog identity before the first capture or file write.
+  // The consumer uses this exact triple; duplicates are never safe to publish.
+  const identities = new Set<string>();
+  for (const entry of adapter.catalog ?? plan.ready) {
+    if (!entry.id || !entry.source || !entry.category || !entry.command) {
+      throw new Error("Export catalog contains an empty preview identity field.");
+    }
+    const identity = JSON.stringify([entry.source, entry.category, entry.command]);
+    if (identities.has(identity)) {
+      throw new Error(`Duplicate export catalog preview identity: ${identity}`);
+    }
+    identities.add(identity);
+  }
+  // A caller supplying a full catalog must not silently omit a planned entry
+  // with a mismatched source/category/command identity.
+  const catalogById = new Map((adapter.catalog ?? plan.ready).map((entry) => [entry.id, entry]));
+  for (const entry of plan.ready) {
+    const original = catalogById.get(entry.id);
+    if (!original || original.source !== entry.source || original.category !== entry.category ||
+        original.command !== entry.command || original.outputStem !== entry.outputStem) {
+      throw new Error(`Export plan/catalog identity mismatch: ${entry.id}`);
+    }
+  }
   const files: ExportFile[] = [];
   const emit = async (file: ExportFile): Promise<void> => {
     check(adapter.signal);
