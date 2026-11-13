@@ -229,6 +229,7 @@ export function Viewer() {
   const [exportError, setExportError] = useState<string | null>(null);
   const [batchProgress, setBatchProgress] = useState<string | null>(null);
   const [showExportPlan, setShowExportPlan] = useState(false);
+  const [lastBatchResult, setLastBatchResult] = useState<{ captured: number; failed: number; skipped: number; unchanged: number; removed: number; destination: string } | null>(null);
   const [previewIndex, setPreviewIndex] = useState<PreviewIndex>(() => {
     try { return parsePreviewIndex(JSON.parse(localStorage.getItem("emotePreviewer.previewIndex.v1") ?? "null")); }
     catch { return emptyPreviewIndex(); }
@@ -442,6 +443,7 @@ export function Viewer() {
     batchAbortRef.current = abort;
     setExporting(true);
     setExportError(null);
+    setLastBatchResult(null);
     setBatchProgress("Preparing catalog…");
     const original = useAppStore.getState();
     const originalId = original.selectedId;
@@ -545,11 +547,13 @@ export function Viewer() {
           throw new Error(`Export completed but ${checked.missing.length} published preview files are missing; verify the folder and retry.`);
         }
       }
+      setLastBatchResult({ captured: result.captured, failed: result.failed, skipped: result.skipped, unchanged: incremental.unchanged.length, removed: incremental.removed.length, destination: previewDirectory ? "Selected folder" : "ZIP download" });
       setBatchProgress(`Completed: ${result.captured} captured, ${result.failed} failed, ${incremental.unchanged.length} unchanged, ${incremental.removed.length} removed${previewDirectory ? " · saved to selected folder" : " · ZIP downloaded"}`);
       // The exported preview-index.json is authoritative for future updates.
       // Import it after installing the new media to avoid marking missing files complete.
     } catch (error) {
       setExportError(error instanceof Error ? error.message : String(error));
+      setBatchProgress(abort.signal.aborted ? "Batch cancelled; previously published previews remain intact." : "Batch interrupted; check the preview folder before retrying.");
     } finally {
       useAppStore.getState().select(originalId);
       useAppStore.getState().setLayering(originalLayering);
@@ -758,6 +762,24 @@ export function Viewer() {
               {!showMesh && <div style={{ color: "#ffd28b" }}>Enable the ped mesh before exporting.</div>}
             </div>
           )}
+          {lastBatchResult && <button type="button" onClick={() => {
+            const report = [
+              "PowerMoves Development — EmotePreviewer export summary",
+              `Captured: ${lastBatchResult.captured}`,
+              `Failed: ${lastBatchResult.failed}`,
+              `Unsupported/skipped: ${lastBatchResult.skipped}`,
+              `Unchanged: ${lastBatchResult.unchanged}`,
+              `Removed: ${lastBatchResult.removed}`,
+              `Destination: ${lastBatchResult.destination}`,
+              "Runtime and FiveM playback verification remain pending.",
+            ].join("\\n");
+            const url = URL.createObjectURL(new Blob([report], { type: "text/plain" }));
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "emotepreviewer-export-summary.txt";
+            link.click();
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+          }}>Download export summary</button>}
           {batchProgress && <span role="status" style={{ fontSize: 12 }}>{batchProgress}</span>}
           {batchAbortRef.current ? (
             <button type="button" onClick={() => batchAbortRef.current?.abort()}>Cancel batch</button>
