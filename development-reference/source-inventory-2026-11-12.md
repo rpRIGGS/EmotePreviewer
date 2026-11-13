@@ -34,3 +34,7 @@ The source inventory does **not** support an unconditional production-ready or f
 ## Packaging hardening follow-up
 
 The desktop exporter now forces full-catalog rebuild mode when downloading a standalone ZIP. The batch exporter rejects partial ZIP plans before loading any animation. Incremental reuse remains available for verified selected-folder exports only. This prevents a ZIP manifest from silently excluding unchanged media that exists only in a different directory.
+
+## Publication hardening follow-up
+
+Changed the selected-folder metadata publication order to report → producer index → consumer manifest, with the manifest as the last commit marker. The existing recovery logic treats the manifest as authoritative and discards index-ahead records after an interrupted write. Regression tests cover normal write order and index-staging failure. Individual browser file writes are not a multi-file transaction; the recoverable protocol intentionally avoids claiming otherwise.

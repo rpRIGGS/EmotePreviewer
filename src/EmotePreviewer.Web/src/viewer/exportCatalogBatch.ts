@@ -312,8 +312,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     planned: total, captured: manifest.length, failed: failures.length,
     skipped: plan.skipped.length, captureProfile, failures, skippedEntries: plan.skipped,
   }));
-  // Commit the consumer manifest after media. Only advance the producer index
-  // once that manifest has been successfully published.
+  // Stage the producer index first. The consumer manifest is the LAST
+  // publication write: failure before it leaves the previous manifest intact,
+  // and recovery reconciles any staged index records against that manifest.
+  // This is a recoverable commit protocol, not a multi-file atomic rename.
+  await emit(textFile("preview-index.json", updatedIndex));
   await emit(textFile("manifest.json", {
     schemaVersion: 1,
     format: "experimental-apng",
@@ -321,6 +324,5 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
     note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
     entries: completeManifest,
   }));
-  await emit(textFile("preview-index.json", updatedIndex));
   return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
 }

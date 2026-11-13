@@ -170,3 +170,26 @@ test("standalone ZIP refuses incremental plan that omits catalog media", async (
   }), /Standalone ZIP requires a full rebuild/);
   assert.deepEqual(writes, []);
 });
+
+test("manifest is the final publication write for a folder export", async () => {
+  const written = [];
+  const result = await exportCatalogBatch({ ready: [], skipped: [] }, {
+    catalog: [],
+    load: async () => { throw new Error("unexpected load"); },
+    writeFile: async (name) => { written.push(name); },
+  });
+  assert.equal(result.captured, 0);
+  assert.deepEqual(written, ["report.json", "preview-index.json", "manifest.json"]);
+});
+test("manifest is not advanced when index staging fails", async () => {
+  const written = [];
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    catalog: [],
+    load: async () => { throw new Error("unexpected load"); },
+    writeFile: async (name) => {
+      written.push(name);
+      if (name === "preview-index.json") throw new Error("disk full");
+    },
+  }), /disk full/);
+  assert.deepEqual(written, ["report.json", "preview-index.json"]);
+});
