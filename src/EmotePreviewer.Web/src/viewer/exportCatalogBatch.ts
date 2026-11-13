@@ -125,7 +125,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       // Preserve verified last-known-good media. Keep its original fingerprint
       // so the next incremental update still attempts regeneration.
       const previous = Object.hasOwn(updatedIndex.entries, entry.id) ? updatedIndex.entries[entry.id] : undefined;
-      if (!(previous?.status === "generated" && previous.media && adapter.verifiedMedia?.has(entry.id))) {
+      if (previous?.status === "generated" && previous.media && adapter.writeFile && adapter.verifiedMedia?.has(entry.id)) {
+        // Keep the old preview visible, but invalidate its fingerprint so the
+        // next update retries even if the rendering inputs are unchanged.
+        updatedIndex.entries[entry.id] = { ...previous, fingerprint: "" };
+      } else {
         updatedIndex.entries[entry.id] = {
           fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
           status: "failed", updatedAt: new Date().toISOString(),
