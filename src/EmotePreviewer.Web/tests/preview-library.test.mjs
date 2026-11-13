@@ -198,11 +198,23 @@ test("recovery restores manifest media when index points at interrupted generati
   assert.ok(result.present.has("wave"));
 });
 
-test("recovery rejects a generated index without a manifest", async () => {
+test("recovery discards generated records staged before an initial manifest", async () => {
   const { recoverPreviewLibrary } = await loadRecovery();
   const { root } = library();
   root.children.delete("manifest.json");
-  await assert.rejects(() => recoverPreviewLibrary(root), /without a published manifest/);
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.equal(result.present.size, 0);
+  assert.deepEqual(Object.keys(result.index.entries), []);
+});
+
+test("recovery rejects two published identifiers sharing one media file", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png" },
+    { id: "other", media: "previews/wave/run1/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published media path/);
 });
 
 test("recovery detects published files that are absent or empty", async () => {

@@ -68,6 +68,7 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
     index.publicationId = undefined;
   }
   const published = new Map<string, { media: string; frameCount?: number; durationSeconds?: number }>();
+  const publishedPaths = new Set<string>();
   for (const item of (rawManifest as { entries: unknown[] }).entries) {
     if (!item || typeof item !== "object") throw new Error("Invalid published preview record.");
     const record = item as Record<string, unknown>;
@@ -75,6 +76,12 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
       typeof record.media !== "string" || !safeMedia(record.media) || published.has(record.id)) {
       throw new Error("Unsafe or duplicate published preview record. Recovery refused.");
     }
+    // Every generated preview belongs to exactly one catalog identity.
+    // Refuse ambiguous published libraries before trusting any producer index.
+    if (publishedPaths.has(record.media)) {
+      throw new Error("Duplicate published media path. Recovery refused.");
+    }
+    publishedPaths.add(record.media);
     published.set(record.id, {
       media: record.media,
       frameCount: typeof record.frameCount === "number" && Number.isFinite(record.frameCount) && record.frameCount > 0 ? record.frameCount : undefined,
