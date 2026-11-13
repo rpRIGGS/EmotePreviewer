@@ -53,3 +53,9 @@ The exporter now rejects prototype-sensitive catalog IDs and malformed imported 
 ## Batch planning contract
 
 Catalog planning rejects null and missing-ID inputs before sorting; regression cases cover deterministic ordering, unsupported entries, and distinct safe output stems for normalized command collisions. Source work is complete for these safeguards, with execution still pending CI.
+
+## Final source-only handoff (2026-11-12)
+
+The planned source hardening and regression coverage for Milestone 5 have been implemented and committed. The source-development phase is complete for now. This does **not** mean the release is accepted: runtime verification, CI execution, Windows desktop export, real GTA capture, and FiveM CEF playback remain deferred and should be revisited together when the environment is available. No further source changes should be represented as necessary merely because those external tests cannot run.
+
+A failed recapture may retain last-known-good media only when its metadata matches the fixed capture profile. Otherwise the failed entry is recorded without retaining incompatible media, so a single legacy index record does not abort the entire manifest publication.
