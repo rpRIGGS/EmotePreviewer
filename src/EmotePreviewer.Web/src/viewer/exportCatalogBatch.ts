@@ -79,58 +79,266 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // Stems are filesystem components, not trusted display labels. Two distinct
   // emotes sharing a stem would overwrite one another inside the same run.
   const stems = plan.ready.map((entry) => entry.outputStem);
-  if (stems.some((stem) => !/^[a-zA-Z0-9_-]+$/.test(stem))) throwãÝí¢G§²ÚîÆ­yÚ\ÚYYYXK™Ù]
-][KšY
-HOOH™XÛÜ™›YYXJHÛÛ[YNÂˆËÈÈ›Ý[™[[ˆ[œÝ[Yš[HÜˆ™\Ù\™H]Èš[™Ù\œš[\ÈÝ\œ™[‚ˆËÈX\šÈ]˜Z[YÛÈH™^[˜Ü™[Y[[\ÜÈ™]šY\ÈHZ\ÜÚ[™È™]šY]Ë‚ˆ\]Y[™^™[šY\ÖÚ][KšYHHÂˆš[™Ù\œš[ˆ™XÛÜ™™š[™Ù\œš[ˆYYXNˆˆ‹ˆÝ]\Îˆ™˜Z[Y‹ˆ\]Y]ˆ™]È]J
-KÒTÓÔÝš[™Ê
-KˆNÂˆBˆËÈHH[[Ý\ÈÛÛœÝ[Y\ˆ[™^\ÈHÜšYÚ[˜[ÛÝ\˜ÙKØØ]YÛÜžKØÛÛ[X[™š\K‚ˆËÈ™Z™XÝ[XšYÝ[Ý\È^ÜÈ™Y›Ü™HX›XØ][Ûˆ[œÝXYÙˆÚ[[H›Ü[™ÂˆËÈ[ˆ[žHÜˆ\ÜÚYÛš[™ÈHÜ›Û™È[š[X]Y™]šY]È[ˆH•RK‚ˆÛÛœÝY[]RÙ^\ÈH™]ÈÙ]Ýš[™ÏŠ
-NÂˆÛÛœÝX›\ÚYYÈH™]ÈÙ]Ýš[™ÏŠ
-NÂˆ›Üˆ
-ÛÛœÝ][HÙˆÛÛ\]SX[šY™\Ý
-HÂˆÛÛœÝY[]HH”ÓÓ‹œÝš[™ÚYžJÚ][KœÛÝ\˜ÙKÓÝÙ\Ø\ÙJ
-K][K˜Ø]YÛÜžKÓÝÙ\Ø\ÙJ
-K][K˜ÛÛ[X[™ÓÝÙ\Ø\ÙJ
-WJNÂˆYˆ
-Y[]RÙ^\Ëš\ÊY[]JJH›ÝÈ™]È\œ›ÜŠ\XØ]HX›\ÚY™]šY]ÈY[]Nˆ	ÚY[]_X
-NÂˆYˆ
-X›\ÚYYËš\Ê][KšY
-JH›ÝÈ™]È\œ›ÜŠ\XØ]HX›\ÚY™]šY]ÈQˆ	Ú][KšYX
-NÂˆY[]RÙ^\Ë˜Y
-Y[]JNÂˆX›\ÚYYË˜Y
-][KšY
-NÂˆYˆ
-Z][KœÛÝ\˜ÙHZ][K˜Ø]YÛÜžHZ][K˜ÛÛ[X[™Z][KšY
-HÂˆ›ÝÈ™]È\œ›ÜŠ”X›\ÚY™]šY]ÈY[]HÛÛZ[œÈ[ˆ[\HšY[ŠNÂˆBˆBˆËÈH™\šYšYYš[H\È›Ý›ÛÙˆ][\ÜYØ\\™HY]Y]H\È˜[Y‚ˆËÈÚXÚÈ[X™\ˆ\\È™Y›Ü™H\š]Y]XÎˆ˜SˆÝ\Ú\ÙHÛ\È›ÝYÚ]™\žBˆËÈÛÛ\\š\ÛÛˆ[™Ø[ˆ™HX›\ÚY\ÈH]\ÚX›HX[šY™\Ý™XÛÜ™‚ˆ›Üˆ
-ÛÛœÝ][HÙˆÛÛ\]SX[šY™\Ý
-HÂˆYˆ
-S[X™\‹š\Ò[YÙ\Š][K™œ˜[YPÛÝ[
-H][K™œ˜[YPÛÝ[HˆS[X™\‹š\Ñš[š]J][K™\˜][Û”ÙXÛÛ™ÊH][K™\˜][Û”ÙXÛÛ™ÈHˆS[X™\‹š\Ò[YÙ\Š][K™œ˜[YT˜]JH][K™œ˜[YT˜]HHˆS[X™\‹š\Ò[YÙ\Š][KÚY
-H][KÚYHˆS[X™\‹š\Ò[YÙ\Š][KšZYÚ
-H][KšZYÚJHÂˆ›ÝÈ™]È\œ›ÜŠ[˜ÛÛ\]H™]šY]ÈØ\\™HY]Y]Nˆ	Ú][KšYX
-NÂˆBˆYˆ
-][K™œ˜[YT˜]HOOHœÈ][KÚYOOHÚY][KšZYÚOOHZYÚ
-HÂˆ›ÝÈ™]È\œ›ÜŠ™]šY]È›Ùš[HZ\ÛX]Ú›Üˆ	Ú][KšYX
-NÂˆBˆYˆ
-][K™\˜][Û”ÙXÛÛ™ÈˆX^ÙXÛÛ™È][K™œ˜[YPÛÝ[ˆX]˜ÙZ[
-X^ÙXÛÛ™È
-ˆœÊHˆ][K™œ˜[YPÛÝ[OOHX]˜ÙZ[
-][K™\˜][Û”ÙXÛÛ™È
-ˆœÊJHÂˆ›ÝÈ™]È\œ›ÜŠ™]šY]È\˜][Û‹Ùœ˜[YHZ\ÛX]Ú›Üˆ	Ú][KšYX
-NÂˆBˆBˆËÈHÛÛ\]HX[šY™\Ý]\Ý™]™\ˆÛÛZ[ˆ\XØ]H]Ë]™[ˆÚ[ˆBˆËÈY[]Y\ÈY™™\‹ˆXXÚT‘È\ÈÝÛ™YžH^XÝHÛ™HØ][ÙÈ[žK‚ˆÛÛœÝX›\ÚY]ÈH™]ÈÙ]Ýš[™ÏŠ
-NÂˆ›Üˆ
-ÛÛœÝ][HÙˆÛÛ\]SX[šY™\Ý
-HÂˆYˆ
-X›\ÚY]Ëš\Ê][K›YYXJJHÂˆ›ÝÈ™]È\œ›ÜŠ][\H™]šY]ÈY[]Y\È™Y™\™[˜ÙHHØ[YHYYXNˆ	Ú][K›YYX_X
-NÂˆBˆX›\ÚY]Ë˜Y
-][K›YYXJNÂˆBˆËÈ˜[Y]H[š[˜[X›XØ][Ûˆ™Y™\™[˜Ù\È™Y›Ü™H[Z][™ÈY]Y]K‚ˆËÈYYXH]È]\Ý™[XZ[ˆÚ][ˆÝ\ˆ[[]]X›H™]šY]È™YK‚ˆ›Üˆ
-ÛÛœÝ][HÙˆÛÛ\]SX[šY™\Ý
-HÂˆYˆ
-K×œ™]šY]Ü×ÖØK^KVŒNWËWJ×ÖØK^KVŒNWËWJ×Ü™]šY]×œ™ÉË\Ý
-][K›YYXJJHÂˆ›ÝÈ™]È\œ›ÜŠ[œØY™HX›\ÚYYYXH]›Üˆ	Ú][KšYX
-NÂˆBˆBˆÚXÚÊY\\‹œÚYÛ˜[
-NÂˆ]ØZ][Z]
-^š[Jœ™\ÜšœÛÛˆ‹ÂˆØÚ[XU™\œÚ[ÛŽˆKˆ[›™YˆÝ[Ø\\™YˆX[šY™\Ý›[™Ý˜Z[Yˆ˜Z[\™\Ë›[™ÝˆX›\ÚYˆÛÛ\]SX[šY™\Ý›[™Ýˆ™]Z[™YY\‘˜Z[\™Nˆ™]Z[™YY\‘˜Z[\™KœÚ^™KˆYYˆY\\‹œÝ[[X\žOË˜YYÏÈˆÚ[™ÙYˆY\\‹œÝ[[X\žOË˜Ú[™ÙYÏÈˆ™]žNˆY\\‹œÝ[[X\žOËœ™]žHÏÈˆ[˜Ú[™ÙYˆY\\‹œÝ[[X\žOË[˜Ú[™ÙYÏÈˆ™[[Ý™YˆY\\‹œÝ[[X\žOËœ™[[Ý™YÏÈˆÚÚ\Yˆ[‹œÚÚ\Y›[™ÝØ\\™T›Ùš[K˜Z[\™\ËÚÚ\Y[šY\Îˆ[‹œÚÚ\YˆJJNÂˆËÈÝYÙHH›ÙXÙ\ˆ[™^š\œÝˆHÛÛœÝ[Y\ˆX[šY™\Ý\ÈHTÕˆËÈX›XØ][ÛˆÜš]Nˆ˜Z[\™H™Y›Ü™H]X]™\ÈH™]š[Ý\ÈX[šY™\Ý[XÝˆËÈ[™™XÛÝ™\žH™XÛÛ˜Ú[\È[žHÝYÙY[™^™XÛÜ™ÈYØZ[œÝ]X[šY™\Ý‚ˆËÈ\È\ÈH™XÛÝ™\˜X›HÛÛ[Z]›ÝØÛÛ›ÝH][KYš[H]ÛZXÈ™[˜[YK‚ˆ]ØZ][Z]
-^š[Jœ™]šY]ËZ[™^šœÛÛˆ‹\]Y[™^
-JNÂˆ]ØZ][Z]
-^š[J›X[šY™\ÝšœÛÛˆ‹ÂˆØÚ[XU™\œÚ[ÛŽˆKˆX›XØ][Û’Yˆ[’Yˆ›Ü›X]ˆ™^\š[Y[[X\™È‹ˆØ\\™T›Ùš[Kˆ›ÝNˆ[š[X]Y‘ÈØ[™Y]NÈš]™SH•RH^X˜XÚÈ[™H[[Ý\È[YÜ˜][Ûˆ›ÝY]˜[Y]Y‹ˆ[šY\ÎˆÛÛ\]SX[šY™\ÝˆJJNÂˆ™]\›ˆÈ\˜Ú]™NˆY\\‹Üš]Qš[HÈ[ˆXZÙVš\
-š[\ÊK[™^ˆ\]Y[™^Ø\\™YˆX[šY™\Ý›[™Ý˜Z[Yˆ˜Z[\™\Ë›[™ÝÚÚ\Yˆ[‹œÚÚ\Y›[™ÝNÂŸB
+  if (stems.some((stem) => !/^[a-zA-Z0-9_-]+$/.test(stem))) throw new Error("Unsafe preview output stem in export plan.");
+  if (new Set(stems).size !== stems.length) throw new Error("Duplicate preview output stems in export plan.");
+  // The full catalog must also be unambiguous: even unchanged entries may be
+  // included in a complete published manifest during an incremental export.
+  const catalogStems = (adapter.catalog ?? plan.ready).map((entry) => entry.outputStem);
+  if (catalogStems.some((stem) => !/^[a-zA-Z0-9_-]+$/.test(stem))) throw new Error("Unsafe preview output stem in export catalog.");
+  if (new Set(catalogStems).size !== catalogStems.length) throw new Error("Duplicate preview output stems in export catalog.");
+  // Validate every catalog identity before the first capture or file write.
+  // The consumer uses this exact triple; duplicates are never safe to publish.
+  const identities = new Set<string>();
+  for (const entry of adapter.catalog ?? plan.ready) {
+    if (typeof entry.id !== "string" || !entry.id.trim() ||
+        typeof entry.source !== "string" || !entry.source.trim() ||
+        typeof entry.category !== "string" || !entry.category.trim() ||
+        typeof entry.command !== "string" || !entry.command.trim()) {
+      throw new Error("Export catalog contains an empty preview identity field.");
+    }
+    const identity = JSON.stringify([entry.source.toLowerCase(), entry.category.toLowerCase(), entry.command.toLowerCase()]);
+    if (identities.has(identity)) {
+      throw new Error(`Duplicate export catalog preview identity: ${identity}`);
+    }
+    identities.add(identity);
+  }
+  // A caller supplying a full catalog must not silently omit a planned entry
+  // with a mismatched source/category/command identity.
+  const catalogById = new Map((adapter.catalog ?? plan.ready).map((entry) => [entry.id, entry]));
+  for (const entry of plan.ready) {
+    const original = catalogById.get(entry.id);
+    if (!original || original.source !== entry.source || original.category !== entry.category ||
+        original.command !== entry.command || original.outputStem !== entry.outputStem) {
+      throw new Error(`Export plan/catalog identity mismatch: ${entry.id}`);
+    }
+  }
+  const files: ExportFile[] = [];
+  const emit = async (file: ExportFile): Promise<void> => {
+    check(adapter.signal);
+    if (adapter.writeFile) await adapter.writeFile(file.name, file.data);
+    else files.push(file);
+    check(adapter.signal);
+  };
+  const failures: BatchSkip[] = [];
+  const retainedAfterFailure = new Set<string>();
+  const manifest: Array<{
+    id: string; source: string; category: string; command: string;
+    folder: string; media: string; frameCount: number; durationSeconds: number;
+    frameRate: number; width: number; height: number; format: "apng";
+  }> = [];
+  const total = plan.ready.length;
+  const fps = adapter.capture?.fps ?? 12;
+  const width = adapter.capture?.width ?? 320;
+  const height = adapter.capture?.height ?? 320;
+  const maxSeconds = adapter.capture?.maxSeconds ?? 3;
+  const captureProfile = { fps, width, height, maxSeconds };
+  if (!Number.isInteger(fps) || fps < 1 || fps > 60) throw new RangeError("Invalid batch frame rate");
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > 2048 || height > 2048) throw new RangeError("Invalid batch dimensions");
+  if (!Number.isFinite(maxSeconds) || maxSeconds <= 0 || maxSeconds > 30) throw new RangeError("Invalid batch duration");
+  if (Math.ceil(maxSeconds * fps) > 1800) throw new RangeError("Batch capture profile exceeds APNG frame budget");
+  // The current incremental fingerprint identifies precisely this production
+  // profile. Different profiles require a new render version and fingerprint.
+  if (fps !== 12 || width !== 320 || height !== 320 || maxSeconds !== 3) {
+    throw new Error("Unsupported capture profile for current preview render version");
+  }
+  // Every export run writes immutable media paths. A failed/interrupted run
+  // cannot overwrite previews referenced by the last published manifest.
+  const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  if (adapter.previousIndex && (adapter.previousIndex.schemaVersion !== 1 ||
+      !adapter.previousIndex.entries || typeof adapter.previousIndex.entries !== "object" ||
+      Array.isArray(adapter.previousIndex.entries))) {
+    throw new Error("Invalid previous preview index");
+  }
+  // Imported index objects can contain malformed records. Treat them as
+  // untrusted and never carry unknown record shapes into publication.
+  if (adapter.previousIndex && Object.entries(adapter.previousIndex.entries).some(([id, record]) =>
+    id === "__proto__" || id === "constructor" || id === "prototype" ||
+    !record || typeof record !== "object" ||
+    typeof record.fingerprint !== "string" || typeof record.media !== "string" ||
+    (record.status !== "generated" && record.status !== "failed"))) {
+    throw new Error("Invalid previous preview index record");
+  }
+  const updatedIndex: PreviewIndex = {
+    schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION, publicationId: runId,
+    entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
+  };
+  const progress = (completed: number, currentId: string | null) =>
+    adapter.onProgress?.({ completed, total, currentId, captured: manifest.length, failed: failures.length });
+  progress(0, null);
+  for (let i = 0; i < total; i++) {
+    check(adapter.signal);
+    const entry = plan.ready[i];
+    progress(i, entry.id);
+    // Capture/encode failures are per-emote and should not stop the catalog.
+    // Filesystem failures are different: abort immediately so we never publish
+    // a manifest that claims to reference media that could not be installed.
+    let encoded: Uint8Array | null = null;
+    let frameCount = 0;
+    let durationSeconds = 0;
+    try {
+      const controller = await adapter.load(entry, adapter.signal ?? new AbortController().signal);
+      check(adapter.signal);
+      const capture = await captureSequence(controller, { sourceId: entry.id, signal: adapter.signal, fps, width, height, maxSeconds });
+      const frameFiles = capture.files.filter((file) => file.name.endsWith(".png"));
+      encoded = encodeApng(frameFiles.map((file) => file.data), fps);
+      frameCount = capture.frameCount;
+      durationSeconds = capture.durationSeconds;
+    } catch (error) {
+      check(adapter.signal);
+      failures.push({ id: entry.id, reason: error instanceof Error ? error.message : String(error) });
+      // Preserve verified last-known-good media. Keep its original fingerprint
+      // so the next incremental update still attempts regeneration.
+      const previous = Object.hasOwn(updatedIndex.entries, entry.id) ? updatedIndex.entries[entry.id] : undefined;
+      if (previous?.status === "generated" && previous.media && adapter.writeFile && adapter.verifiedMedia?.has(entry.id) &&
+          Number.isInteger(previous.frameCount) && (previous.frameCount ?? 0) > 0 &&
+          Number.isFinite(previous.durationSeconds) && (previous.durationSeconds ?? 0) > 0 &&
+          (previous.durationSeconds ?? 0) <= maxSeconds &&
+          previous.frameCount === Math.ceil((previous.durationSeconds ?? 0) * fps)) {
+        // Keep the old preview visible, but invalidate its fingerprint so the
+        // next update retries even if the rendering inputs are unchanged.
+        updatedIndex.entries[entry.id] = { ...previous, fingerprint: "" };
+        retainedAfterFailure.add(entry.id);
+      } else {
+        updatedIndex.entries[entry.id] = {
+          fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media: "",
+          status: "failed", updatedAt: new Date().toISOString(),
+        };
+      }
+    }
+    if (encoded) {
+      const folder = `previews/${entry.outputStem}/${runId}`;
+      const media = `${folder}/preview.png`;
+      // Do not catch writer errors here: incomplete exports must never publish
+      // a new manifest or index.
+      await emit({ name: media, data: encoded });
+      updatedIndex.entries[entry.id] = {
+        fingerprint: adapter.fingerprints?.get(entry.id) ?? "", media,
+        status: "generated", updatedAt: new Date().toISOString(), frameCount, durationSeconds,
+      };
+      manifest.push({
+        id: entry.id, source: entry.source, category: entry.category,
+        command: entry.command, folder, media, frameCount,
+        durationSeconds, frameRate: fps,
+        width, height, format: "apng",
+      });
+    }
+    progress(i + 1, null);
+  }
+  // A delta export must still publish a complete manifest.
+  const catalog = adapter.catalog ?? plan.ready;
+  const currentIds = catalogIdSet;
+  for (const id of Object.keys(updatedIndex.entries)) {
+    if (!currentIds.has(id)) delete updatedIndex.entries[id];
+  }
+  const capturedById = new Map(manifest.map((item) => [item.id, item]));
+  // ZIP output must be self-contained. Only direct-to-folder export can
+  // reference existing verified media from a previous generation.
+  const completeManifest = catalog.flatMap((item) => {
+    const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
+    if (!record || record.status !== "generated" || !record.media) return [];
+    // Only newly written media or previously verified on-disk media may be
+    // published. An imported index alone is not evidence that a file exists.
+    if (!capturedById.has(item.id) && (!adapter.writeFile || !adapter.verifiedMedia?.has(item.id))) return [];
+    const captured = capturedById.get(item.id);
+    return [captured ?? {
+      id: item.id, source: item.source, category: item.category,
+      command: item.command, folder: record.media.slice(0, record.media.lastIndexOf("/")),
+      media: record.media, frameCount: record.frameCount ?? 0, durationSeconds: record.durationSeconds ?? 0,
+      frameRate: fps, width, height, format: "apng" as const,
+    }];
+  });
+  // The published index and manifest must describe the same installed media.
+  // An imported index may contain stale generated entries that were never
+  // copied to this folder; those are NOT a valid source for future deltas.
+  const publishedMedia = new Map(completeManifest.map((entry) => [entry.id, entry.media]));
+  for (const item of catalog) {
+    const record = Object.hasOwn(updatedIndex.entries, item.id) ? updatedIndex.entries[item.id] : undefined;
+    if (!record || record.status !== "generated") continue;
+    if (publishedMedia.get(item.id) === record.media) continue;
+    // Do not invent an installed file or preserve its fingerprint as current.
+    // Mark it failed so the next incremental pass retries the missing preview.
+    updatedIndex.entries[item.id] = {
+      fingerprint: record.fingerprint,
+      media: "",
+      status: "failed",
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  // The PM Emotes consumer indexes the original source/category/command triple.
+  // Reject ambiguous exports before publication instead of silently dropping
+  // an entry or assigning the wrong animated preview in the NUI.
+  const identityKeys = new Set<string>();
+  const publishedIds = new Set<string>();
+  for (const item of completeManifest) {
+    const identity = JSON.stringify([item.source.toLowerCase(), item.category.toLowerCase(), item.command.toLowerCase()]);
+    if (identityKeys.has(identity)) throw new Error(`Duplicate published preview identity: ${identity}`);
+    if (publishedIds.has(item.id)) throw new Error(`Duplicate published preview ID: ${item.id}`);
+    identityKeys.add(identity);
+    publishedIds.add(item.id);
+    if (!item.source || !item.category || !item.command || !item.id) {
+      throw new Error("Published preview identity contains an empty field");
+    }
+  }
+  // A verified file is not proof that imported capture metadata is valid.
+  // Check number types before arithmetic: NaN otherwise slips through every
+  // comparison and can be published as a plausible manifest record.
+  for (const item of completeManifest) {
+    if (!Number.isInteger(item.frameCount) || item.frameCount < 1 ||
+        !Number.isFinite(item.durationSeconds) || item.durationSeconds <= 0 ||
+        !Number.isInteger(item.frameRate) || item.frameRate < 1 ||
+        !Number.isInteger(item.width) || item.width < 1 ||
+        !Number.isInteger(item.height) || item.height < 1) {
+      throw new Error(`Incomplete preview capture metadata: ${item.id}`);
+    }
+    if (item.frameRate !== fps || item.width !== width || item.height !== height) {
+      throw new Error(`Preview profile mismatch for ${item.id}`);
+    }
+    if (item.durationSeconds > maxSeconds || item.frameCount > Math.ceil(maxSeconds * fps) ||
+        item.frameCount !== Math.ceil(item.durationSeconds * fps)) {
+      throw new Error(`Preview duration/frame mismatch for ${item.id}`);
+    }
+  }
+  // A complete manifest must never contain duplicate paths, even when the
+  // identities differ. Each APNG is owned by exactly one catalog entry.
+  const publishedPaths = new Set<string>();
+  for (const item of completeManifest) {
+    if (publishedPaths.has(item.media)) {
+      throw new Error(`Multiple preview identities reference the same media: ${item.media}`);
+    }
+    publishedPaths.add(item.media);
+  }
+  // Validate all final publication references before emitting metadata.
+  // Media paths must remain within our immutable preview tree.
+  for (const item of completeManifest) {
+    if (!/^previews\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\/preview\.png$/.test(item.media)) {
+      throw new Error(`Unsafe published media path for ${item.id}`);
+    }
+  }
+  check(adapter.signal);
+  await emit(textFile("report.json", {
+    schemaVersion: 1,
+    planned: total, captured: manifest.length, failed: failures.length,
+    published: completeManifest.length,
+    retainedAfterFailure: retainedAfterFailure.size,
+    added: adapter.summary?.added ?? 0,
+    changed: adapter.summary?.changed ?? 0,
+    retry: adapter.summary?.retry ?? 0,
+    unchanged: adapter.summary?.unchanged ?? 0,
+    removed: adapter.summary?.removed ?? 0,
+    skipped: plan.skipped.length, captureProfile, failures, skippedEntries: plan.skipped,
+  }));
+  // Stage the producer index first. The consumer manifest is the LAST
+  // publication write: failure before it leaves the previous manifest intact,
+  // and recovery reconciles any staged index records against that manifest.
+  // This is a recoverable commit protocol, not a multi-file atomic rename.
+  await emit(textFile("preview-index.json", updatedIndex));
+  await emit(textFile("manifest.json", {
+    schemaVersion: 1,
+    publicationId: runId,
+    format: "experimental-apng",
+    captureProfile,
+    note: "Animated PNG candidate; FiveM NUI playback and PM Emotes integration not yet validated",
+    entries: completeManifest,
+  }));
+  return { archive: adapter.writeFile ? null : makeZip(files), index: updatedIndex, captured: manifest.length, failed: failures.length, skipped: plan.skipped.length };
+}

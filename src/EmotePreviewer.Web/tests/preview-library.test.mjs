@@ -80,4 +80,341 @@ class MockFile {
     return {
       text: async () => this.content,
       size: bytes.length,
-      arrayMúÞÚ$z{-®éÜj×Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™É…µ•½Õ¹Ðè€ÄÈ°‘ÕÉ…Ñ¥½¹M•½¹‘Ìè€Äô°(€tô¤¤¤ì(€¥˜€¡¥¹‘•à€„ôô¹Õ±°¤É½½Ð¹…‘ ‰ÁÉ•Ù¥•Üµ¥¹‘•à¹©Í½¸ˆ°¹•Ü5½­¥±”¡)M=8¹ÍÑÉ¥¹¥™ä¡¥¹‘•à€üüì(€€€Í¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°•¹ÑÉ¥•ÌèìÝ…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™¥¹•ÉÁÉ¥¹Ðè€‰ÁÉ¥½Èˆ°ÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆ°™É…µ•½Õ¹Ðè€ÄÈ°‘ÕÉ…Ñ¥½¹M•½¹‘Ìè€Äôô°(€ô¤¤¤ì(€½¹ÍÐÝ…Ù”€ô¹•Ü5½­¥É•Ñ½Éä ¤ì(€ÁÉ•Ù¥•ÝÌ¹…‘ ‰Ý…Ù”ˆ°Ý…Ù”¤ì(€Ý…Ù”¹…‘ ‰ÉÕ¸Äˆ°¹•Ü5½­¥É•Ñ½Éä ¤¹…‘ ‰ÁÉ•Ù¥•Ü¹Á¹œˆ°¹•Ü5½­¥±” ‰½½ˆ¤¤¤ì(€Ý…Ù”¹…‘ ‰ÉÕ¸Èˆ°¹•Ü5½­¥É•Ñ½Éä ¤¹…‘ ‰ÁÉ•Ù¥•Ü¹Á¹œˆ°¹•Ü5½­¥±” ‰½ÉÁ¡…¸ˆ¤¤¤ì(€É•ÑÕÉ¸ìÉ½½Ð°ÁÉ•Ù¥•ÝÌ°Ý…Ù”ôì)ô()Ñ•ÍÐ ‰±•…¹ÕÀÁ±…¹Ì½ÉÁ¡…¹•µ•‘¥„…¹ÁÉ½Ñ•ÑÌÁÕ‰±¥Í¡•™¥±•Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä ¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡…Ý…¥ÐÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°ì(€€€½‰Í½±•Ñ”èl‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸È½ÁÉ•Ù¥•Ü¹Á¹œ‰t°¥¹ÍÁ•Ñ•è€È°É•Ñ…¥¹•è€Ä°(€ô¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀ‘•±•Ñ•Ì½¹±ä½ÉÁ¡…¹•µ•‘¥„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡…Ý…¥Ð‘•±•Ñ•=‰Í½±•Ñ•AÉ•Ù¥•ÝÌ¡É½½Ð¤°€Ä¤ì(€…ÍÍ•ÉÐ¹½¬ ¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Äˆ¤¤¹¡¥±‘É•¸¹¡…Ì ‰ÁÉ•Ù¥•Ü¹Á¹œˆ¤¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…° ¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Èˆ¤¤¹¡¥±‘É•¸¹¡…Ì ‰ÁÉ•Ù¥•Ü¹Á¹œˆ¤°™…±Í”¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÁÉ•Í•ÉÙ•Ìµ•‘¥„ÁÕ‰±¥Í¡•‰ä…¹½Ñ¡•ÈÝ¥¹‘½Ü‰•™½É”‘•±•Ñ¥½¸ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€½¹ÍÐµ…¹¥™•ÍÐ€ôÉ½½Ð¹¡¥±‘É•¸¹•Ð ‰µ…¹¥™•ÍÐ¹©Í½¸ˆ¤ì(€½¹ÍÐ½É¥¥¹…±•Ð€ôÉ½½Ð¹•Ñ¥±•!…¹‘±”¹‰¥¹¡É½½Ð¤ì(€±•Ðµ…¹¥™•ÍÑI•…‘Ì€ô€Àì(€É½½Ð¹•Ñ¥±•!…¹‘±”€ô…Íå¹Œ€¡¹…µ”¤€ôøì(€€€¥˜€¡¹…µ”€ôôô€‰µ…¹¥™•ÍÐ¹©Í½¸ˆ€˜˜€¬­µ…¹¥™•ÍÑI•…‘Ì€ôôô€È¤ì(€€€€€µ…¹¥™•ÍÐ¹½¹Ñ•¹Ð€ô)M=8¹ÍÑÉ¥¹¥™ä¡ìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèl(€€€€€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€€€€€€€ì¥è€‰¹•Üˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸È½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€€€€€tô¤ì(€€€ô(€€€É•ÑÕÉ¸½É¥¥¹…±•Ð¡¹…µ”¤ì(€ôì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡…Ý…¥Ð‘•±•Ñ•=‰Í½±•Ñ•AÉ•Ù¥•ÝÌ¡É½½Ð¤°€À¤ì(€…ÍÍ•ÉÐ¹½¬ ¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Èˆ¤¤¹¡¥±‘É•¸¹¡…Ì ‰ÁÉ•Ù¥•Ü¹Á¹œˆ¤¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÑ½±•É…Ñ•Ì…¸½ÉÁ¡…¸É•µ½Ù•½¹ÕÉÉ•¹Ñ±äˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€½¹ÍÐÉÕ¸È€ô…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Èˆ¤ì(€½¹ÍÐ½É¥¥¹…±I•µ½Ù”€ôÉÕ¸È¹É•µ½Ù•¹ÑÉä¹‰¥¹¡ÉÕ¸È¤ì(€ÉÕ¸È¹É•µ½Ù•¹ÑÉä€ô…Íå¹Œ€¡¹…µ”¤€ôøì(€€€…Ý…¥Ð½É¥¥¹…±I•µ½Ù”¡¹…µ”¤ì(€€€Ñ¡É½Ü¹•Ü=5á•ÁÑ¥½¸ ‰±É•…‘äÉ•µ½Ù•ˆ°€‰9½Ñ½Õ¹‘ÉÉ½Èˆ¤ì(€ôì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡…Ý…¥Ð‘•±•Ñ•=‰Í½±•Ñ•AÉ•Ù¥•ÝÌ¡É½½Ð¤°€À¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÁÉ½Á……Ñ•ÌÁ•Éµ¥ÍÍ¥½¸™…¥±ÕÉ•Ì‘ÕÉ¥¹œ‘•±•Ñ¥½¸ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€½¹ÍÐÉÕ¸È€ô…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Èˆ¤ì(€ÉÕ¸È¹É•µ½Ù•¹ÑÉä€ô…Íå¹Œ€ ¤€ôøìÑ¡É½Ü¹•Ü=5á•ÁÑ¥½¸ ‰•ÍÌÉ•Ù½­•ˆ°€‰9½Ñ±±½Ý•‘ÉÉ½Èˆ¤ìôì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôø‘•±•Ñ•=‰Í½±•Ñ•AÉ•Ù¥•ÝÌ¡É½½Ð¤°€½•ÍÌÉ•Ù½­•¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÁÉ½Ñ•ÑÌ¥¹‘•àµ½¹±äµ•‘¥„…™Ñ•È¥¹Ñ•ÉÉÕÁÑ•ÁÕ‰±¥…Ñ¥½¸ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•ÌèìÝ…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸È½ÁÉ•Ù¥•Ü¹Á¹œˆôôôô¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…° ¡…Ý…¥ÐÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤¤¹½‰Í½±•Ñ”¹±•¹Ñ °€À¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÉ•™ÕÍ•ÌÕ¹Í…™”µ…¹¥™•ÍÐÁ…Ñ¡Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ìµ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèmìµ•‘¥„è€ˆ¸¸½½ÕÑÍ¥‘”½ÁÉ•Ù¥•Ü¹Á¹œˆõtôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°€½U¹Í…™”µ…¹¥™•ÍÐ¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÉ•™ÕÍ•Ìµ…±™½Éµ•¥¹‘•àÉ…Ñ¡•ÈÑ¡…¸‘•±•Ñ¥¹œÉ•™•É•¹•µ•‘¥„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•ÌèìÝ…Ù”èìµ•‘¥„è€ˆ¸¸½½ÕÑÍ¥‘”ˆôôôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°€½U¹Í…™”¥¹‘•à¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÉ•©•ÑÌ•¹•É…Ñ•¥¹‘•àÉ•½É‘ÌÝ¥Ñ •µÁÑäµ•‘¥„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèì(€€€Ý…Ù”èìÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°µ•‘¥„è€ˆˆô°(€ôôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°€½µÁÑäµ•‘¥„¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÁ•Éµ¥ÑÌ™…¥±•¥¹‘•àÉ•½É‘ÌÝ¥Ñ¡½ÕÐµ•‘¥„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèì(€€€Ý…Ù”èìÍÑ…ÑÕÌè€‰™…¥±•ˆ°µ•‘¥„è€ˆˆô°(€ôôô¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…° ¡…Ý…¥ÐÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤¤¹½‰Í½±•Ñ”¹±•¹Ñ °€Ä¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÉ•©•ÑÌÕ¹­¹½Ý¸µ…¹¥™•ÍÐÙ•ÉÍ¥½¹Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ìµ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€È°•¹ÑÉ¥•Ìèmtôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°€½¥¹Ù…±¥ÁÕ‰±¥Í¡•µ…¹¥™•ÍÐ¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÉ•©•ÑÌÕ¹­¹½Ý¸¥¹‘•àÙ•ÉÍ¥½¹Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€È°•¹ÑÉ¥•Ìèíôôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤°€½%¹Ù…±¥ÁÉ•Ù¥•Ü¥¹‘•à¼¤ì)ô¤ì()Ñ•ÍÐ ‰±•…¹ÕÀÑ½±•É…Ñ•Ì…‰Í•¹Ð¥¹‘•à…¹ÁÉ•Í•ÉÙ•Ìµ…¹¥™•ÍÐµ•‘¥„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àè¹Õ±°ô¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…° ¡…Ý…¥ÐÁ±…¹AÉ•Ù¥•Ý±•…¹ÕÀ¡É½½Ð¤¤¹½‰Í½±•Ñ”¹±•¹Ñ °€Ä¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•½¹ÍÑÉÕÑÌµ¥ÍÍ¥¹œ¥¹‘•à™É½´ÁÕ‰±¥Í¡•µ…¹¥™•ÍÐˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àè¹Õ±°ô¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½Ù•É•°€Ä¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹µ•‘¥„°€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹™¥¹•ÉÁÉ¥¹Ð°€ˆˆ¤ì(€…ÍÍ•ÉÐ¹½¬¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹¡…Ì ‰Ý…Ù”ˆ¤¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•½¹ÍÑÉÕÑÌÁÕ‰±¥Í¡•ÁÉ•Ù¥•ÝÌÝ¡•¸¥¹‘•àÍ¡•µ„¥Ì½ÉÉÕÁÐˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€äää°•¹ÑÉ¥•Ìèíôôô¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½Ù•É•°€Ä¤ì(€…ÍÍ•ÉÐ¹½¬¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹¡…Ì ‰Ý…Ù”ˆ¤¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•½¹ÍÑÉÕÑÌÁÕ‰±¥Í¡•ÁÉ•Ù¥•ÝÌÝ¡•¸¥¹‘•à)M=8¥ÌÑÉÕ¹…Ñ•ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä ¤ì(€É½½Ð¹¡¥±‘É•¸¹•Ð ‰ÁÉ•Ù¥•Üµ¥¹‘•à¹©Í½¸ˆ¤¹½¹Ñ•¹Ð€ô€‰íÑÉÕ¹…Ñ•ˆì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½Ù•É•°€Ä¤ì(€…ÍÍ•ÉÐ¹½¬¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹¡…Ì ‰Ý…Ù”ˆ¤¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•ÍÑ½É•Ìµ…¹¥™•ÍÐµ•‘¥„Ý¡•¸¥¹‘•àÁ½¥¹ÑÌ…Ð¥¹Ñ•ÉÉÕÁÑ••¹•É…Ñ¥½¸ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°•¹ÑÉ¥•Ìèì(€€€Ý…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸È½ÁÉ•Ù¥•Ü¹Á¹œˆ°™¥¹•ÉÁÉ¥¹Ðè€‰¹•Üˆ°ÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆô°(€ôôô¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½Ù•É•°€Ä¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹µ•‘¥„°€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ¤ì(€…ÍÍ•ÉÐ¹½¬¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹¡…Ì ‰Ý…Ù”ˆ¤¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•Éä‘¥Í…É‘Ì•¹•É…Ñ•É•½É‘ÌÍÑ…•‰•™½É”…¸¥¹¥Ñ¥…°µ…¹¥™•ÍÐˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä ¤ì(€É½½Ð¹¡¥±‘É•¸¹‘•±•Ñ” ‰µ…¹¥™•ÍÐ¹©Í½¸ˆ¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½¹¥±•°€Ä¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹Í¥é”°€À¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡=‰©•Ð¹­•åÌ¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¤°mt¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•©•ÑÌÑÝ¼ÁÕ‰±¥Í¡•¥‘•¹Ñ¥™¥•ÉÌÍ¡…É¥¹œ½¹”µ•‘¥„™¥±”ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ìµ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèl(€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€€€ì¥è€‰½Ñ¡•Èˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€tôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤°€½‘ÕÁ±¥…Ñ”ÁÕ‰±¥Í¡•µ•‘¥„Á…Ñ ½¤¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•Éä‘•Ñ•ÑÌÁÕ‰±¥Í¡•™¥±•ÌÑ¡…Ð…É”…‰Í•¹Ð½È•µÁÑäˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€€¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Äˆ¤¤¹¡¥±‘É•¸¹‘•±•Ñ” ‰ÁÉ•Ù¥•Ü¹Á¹œˆ¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡É•ÍÕ±Ð¹µ¥ÍÍ¥¹œ°l‰Ý…Ù”‰t¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹Í¥é”°€À¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÁÉ½Á……Ñ•ÌÁ•Éµ¥ÍÍ¥½¸™…¥±ÕÉ•Ì¥¹ÍÑ•…½˜±…¥µ¥¹œÁÉ•Ù¥•ÝÌ…É”µ¥ÍÍ¥¹œˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€Ý…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±”€ô…Íå¹Œ€ ¤€ôøìÑ¡É½Ü¹•Ü=5á•ÁÑ¥½¸ ‰•ÍÌÉ•Ù½­•ˆ°€‰9½Ñ±±½Ý•‘ÉÉ½Èˆ¤ìôì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤°€½•ÍÌÉ•Ù½­•¼¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÑÉ•…ÑÌ•µÁÑäÁÕ‰±¥Í¡•µ•‘¥„…Ìµ¥ÍÍ¥¹œˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€€¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Äˆ¤¤¹…‘ ‰ÁÉ•Ù¥•Ü¹Á¹œˆ°¹•Ü5½­¥±” ˆˆ¤¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡É•ÍÕ±Ð¹µ¥ÍÍ¥¹œ°l‰Ý…Ù”‰t¤ì)ô¤ì()Ñ•ÍÐ ‰É•Ñ…¥¹•µ•‘¥„É•ÅÕ¥É•ÌÙ…±¥A9¡Õ¹­Ì°¡•­ÍÕµÌ°…¹µ…Ñ¡¥¹œ…ÁÑÕÉ”µ•Ñ…‘…Ñ„ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÙ•É¥™åAÉ•Ù¥•Ý¥±•Ìô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€™½È€¡½¹ÍÐ‰åÑ•Ì½˜l(€€€Ù…±¥‘AÉ•Ù¥•ÝÁ¹œ¹Í±¥” À°€´Ô¤°(€€€€  ¤€ôøì½¹ÍÐ½ÉÉÕÁÑ•€ôÙ…±¥‘AÉ•Ù¥•ÝÁ¹œ¹Í±¥” ¤ì½ÉÉÕÁÑ•‘lÜÁtxô€Áá™˜ìÉ•ÑÕÉ¸½ÉÉÕÁÑ•ìô¤ ¤°(€€€…Á¹œ ÄÄ¤°(€t¤ì(€€€½¹ÍÐìÉ½½Ð°Ý…Ù”ô€ô±¥‰É…Éä ¤ì(€€€€¡…Ý…¥ÐÝ…Ù”¹•Ñ¥É•Ñ½Éå!…¹‘±” ‰ÉÕ¸Äˆ¤¤¹…‘ ‰ÁÉ•Ù¥•Ü¹Á¹œˆ°¹•Ü5½­¥±”¡‰åÑ•Ì¤¤ì(€€€½¹ÍÐ¥¹‘•à€ôì(€€€€€Í¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°(€€€€€•¹ÑÉ¥•ÌèìÝ…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™¥¹•ÉÁÉ¥¹Ðè€‰ÁÉ¥½Èˆ°ÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆ°™É…µ•½Õ¹Ðè€ÄÈ°‘ÕÉ…Ñ¥½¹M•½¹‘Ìè€Äôô°(€€€ôì(€€€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÙ•É¥™åAÉ•Ù¥•Ý¥±•Ì¡¥¹‘•à°É½½Ð¤ì(€€€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡l¸¸¹É•ÍÕ±Ð¹ÁÉ•Í•¹Ñt°mt¤ì(€€€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡É•ÍÕ±Ð¹µ¥ÍÍ¥¹œ°l‰Ý…Ù”‰t¤ì(€ô)ô¤ì()Ñ•ÍÐ ‰É•Ñ…¥¹•Ù…±¥A9Á…ÍÍ•ÌÍÑÉÕÑÕÉ…°…¹ÁÉ½™¥±”Ù•É¥™¥…Ñ¥½¸ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÙ•É¥™åAÉ•Ù¥•Ý¥±•Ìô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä ¤ì(€½¹ÍÐ¥¹‘•à€ôì(€€€Í¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°(€€€•¹ÑÉ¥•ÌèìÝ…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™¥¹•ÉÁÉ¥¹Ðè€‰ÁÉ¥½Èˆ°ÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆ°™É…µ•½Õ¹Ðè€ÄÈ°‘ÕÉ…Ñ¥½¹M•½¹‘Ìè€Äôô°(€ôì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÙ•É¥™åAÉ•Ù¥•Ý¥±•Ì¡¥¹‘•à°É½½Ð¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡l¸¸¹É•ÍÕ±Ð¹ÁÉ•Í•¹Ñt°l‰Ý…Ù”‰t¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡É•ÍÕ±Ð¹µ¥ÍÍ¥¹œ°mt¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•µ½Ù•ÌÕ¹ÁÕ‰±¥Í¡•™…¥±•É•½É‘Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°•¹ÑÉ¥•Ìèì(€€€Ý…Ù”èìµ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™¥¹•ÉÁÉ¥¹Ðè€‰½±ˆ°ÍÑ…ÑÕÌè€‰•¹•É…Ñ•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆô°(€€€¡½ÍÐèìµ•‘¥„è€ˆˆ°™¥¹•ÉÁÉ¥¹Ðè€‰½±ˆ°ÍÑ…ÑÕÌè€‰™…¥±•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆô°(€ôôô¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½¹¥±•°€Ä¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡=‰©•Ð¹¡…Í=Ý¸¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì°€‰¡½ÍÐˆ¤°™…±Í”¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•©•ÑÌ‘ÕÁ±¥…Ñ”µ…¹¥™•ÍÐ¥‘•¹Ñ¥™¥•ÉÌˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ìµ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèl(€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸È½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€tôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤°€½‘ÕÁ±¥…Ñ”ÁÕ‰±¥Í¡•¼¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÁÉ•Í•ÉÙ•ÌÑ¥µ¥¹œµ•Ñ…‘…Ñ„™É½´Ñ¡”ÁÕ‰±¥Í¡•µ…¹¥™•ÍÐˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àè¹Õ±°°µ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèl(€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ½Ý…Ù”½ÉÕ¸Ä½ÁÉ•Ù¥•Ü¹Á¹œˆ°™É…µ•½Õ¹Ðè€Ðà°‘ÕÉ…Ñ¥½¹M•½¹‘Ìè€Ðô°(€tôô¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹™É…µ•½Õ¹Ð°€Ðà¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹‘ÕÉ…Ñ¥½¹M•½¹‘Ì°€Ð¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•ÉäÉ•©•ÑÌÁ…Ñ ÑÉ…Ù•ÉÍ…°¥¸ÁÕ‰±¥Í¡•µ…¹¥™•ÍÐˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ìµ…¹¥™•ÍÐèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°•¹ÑÉ¥•Ìèl(€€€ì¥è€‰Ý…Ù”ˆ°µ•‘¥„è€‰ÁÉ•Ù¥•ÝÌ¼¸¸½½ÕÑÍ¥‘”½ÁÉ•Ù¥•Ü¹Á¹œˆô°(€tôô¤ì(€…Ý…¥Ð…ÍÍ•ÉÐ¹É•©•ÑÌ  ¤€ôøÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤°€½U¹Í…™”½È‘ÕÁ±¥…Ñ”¼¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•Éä¥¹Ù…±¥‘…Ñ•Ì™¥¹•ÉÁÉ¥¹ÑÌ™É½´½±‘•ÈÉ•¹‘•É•ÈÙ•ÉÍ¥½¹Ìˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä ¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¹Ý…Ù”¹™¥¹•ÉÁÉ¥¹Ð°€ˆˆ¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•Éä±•…ÉÌ™…¥±•É•½É‘ÌÝ¡•¸¹¼µ…¹¥™•ÍÐÝ…Ì•Ù•ÈÁÕ‰±¥Í¡•ˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àèìÍ¡•µ…Y•ÉÍ¥½¸è€Ä°É•¹‘•ÉY•ÉÍ¥½¸è€‰Ñ•ÍÐˆ°•¹ÑÉ¥•Ìèì(€€€…‰…¹‘½¹•èìµ•‘¥„è€ˆˆ°™¥¹•ÉÁÉ¥¹Ðè€‰½±ˆ°ÍÑ…ÑÕÌè€‰™…¥±•ˆ°ÕÁ‘…Ñ•‘Ðè€ˆÈÀÈØ´ÀÄ´ÀÄˆô°(€ôôô¤ì(€É½½Ð¹¡¥±‘É•¸¹‘•±•Ñ” ‰µ…¹¥™•ÍÐ¹©Í½¸ˆ¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½¹¥±•°€Ä¤ì(€…ÍÍ•ÉÐ¹‘••ÁÅÕ…°¡=‰©•Ð¹­•åÌ¡É•ÍÕ±Ð¹¥¹‘•à¹•¹ÑÉ¥•Ì¤°mt¤ì)ô¤ì()Ñ•ÍÐ ‰É•½Ù•Éä…•ÁÑÌ…¸•µÁÑäÕ¹ÁÕ‰±¥Í¡•±¥‰É…Éäˆ°…Íå¹Œ€ ¤€ôøì(€½¹ÍÐìÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éäô€ô…Ý…¥Ð±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐìÉ½½Ðô€ô±¥‰É…Éä¡ì¥¹‘•àè¹Õ±°ô¤ì(€É½½Ð¹¡¥±‘É•¸¹‘•±•Ñ” ‰µ…¹¥™•ÍÐ¹©Í½¸ˆ¤ì(€½¹ÍÐÉ•ÍÕ±Ð€ô…Ý…¥ÐÉ•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¡É½½Ð¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹É•½Ù•É•°€À¤ì(€…ÍÍ•ÉÐ¹•ÅÕ…°¡É•ÍÕ±Ð¹ÁÉ•Í•¹Ð¹Í¥é”°€À¤ì)ô¤ì()…Íå¹Œ™Õ¹Ñ¥½¸±½…‘I•½Ù•Éä ¤ì(€½¹ÍÐ‰…Í”€ô¹•ÜUI0 ˆ¸¸½ÍÉŒ½Ù¥•Ý•È¼ˆ°¥µÁ½ÉÐ¹µ•Ñ„¹ÕÉ°¤ì(€½¹ÍÐ¥¹‘•áM½ÕÉ”€ôÉ•…‘¥±•Må¹Œ¡¹•ÜUI0 ‰ÁÉ•Ù¥•Ý%¹‘•à¹ÑÌˆ°‰…Í”¤°€‰ÕÑ˜àˆ¤ì(€½¹ÍÐÙ•É¥™åM½ÕÉ”€ôÉ•…‘¥±•Må¹Œ¡¹•ÜUI0 ‰Ù•É¥™åAÉ•Ù¥•Ý¥±•Ì¹ÑÌˆ°‰…Í”¤°€‰ÕÑ˜àˆ¤ì(€½¹ÍÐ¥¹ÍÁ•ÑM½ÕÉ”€ôÉ•…‘¥±•Må¹Œ¡¹•ÜUI0 ‰¥¹ÍÁ•ÑAÉ•Ù¥•ÝÁ¹œ¹ÑÌˆ°‰…Í”¤°€‰ÕÑ˜àˆ¤ì(€½¹ÍÐÉ•½Ù•ÉåM½ÕÉ”€ôÉ•…‘¥±•Må¹Œ¡¹•ÜUI0 ‰É•½Ù•ÉAÉ•Ù¥•Ý1¥‰É…Éä¹ÑÌˆ°‰…Í”¤°€‰ÕÑ˜àˆ¤ì(€€¼¼I•½Ù•Éä¥µÁ½ÉÑÌÑåÁ”µ‰•…É¥¹œQLµ½‘Õ±•Ì¸UÍ”QåÁ•MÉ¥ÁÐÌ½µÁ¥±•È(€€¼¼Ù¥„„Ñ•µÁ½É…ÉäM4‘…Ñ„UI0É…Á °Ý¥Ñ¡½ÕÐQ…ÍÍ•ÑÌ½È„‰É½ÝÍ•È¸(€½¹ÍÐ¥¹‘•á5½‘Õ±”€ôÑÌ¹ÑÉ…¹ÍÁ¥±•5½‘Õ±”¡¥¹‘•áM½ÕÉ”¹É•Á±…” ½y¥µÁ½ÉÐ€¸¨™É½´€‰p¹p½‰…Ñ¡A±…¸ˆìü½´°€ˆˆ¤°ì(€€€½µÁ¥±•É=ÁÑ¥½¹Ìèìµ½‘Õ±”èÑÌ¹5½‘Õ±•-¥¹¹M9•áÐ°Ñ…É•ÐèÑÌ¹MÉ¥ÁÑQ…É•Ð¹LÈÀÈÈô°(€ô¤¹½ÕÑÁÕÑQ•áÐì(€½¹ÍÐ¥¹‘•áUÉ°€ô€‰‘…Ñ„éÑ•áÐ½©…Ù…ÍÉ¥ÁÐí‰…Í”ØÐ°ˆ€¬	Õ™™•È¹™É½´¡¥¹‘•á5½‘Õ±”¤¹Ñ½MÑÉ¥¹œ ‰‰…Í”ØÐˆ¤ì(€½¹ÍÐ¥¹ÍÁ•Ñ5½‘Õ±”€ôÑÌ¹ÑÉ…¹ÍÁ¥±•5½‘Õ±”¡¥¹ÍÁ•ÑM½ÕÉ”°ì(€€€½µÁ¥±•É=ÁÑ¥½¹Ìèìµ½‘Õ±”èÑÌ¹5½‘Õ±•-¥¹¹M9•áÐ°Ñ…É•ÐèÑÌ¹MÉ¥ÁÑQ…É•Ð¹LÈÀÈÈô°(€ô¤¹½ÕÑÁÕÑQ•áÐì(€½¹ÍÐ¥¹ÍÁ•ÑUÉ°€ô€‰‘…Ñ„éÑ•áÐ½©…Ù…ÍÉ¥ÁÐí‰…Í”ØÐ°ˆ€¬	Õ™™•È¹™É½´¡¥¹ÍÁ•Ñ5½‘Õ±”¤¹Ñ½MÑÉ¥¹œ ‰‰…Í”ØÐˆ¤ì(€½¹ÍÐÙ•É¥™å5½‘Õ±”€ôÑÌ¹ÑÉ…¹ÍÁ¥±•5½‘Õ±”¡Ù•É¥™åM½ÕÉ”°ì(€€€½µÁ¥±•É=ÁÑ¥½¹Ìèìµ½‘Õ±”èÑÌ¹5½‘Õ±•-¥¹¹M9•áÐ°Ñ…É•ÐèÑÌ¹MÉ¥ÁÑQ…É•Ð¹LÈÀÈÈô°(€ô¤¹½ÕÑÁÕÑQ•áÐ¹É•Á±…” ™É½´€ˆ¸½¥¹ÍÁ•ÑAÉ•Ù¥•ÝÁ¹œˆœ°™É½´€ˆ‘í¥¹ÍÁ•ÑUÉ±ô‰€¤ì(€½¹ÍÐÙ•É¥™åUÉ°€ô€‰‘…Ñ„éÑ•áÐ½©…Ù…ÍÉ¥ÁÐí‰…Í”ØÐ°ˆ€¬	Õ™™•È¹™É½´¡Ù•É¥™å5½‘Õ±”¤¹Ñ½MÑÉ¥¹œ ‰‰…Í”ØÐˆ¤ì(€½¹ÍÐÉ•½Ù•Éå5½‘Õ±”€ôÑÌ¹ÑÉ…¹ÍÁ¥±•5½‘Õ±”¡É•½Ù•ÉåM½ÕÉ”°ì(€€€½µÁ¥±•É=ÁÑ¥½¹Ìèìµ½‘Õ±”èÑÌ¹5½‘Õ±•-¥¹¹M9•áÐ°Ñ…É•ÐèÑÌ¹MÉ¥ÁÑQ…É•Ð¹LÈÀÈÈô°(€ô¤¹½ÕÑÁÕÑQ•áÐ¹É•Á±…” ™É½´€ˆ¸½ÁÉ•Ù¥•Ý%¹‘•àˆœ°™É½´€ˆ‘í¥¹‘•áUÉ±ô‰€¤¹É•Á±…” ™É½´€ˆ¸½Ù•É¥™åAÉ•Ù¥•Ý¥±•Ìˆœ°™É½´€ˆ‘íÙ•É¥™åUÉ±ô‰€¤ì(€½¹ÍÐÉ•½Ù•Éä€ô…Ý…¥Ð¥µÁ½ÉÐ ‰‘…Ñ„éÑ•áÐ½©…Ù…ÍÉ¥ÁÐí‰…Í”ØÐ°ˆ€¬	Õ™™•È¹™É½´¡É•½Ù•Éå5½‘Õ±”¤¹Ñ½MÑÉ¥¹œ ‰‰…Í”ØÐˆ¤¤ì(€½¹ÍÐÙ•É¥™¥•È€ô…Ý…¥Ð¥µÁ½ÉÐ¡Ù•É¥™åUÉ°¤ì(€É•ÑÕÉ¸ì€¸¸¹É•½Ù•Éä°€¸¸¹Ù•É¥™¥•Èôì)ô
+      arrayBuffer: async () => bytes.slice().buffer,
+    };
+  }
+}
+class MockDirectory {
+  kind = "directory";
+  children = new Map();
+  add(name, handle) { this.children.set(name, handle); return this; }
+  async getFileHandle(name) {
+    const handle = this.children.get(name);
+    if (handle?.kind !== "file") throw new DOMException("Not found", "NotFoundError");
+    return handle;
+  }
+  async getDirectoryHandle(name) {
+    const handle = this.children.get(name);
+    if (handle?.kind !== "directory") throw new DOMException("Not found", "NotFoundError");
+    return handle;
+  }
+  async *entries() { yield* this.children.entries(); }
+  async removeEntry(name) { if (!this.children.delete(name)) throw new Error("Missing file"); }
+}
+globalThis.DOMException ??= class DOMException extends Error {};
+
+function library({ manifest, index } = {}) {
+  const root = new MockDirectory();
+  const previews = new MockDirectory();
+  root.add("previews", previews);
+  root.add("manifest.json", new MockFile(JSON.stringify(manifest ?? { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png", frameCount: 12, durationSeconds: 1 },
+  ] })));
+  if (index !== null) root.add("preview-index.json", new MockFile(JSON.stringify(index ?? {
+    schemaVersion: 1, renderVersion: "test", entries: { wave: { media: "previews/wave/run1/preview.png", fingerprint: "prior", status: "generated", updatedAt: "2026-01-01", frameCount: 12, durationSeconds: 1 } },
+  })));
+  const wave = new MockDirectory();
+  previews.add("wave", wave);
+  wave.add("run1", new MockDirectory().add("preview.png", new MockFile("good")));
+  wave.add("run2", new MockDirectory().add("preview.png", new MockFile("orphan")));
+  return { root, previews, wave };
+}
+
+test("cleanup plans orphaned media and protects published files", async () => {
+  const { root } = library();
+  assert.deepEqual(await planPreviewCleanup(root), {
+    obsolete: ["previews/wave/run2/preview.png"], inspected: 2, retained: 1,
+  });
+});
+
+test("cleanup deletes only orphaned media", async () => {
+  const { root, wave } = library();
+  assert.equal(await deleteObsoletePreviews(root), 1);
+  assert.ok((await wave.getDirectoryHandle("run1")).children.has("preview.png"));
+  assert.equal((await wave.getDirectoryHandle("run2")).children.has("preview.png"), false);
+});
+
+test("cleanup preserves media published by another window before deletion", async () => {
+  const { root, wave } = library();
+  const manifest = root.children.get("manifest.json");
+  const originalGet = root.getFileHandle.bind(root);
+  let manifestReads = 0;
+  root.getFileHandle = async (name) => {
+    if (name === "manifest.json" && ++manifestReads === 2) {
+      manifest.content = JSON.stringify({ schemaVersion: 1, entries: [
+        { id: "wave", media: "previews/wave/run1/preview.png" },
+        { id: "new", media: "previews/wave/run2/preview.png" },
+      ] });
+    }
+    return originalGet(name);
+  };
+  assert.equal(await deleteObsoletePreviews(root), 0);
+  assert.ok((await wave.getDirectoryHandle("run2")).children.has("preview.png"));
+});
+
+test("cleanup tolerates an orphan removed concurrently", async () => {
+  const { root, wave } = library();
+  const run2 = await wave.getDirectoryHandle("run2");
+  const originalRemove = run2.removeEntry.bind(run2);
+  run2.removeEntry = async (name) => {
+    await originalRemove(name);
+    throw new DOMException("Already removed", "NotFoundError");
+  };
+  assert.equal(await deleteObsoletePreviews(root), 0);
+});
+
+test("cleanup propagates permission failures during deletion", async () => {
+  const { root, wave } = library();
+  const run2 = await wave.getDirectoryHandle("run2");
+  run2.removeEntry = async () => { throw new DOMException("Access revoked", "NotAllowedError"); };
+  await assert.rejects(() => deleteObsoletePreviews(root), /Access revoked/);
+});
+
+test("cleanup protects index-only media after interrupted publication", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "previews/wave/run2/preview.png" } } } });
+  assert.equal((await planPreviewCleanup(root)).obsolete.length, 0);
+});
+
+test("cleanup refuses unsafe manifest paths", async () => {
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [{ media: "../outside/preview.png" }] } });
+  await assert.rejects(() => planPreviewCleanup(root), /Unsafe manifest/);
+});
+
+test("cleanup refuses malformed index rather than deleting referenced media", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: { wave: { media: "../outside" } } } });
+  await assert.rejects(() => planPreviewCleanup(root), /Unsafe index/);
+});
+
+test("cleanup rejects generated index records with empty media", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: {
+    wave: { status: "generated", media: "" },
+  } } });
+  await assert.rejects(() => planPreviewCleanup(root), /Empty media/);
+});
+
+test("cleanup permits failed index records without media", async () => {
+  const { root } = library({ index: { schemaVersion: 1, entries: {
+    wave: { status: "failed", media: "" },
+  } } });
+  assert.equal((await planPreviewCleanup(root)).obsolete.length, 1);
+});
+
+test("cleanup rejects unknown manifest versions", async () => {
+  const { root } = library({ manifest: { schemaVersion: 2, entries: [] } });
+  await assert.rejects(() => planPreviewCleanup(root), /invalid published manifest/);
+});
+
+test("cleanup rejects unknown index versions", async () => {
+  const { root } = library({ index: { schemaVersion: 2, entries: {} } });
+  await assert.rejects(() => planPreviewCleanup(root), /Invalid preview index/);
+});
+
+test("cleanup tolerates absent index and preserves manifest media", async () => {
+  const { root } = library({ index: null });
+  assert.equal((await planPreviewCleanup(root)).obsolete.length, 1);
+});
+
+test("recovery reconstructs missing index from published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.equal(result.index.entries.wave.media, "previews/wave/run1/preview.png");
+  assert.equal(result.index.entries.wave.fingerprint, "");
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery reconstructs published previews when index schema is corrupt", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 999, entries: {} } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery reconstructs published previews when index JSON is truncated", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  root.children.get("preview-index.json").content = "{truncated";
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery restores manifest media when index points at interrupted generation", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    wave: { media: "previews/wave/run2/preview.png", fingerprint: "new", status: "generated", updatedAt: "2026-01-01" },
+  } } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 1);
+  assert.equal(result.index.entries.wave.media, "previews/wave/run1/preview.png");
+  assert.ok(result.present.has("wave"));
+});
+
+test("recovery discards generated records staged before an initial manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  root.children.delete("manifest.json");
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.equal(result.present.size, 0);
+  assert.deepEqual(Object.keys(result.index.entries), []);
+});
+
+test("recovery rejects two published identifiers sharing one media file", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png" },
+    { id: "other", media: "previews/wave/run1/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published media path/i);
+});
+
+test("recovery detects published files that are absent or empty", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  (await wave.getDirectoryHandle("run1")).children.delete("preview.png");
+  const result = await recoverPreviewLibrary(root);
+  assert.deepEqual(result.missing, ["wave"]);
+  assert.equal(result.present.size, 0);
+});
+
+test("recovery propagates permission failures instead of claiming previews are missing", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  wave.getDirectoryHandle = async () => { throw new DOMException("Access revoked", "NotAllowedError"); };
+  await assert.rejects(() => recoverPreviewLibrary(root), /Access revoked/);
+});
+
+test("recovery treats empty published media as missing", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root, wave } = library();
+  (await wave.getDirectoryHandle("run1")).add("preview.png", new MockFile(""));
+  const result = await recoverPreviewLibrary(root);
+  assert.deepEqual(result.missing, ["wave"]);
+});
+
+test("retained media requires valid APNG chunks, checksums, and matching capture metadata", async () => {
+  const { verifyPreviewFiles } = await loadRecovery();
+  for (const bytes of [
+    validPreviewApng.slice(0, -5),
+    (() => { const corrupted = validPreviewApng.slice(); corrupted[70] ^= 0xff; return corrupted; })(),
+    apng(11),
+  ]) {
+    const { root, wave } = library();
+    (await wave.getDirectoryHandle("run1")).add("preview.png", new MockFile(bytes));
+    const index = {
+      schemaVersion: 1, renderVersion: "test",
+      entries: { wave: { media: "previews/wave/run1/preview.png", fingerprint: "prior", status: "generated", updatedAt: "2026-01-01", frameCount: 12, durationSeconds: 1 } },
+    };
+    const result = await verifyPreviewFiles(index, root);
+    assert.deepEqual([...result.present], []);
+    assert.deepEqual(result.missing, ["wave"]);
+  }
+});
+
+test("retained valid APNG passes structural and profile verification", async () => {
+  const { verifyPreviewFiles } = await loadRecovery();
+  const { root } = library();
+  const index = {
+    schemaVersion: 1, renderVersion: "test",
+    entries: { wave: { media: "previews/wave/run1/preview.png", fingerprint: "prior", status: "generated", updatedAt: "2026-01-01", frameCount: 12, durationSeconds: 1 } },
+  };
+  const result = await verifyPreviewFiles(index, root);
+  assert.deepEqual([...result.present], ["wave"]);
+  assert.deepEqual(result.missing, []);
+});
+
+test("recovery removes unpublished failed records", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    wave: { media: "previews/wave/run1/preview.png", fingerprint: "old", status: "generated", updatedAt: "2026-01-01" },
+    ghost: { media: "", fingerprint: "old", status: "failed", updatedAt: "2026-01-01" },
+  } } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.equal(Object.hasOwn(result.index.entries, "ghost"), false);
+});
+
+test("recovery rejects duplicate manifest identifiers", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png" },
+    { id: "wave", media: "previews/wave/run2/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published/);
+});
+
+test("recovery preserves timing metadata from the published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null, manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/wave/run1/preview.png", frameCount: 48, durationSeconds: 4 },
+  ] } });
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.index.entries.wave.frameCount, 48);
+  assert.equal(result.index.entries.wave.durationSeconds, 4);
+});
+
+test("recovery rejects path traversal in published manifest", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ manifest: { schemaVersion: 1, entries: [
+    { id: "wave", media: "previews/../outside/preview.png" },
+  ] } });
+  await assert.rejects(() => recoverPreviewLibrary(root), /Unsafe or duplicate/);
+});
+
+test("recovery invalidates fingerprints from older renderer versions", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library();
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.index.entries.wave.fingerprint, "");
+});
+
+test("recovery clears failed records when no manifest was ever published", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: { schemaVersion: 1, renderVersion: "test", entries: {
+    abandoned: { media: "", fingerprint: "old", status: "failed", updatedAt: "2026-01-01" },
+  } } });
+  root.children.delete("manifest.json");
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.reconciled, 1);
+  assert.deepEqual(Object.keys(result.index.entries), []);
+});
+
+test("recovery accepts an empty unpublished library", async () => {
+  const { recoverPreviewLibrary } = await loadRecovery();
+  const { root } = library({ index: null });
+  root.children.delete("manifest.json");
+  const result = await recoverPreviewLibrary(root);
+  assert.equal(result.recovered, 0);
+  assert.equal(result.present.size, 0);
+});
+
+async function loadRecovery() {
+  const base = new URL("../src/viewer/", import.meta.url);
+  const indexSource = readFileSync(new URL("previewIndex.ts", base), "utf8");
+  const verifySource = readFileSync(new URL("verifyPreviewFiles.ts", base), "utf8");
+  const inspectSource = readFileSync(new URL("inspectPreviewApng.ts", base), "utf8");
+  const recoverySource = readFileSync(new URL("recoverPreviewLibrary.ts", base), "utf8");
+  // Recovery imports type-bearing TS modules. Use TypeScript's compiler
+  // via a temporary ESM data URL graph, without GTA assets or a browser.
+  const indexModule = ts.transpileModule(indexSource.replace(/^import .* from "\.\/batchPlan";?$/gm, ""), {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const indexUrl = "data:text/javascript;base64," + Buffer.from(indexModule).toString("base64");
+  const inspectModule = ts.transpileModule(inspectSource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const inspectUrl = "data:text/javascript;base64," + Buffer.from(inspectModule).toString("base64");
+  const verifyModule = ts.transpileModule(verifySource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText.replace('from "./inspectPreviewApng"', `from "${inspectUrl}"`);
+  const verifyUrl = "data:text/javascript;base64," + Buffer.from(verifyModule).toString("base64");
+  const recoveryModule = ts.transpileModule(recoverySource, {
+    compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+  }).outputText.replace('from "./previewIndex"', `from "${indexUrl}"`).replace('from "./verifyPreviewFiles"', `from "${verifyUrl}"`);
+  const recovery = await import("data:text/javascript;base64," + Buffer.from(recoveryModule).toString("base64"));
+  const verifier = await import(verifyUrl);
+  return { ...recovery, ...verifier };
+}
