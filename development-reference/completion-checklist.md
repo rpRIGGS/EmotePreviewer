@@ -30,7 +30,7 @@ Updated: 2026-11-13. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 - [x] File-existence verification, recovery against published manifest, guarded orphan cleanup.
 - [x] Preview-folder selection/disconnection, preflight counts, export summaries and cleanup controls.
 - [x] Regression test source for APNG, capture, preview index, publication recovery, ZIP and maintenance.
-- [x] PM Emotes manifest consumption was implemented in the **separate** `rpRIGGS/pm-emotes` repository according to its handoff; it is not independently certified by this producer inventory.
+- [x] PM Emotes consumer source was cross-checked against this producer at `rpRIGGS/pm-emotes` master commit `70398ec8b4d8eea376d59a592c73c9cde57abde6` (November 13, 2026). Its v1 `experimental-apng` manifest fields and immutable `previews/.../preview.png` path match the published contract; all 23 PM Emotes Node tests passed. The resource packages a valid empty manifest for no-export fallback. No generated Windows export has yet been installed in FiveM, so CEF playback and live fallback remain open acceptance.
 
 ## C. Confirmed fixes committed
 - [x] Replaced accidental literal escaped newlines in TypeScript source.

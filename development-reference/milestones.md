@@ -6,7 +6,7 @@
 - [x] **1 — Export/recovery safety implemented in source.** Immutable preview paths, index/manifest publication IDs, manifest-last publication, recovery, verified-media checks and guarded cleanup.
 - [x] **2 — Animation production implemented in source.** Capture, APNG encoder, sequential batch, readiness, retries and failure reports.
 - [x] **3 — Windows developer workflow implemented in source.** Folder selection, update/rebuild, ZIP fallback, preflight, progress/cancellation and summaries.
-- [x] **4 — Consumer integration source implemented in separate PM Emotes repository**, per integration handoff; not independently audited in this repository.
+- [x] **4 — Consumer integration source cross-checked in separate PM Emotes repository.** At PM Emotes master `70398ec`, the consumer accepts this producer's v1 APNG manifest/path contract, packages an empty default manifest, and its 23 Node regressions pass. Actual export installation and FiveM CEF playback remain unaccepted.
 - [x] **5 — Final source audit.** Frontend/.NET host/API wiring, viewer readiness, capture/export/recovery and delivery workflow reviewed. Retained APNG validation and prop readiness/reporting defects corrected.
 - [x] **6 — Windows build, tests and distribution.** GitHub Actions runs [43368359942](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43368359942) and [43368761952](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43368761952) passed. The self-contained executable and distribution ZIP were downloaded and integrity-checked; packaged executable SHA-256 matches `SHA256.txt`.
 - [x] **7 — Documentation reconciliation.** Root and Japanese README, reference index, checklist, milestones and architecture now describe the producer workflow and acceptance boundary.

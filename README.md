@@ -40,7 +40,7 @@ Use the viewer to inspect emotes with their peds, props, partners and playback c
 
 Frames are captured with transparency at 320×320, 12 fps and up to three seconds, then encoded as looping APNG. The export writes preview media, `manifest.json` for the separate PM Emotes consumer, `preview-index.json` for producer-side update/rebuild state, and `report.json` with capture and publication counts. Direct-folder updates reuse only verified unchanged media and regenerate missing, corrupt or changed media. Standalone ZIP output performs a full rebuild and includes all referenced media.
 
-These workflows have automated regression coverage. Review actual capture quality, transparency, timing and framing on a Windows desktop with GTA V Legacy; FiveM playback is tested separately in the consumer project.
+These workflows have automated regression coverage. Review actual capture quality, transparency, timing and framing on a Windows desktop with GTA V Legacy; then test playback separately in the PM Emotes FiveM consumer.
 
 ## Features
 
