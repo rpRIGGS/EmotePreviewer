@@ -47,3 +47,14 @@ test("rejects duplicate output stems", async () => {
 test("rejects missing identity fields", async () => {
   await assert.rejects(run([{ ...entry("one"), category: "" }]), /empty preview identity field/);
 });
+
+test("rejects invalid coordinator arrays before capture or writes", async () => {
+  await assert.rejects(exportCatalogBatch({ ready: null, skipped: [] }, {
+    load: async () => { throw new Error("unexpected load"); },
+  }), /Invalid batch export plan/);
+});
+test("rejects invalid capture profiles before loading any animation", async () => {
+  await assert.rejects(exportCatalogBatch({ ready: [entry("one")], skipped: [] }, {
+    capture: { fps: 61 }, load: async () => { throw new Error("unexpected load"); },
+  }), /Invalid batch frame rate/);
+});

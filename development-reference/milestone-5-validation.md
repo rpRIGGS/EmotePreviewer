@@ -33,3 +33,7 @@ The manifest publisher now checks that every newly captured or retained APNG rep
 ## Invalid coordinator inputs
 
 Reject malformed batch plan/catalog arrays before any export work begins. Empty incremental plans remain supported when a valid complete catalog is supplied.
+
+## Final metadata audit correction
+
+Capture metadata is checked for finite numeric values before duration/frame arithmetic, preventing NaN imported metadata from bypassing comparison checks. The duplicate validation pass was consolidated. Added coordinator input and capture-profile preflight regression cases.

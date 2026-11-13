@@ -239,10 +239,17 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       throw new Error("Published preview identity contains an empty field");
     }
   }
-  // Never publish a previously generated file with a stale or incompatible
-  // rendering profile. A verified path proves existence, not that its
-  // frame timing and dimensions match this manifest's declared profile.
+  // A verified file is not proof that imported capture metadata is valid.
+  // Check number types before arithmetic: NaN otherwise slips through every
+  // comparison and can be published as a plausible manifest record.
   for (const item of completeManifest) {
+    if (!Number.isInteger(item.frameCount) || item.frameCount < 1 ||
+        !Number.isFinite(item.durationSeconds) || item.durationSeconds <= 0 ||
+        !Number.isInteger(item.frameRate) || item.frameRate < 1 ||
+        !Number.isInteger(item.width) || item.width < 1 ||
+        !Number.isInteger(item.height) || item.height < 1) {
+      throw new Error(`Incomplete preview capture metadata: ${item.id}`);
+    }
     if (item.frameRate !== fps || item.width !== width || item.height !== height) {
       throw new Error(`Preview profile mismatch for ${item.id}`);
     }
@@ -259,13 +266,6 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       throw new Error(`Multiple preview identities reference the same media: ${item.media}`);
     }
     publishedPaths.add(item.media);
-    if (!Number.isInteger(item.frameCount) || item.frameCount < 1 ||
-        !Number.isFinite(item.durationSeconds) || item.durationSeconds <= 0 ||
-        !Number.isInteger(item.frameRate) || item.frameRate < 1 ||
-        !Number.isInteger(item.width) || item.width < 1 ||
-        !Number.isInteger(item.height) || item.height < 1) {
-      throw new Error(`Incomplete preview capture metadata: ${item.id}`);
-    }
   }
   // Validate all final publication references before emitting metadata.
   // Media paths must remain within our immutable preview tree.
