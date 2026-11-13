@@ -702,6 +702,7 @@ export function Viewer() {
                 setExportError(error instanceof Error ? error.message : String(error));
               });
             }}>Select preview folder</button>
+          {previewDirectory && <span title="Current direct-export destination" style={{ fontSize: 12 }}>Folder: {previewDirectory.name}</span>}
           <button type="button" disabled={exporting || maintenanceBusy || !previewDirectory}
             title="Review obsolete generated media and remove only unreferenced preview files"
             onClick={() => {
@@ -720,6 +721,11 @@ export function Viewer() {
               })().catch((error: unknown) => setExportError(error instanceof Error ? error.message : String(error)))
                 .finally(() => { maintenanceLockRef.current = false; setMaintenanceBusy(false); });
             }}>Clean old previews</button>
+          {previewDirectory && <button type="button" disabled={exporting || maintenanceBusy} onClick={() => {
+            setPreviewDirectory(null);
+            setVerifiedMedia(null);
+            setBatchProgress("Preview folder disconnected; exports will download a ZIP.");
+          }}>Disconnect folder</button>}
           <label style={{ fontSize: 12, cursor: "pointer" }}>
             Import preview index
             <input type="file" accept=".json,application/json" disabled={exporting || maintenanceBusy} style={{ width: 120 }}
