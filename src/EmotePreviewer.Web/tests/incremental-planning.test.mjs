@@ -61,3 +61,24 @@ test("import parser rejects generated paths outside immutable preview tree", asy
   });
   assert.deepEqual(Object.keys(parsed.entries), ["good"]);
 });
+
+test("failed recapture retains published media but invalidates fingerprint for next update", () => {
+  const item = emote("wave");
+  const index = emptyPreviewIndex();
+  index.entries.wave = { fingerprint: "", media: "previews/wave/run1/preview.png",
+    status: "generated", updatedAt: "2026-11-12" };
+  const result = planIncrementalBatch([item], index, "ped", "ped", false, "update", new Set(["wave"]));
+  assert.deepEqual(result.changed, ["wave"]);
+  assert.deepEqual(result.unchanged, []);
+  assert.deepEqual(result.plan.ready.map((entry) => entry.id), ["wave"]);
+});
+test("unchanged verified previews are not regenerated", async () => {
+  const item = emote("wave");
+  const index = emptyPreviewIndex();
+  const { fingerprintEmote } = await import(asUrl(indexJs));
+  index.entries.wave = { fingerprint: fingerprintEmote(item, "ped", "ped", false),
+    media: "previews/wave/run1/preview.png", status: "generated", updatedAt: "2026-11-12" };
+  const result = planIncrementalBatch([item], index, "ped", "ped", false, "update", new Set(["wave"]));
+  assert.deepEqual(result.unchanged.map((entry) => entry.id), ["wave"]);
+  assert.deepEqual(result.plan.ready, []);
+});
