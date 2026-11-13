@@ -37,3 +37,7 @@ Reject malformed batch plan/catalog arrays before any export work begins. Empty 
 ## Final metadata audit correction
 
 Capture metadata is checked for finite numeric values before duration/frame arithmetic, preventing NaN imported metadata from bypassing comparison checks. The duplicate validation pass was consolidated. Added coordinator input and capture-profile preflight regression cases.
+
+## Incremental source completion
+
+The incremental planner now schedules recapture of existing media when its retained frame metadata is absent, inconsistent, or exceeds the fixed three-second render profile. This avoids turning an old incomplete index into a late export-wide failure. Export preflight rejects null catalog records, non-string identity fields, and malformed prior index containers. Dedicated regression tests cover unchanged valid metadata and invalid retained records.

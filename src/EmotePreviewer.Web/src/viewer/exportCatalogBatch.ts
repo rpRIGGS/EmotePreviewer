@@ -50,11 +50,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // would otherwise let one capture silently replace another in the index.
   // Validate the complete catalog even when no emotes need recapturing.
   // Otherwise a no-op incremental export can silently publish ambiguous IDs.
-  const completeCatalog = adapter.catalog ?? plan.ready;
+  if (!plan || !adapter) throw new Error("Invalid batch export plan or adapter");\n  const completeCatalog = adapter.catalog ?? plan.ready;
   if (!Array.isArray(completeCatalog) || !Array.isArray(plan.ready) || !Array.isArray(plan.skipped)) {
     throw new Error("Invalid batch export plan or catalog");
   }
-  const catalogIds = (adapter.catalog ?? plan.ready).map((entry) => entry.id);
+  if (completeCatalog.some((entry) => !entry || typeof entry !== "object") ||\n      plan.ready.some((entry) => !entry || typeof entry !== "object")) {\n    throw new Error("Invalid batch catalog entry");\n  }\n  const catalogIds = completeCatalog.map((entry) => entry.id);
   const catalogIdSet = new Set(catalogIds);
   if (catalogIdSet.size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
   if (plan.ready.some((entry) => !catalogIdSet.has(entry.id))) throw new Error("Export plan contains an emote absent from the full catalog.");
@@ -73,7 +73,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // The consumer uses this exact triple; duplicates are never safe to publish.
   const identities = new Set<string>();
   for (const entry of adapter.catalog ?? plan.ready) {
-    if (!entry.id || !entry.source || !entry.category || !entry.command) {
+    if (typeof entry.id !== "string" || !entry.id.trim() ||\n        typeof entry.source !== "string" || !entry.source.trim() ||\n        typeof entry.category !== "string" || !entry.category.trim() ||\n        typeof entry.command !== "string" || !entry.command.trim()) {
       throw new Error("Export catalog contains an empty preview identity field.");
     }
     const identity = JSON.stringify([entry.source.toLowerCase(), entry.category.toLowerCase(), entry.command.toLowerCase()]);
@@ -123,7 +123,7 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
   // Every export run writes immutable media paths. A failed/interrupted run
   // cannot overwrite previews referenced by the last published manifest.
   const runId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-  const updatedIndex: PreviewIndex = {
+  if (adapter.previousIndex && (adapter.previousIndex.schemaVersion !== 1 ||\n      !adapter.previousIndex.entries || typeof adapter.previousIndex.entries !== "object" ||\n      Array.isArray(adapter.previousIndex.entries))) {\n    throw new Error("Invalid previous preview index");\n  }\n  const updatedIndex: PreviewIndex = {
     schemaVersion: 1, renderVersion: PREVIEW_RENDER_VERSION,
     entries: Object.assign(Object.create(null) as PreviewIndex["entries"], adapter.previousIndex?.entries ?? {}),
   };

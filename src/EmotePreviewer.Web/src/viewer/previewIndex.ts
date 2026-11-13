@@ -91,7 +91,7 @@ export function planIncrementalBatch(
     const fingerprint = fingerprintEmote(byId.get(entry.id)!, ped, partnerPed, showPartner);
     if (!previous) added.push(entry.id);
     else if (previous.status !== "generated" || !verifiedMedia?.has(entry.id)) retry.push(entry.id);
-    else if (previous.fingerprint !== fingerprint || index.renderVersion !== PREVIEW_RENDER_VERSION) changed.push(entry.id);
+    else if (previous.fingerprint !== fingerprint || index.renderVersion !== PREVIEW_RENDER_VERSION ||\n      !Number.isInteger(previous.frameCount) || (previous.frameCount ?? 0) < 1 ||\n      !Number.isFinite(previous.durationSeconds) || (previous.durationSeconds ?? 0) <= 0 ||\n      (previous.durationSeconds ?? 0) > 3 ||\n      previous.frameCount !== Math.ceil((previous.durationSeconds ?? 0) * 12)) changed.push(entry.id);
     else if (mode === "update") { unchanged.push(entry); continue; }
     ready.push(entry);
   }

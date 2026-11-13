@@ -58,3 +58,14 @@ test("rejects invalid capture profiles before loading any animation", async () =
     capture: { fps: 61 }, load: async () => { throw new Error("unexpected load"); },
   }), /Invalid batch frame rate/);
 });
+
+test("rejects malformed catalog records before any output", async () => {
+  await assert.rejects(run([null]), /Invalid batch catalog entry/);
+  await assert.rejects(run([{ ...entry("one"), command: 42 }]), /empty preview identity field/);
+});
+test("rejects malformed previous index before capture", async () => {
+  await assert.rejects(exportCatalogBatch({ ready: [], skipped: [] }, {
+    previousIndex: { schemaVersion: 1, entries: null },
+    load: async () => { throw new Error("unexpected load"); },
+  }), /Invalid previous preview index/);
+});
