@@ -21,9 +21,22 @@ export function makeZip(files: ExportFile[]): Blob {
   const local: Uint8Array[] = [];
   const central: Uint8Array[] = [];
   let offset = 0;
+  const names = new Set<string>();
   for (const file of files) {
     const name = encoder.encode(file.name);
-    if (!name.length || name.length > 65535 || file.name.includes("..") || file.name.startsWith("/")) throw new Error("Invalid ZIP entry name");
+    if (!name.length || name.length > 65535 ||
+        file.name.startsWith("/") || file.name.includes("\\") ||
+        file.name.split("/").some((part) => !part || part === "." || part === ".." || part.includes(":"))) {
+      throw new Error("Invalid ZIP entry name");
+    }
+    if (names.has(file.name)) throw new Error("Duplicate ZIP entry name");
+    names.add(file.name);
+    if (!(file.data instanceof Uint8Array) || file.data.byteLength > 0xffffffff) {
+      throw new RangeError("ZIP entry exceeds classic ZIP limits");
+    }
+    if (offset + 30 + name.length + file.data.byteLength > 0xffffffff) {
+      throw new RangeError("ZIP archive exceeds classic ZIP limits");
+    }
     const checksum = crc32(file.data);
     const head = new Uint8Array(30 + name.length);
     const h = new DataView(head.buffer);
@@ -40,6 +53,7 @@ export function makeZip(files: ExportFile[]): Blob {
     offset += head.length + file.data.length;
   }
   const directorySize = central.reduce((sum, bytes) => sum + bytes.length, 0);
+  if (offset + directorySize + 22 > 0xffffffff) throw new RangeError("ZIP archive exceeds classic ZIP limits");
   const end = new Uint8Array(22);
   const e = new DataView(end.buffer);
   u32(e, 0, 0x06054b50); u16(e, 8, files.length); u16(e, 10, files.length);

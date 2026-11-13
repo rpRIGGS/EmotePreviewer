@@ -38,3 +38,7 @@ The desktop exporter now forces full-catalog rebuild mode when downloading a sta
 ## Publication hardening follow-up
 
 Changed the selected-folder metadata publication order to report → producer index → consumer manifest, with the manifest as the last commit marker. The existing recovery logic treats the manifest as authoritative and discards index-ahead records after an interrupted write. Regression tests cover normal write order and index-staging failure. Individual browser file writes are not a multi-file transaction; the recoverable protocol intentionally avoids claiming otherwise.
+
+## ZIP archive hardening
+
+The classic STORE-only ZIP writer now rejects duplicate archive names, path traversal, Windows-style path separators and drive components, and offsets exceeding classic ZIP's 32-bit size limit. Dedicated source regression cases cover unsafe paths, duplicates and a valid archive.
