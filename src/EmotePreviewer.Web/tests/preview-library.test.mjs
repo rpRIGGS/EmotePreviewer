@@ -214,7 +214,7 @@ test("recovery rejects two published identifiers sharing one media file", async 
     { id: "wave", media: "previews/wave/run1/preview.png" },
     { id: "other", media: "previews/wave/run1/preview.png" },
   ] } });
-  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published media path/);
+  await assert.rejects(() => recoverPreviewLibrary(root), /duplicate published media path/i);
 });
 
 test("recovery detects published files that are absent or empty", async () => {

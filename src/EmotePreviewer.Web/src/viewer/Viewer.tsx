@@ -483,6 +483,22 @@ export function Viewer() {
       const exportMode = !previewDirectory || rebuildAll ? "rebuild" : "update";
       const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, exportMode, activeMedia ?? undefined);
       const plan = incremental.plan;
+      // Validate the entire catalog even when an incremental update is a no-op.
+      // A changed/ambiguous source must not be silently treated as published.
+      const fullCatalog = planCatalogBatch(emotes).ready;
+      const identities = new Set<string>();
+      const stems = new Set<string>();
+      for (const item of fullCatalog) {
+        if (!item.id.trim() || !item.source?.trim() || !item.category?.trim() || !item.command?.trim()) {
+          throw new Error("Export catalog contains an empty preview identity field");
+        }
+        const identity = JSON.stringify([item.source.toLowerCase(), item.category.toLowerCase(), item.command.toLowerCase()]);
+        if (identities.has(identity) || stems.has(item.outputStem)) {
+          throw new Error("Ambiguous preview catalog; duplicate identity or output path");
+        }
+        identities.add(identity);
+        stems.add(item.outputStem);
+      }
       if (!plan.ready.length && !incremental.removed.length && previewDirectory) {
         // A no-op update is still a completed operation. Give the developer a
         // truthful summary rather than leaving the previous result cleared.
@@ -501,7 +517,7 @@ export function Viewer() {
         previousIndex: activeIndex,
         verifiedMedia: activeMedia ?? undefined,
         fingerprints,
-        catalog: planCatalogBatch(emotes).ready,
+        catalog: fullCatalog,
         writeFile: previewDirectory ? async (path, data) => {
           const parts = path.split("/");
           if (parts.some((part) => !part || part === "." || part === ".." || part.includes("\\") || part.includes(":"))) {
