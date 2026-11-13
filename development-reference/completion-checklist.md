@@ -50,12 +50,12 @@ Updated: 2026-11-13. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 - [x] Reviewed Windows first-run, GTA/resource setup, folder selection, preflight, update/rebuild, cancellation and error summaries.
 - [x] Reconciled development-reference current status. Root `README.md` was intentionally left untouched as required.
 
-## E. Build, packaging and delivery — outstanding
+## E. Build, packaging and delivery — complete for desktop acceptance
 - [x] Execute the complete frontend regression suite and TypeScript production build locally after the audit (92 tests passed).
-- [ ] Build and test the .NET application on Windows after the audit; no local .NET SDK is installed in the current workspace.
-- [ ] Obtain and inspect a self-contained `EmotePreviewer.exe` from the post-audit Windows workflow artifact.
-- [ ] Deliver the verified artifact for desktop acceptance.
-- [ ] Provide concise first-run instructions: GTA V Legacy, legally generated key files, local emote resource, preview output folder, full build and incremental update.
+- [x] Build and test the .NET application on Windows after the audit using GitHub Actions run `43368359942` at `d3c518c`; all workflow jobs passed.
+- [x] Publish and inspect the self-contained `EmotePreviewer.exe` and Windows distribution ZIP from that run. Both ZIP levels passed integrity checks; the executable's SHA-256 matches the packaged `SHA256.txt`.
+- [x] Make the verified distribution available for desktop acceptance.
+- [x] Include first-run instructions for extracting and launching the application, setting GTA V Legacy and required key files, loading a local emote resource, selecting an output folder and running Batch Export.
 - [ ] User performs **desktop acceptance** with real normal/dance/prop/shared animations and reviews APNG animation, transparency, framing and output.
 - [ ] Fix actual issues found during user desktop acceptance.
 - [ ] Coordinate downstream PM Emotes FiveM preview playback/missing-media fallback in its **separate project**, without withholding the Windows application pending that test.
@@ -64,10 +64,9 @@ Updated: 2026-11-13. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 The **producer** is deliverable when a runnable Windows executable is available and the user can use it to load their GTA V Legacy emote resources, capture supported animated previews, export a complete manifest/index/report/media library, and safely rebuild/update it. The user's desktop test is the acceptance step; FiveM consumer testing belongs to the separate PM Emotes integration.
 
 ## Evidence and limits
-The frontend test/build passed locally after the final source changes: 92 tests, TypeScript typecheck and Vite bundle. No local .NET SDK is installed, so Windows host build/test, executable verification and packaging depend on the post-audit GitHub Actions run. Earlier run 43365037280 succeeded at `c9273ec`, before the latest `a4f312d` cleanup-path change and this audit. No real GTA capture run or FiveM playback result has been established. Do not claim any unchecked build or acceptance task is complete.
+The frontend suite passed locally after the audit: 92 tests, TypeScript typecheck and Vite bundle. Windows GitHub Actions run `43368359942` passed at `d3c518c`, including the frontend suite/build, .NET build/test, self-contained publish, executable/UI checks and artifact upload. The downloaded artifact ZIP and nested distribution ZIP both passed integrity checks. The executable SHA-256 is `d9635dac5973ab7c6ee6e1e32538423a49c98cd3d128e666e18faa974eb6726e`, matching the value in the distribution's `SHA256.txt`. The artifact is `EmotePreviewer-win-x64`. No real GTA animation capture or FiveM playback has been established; these remain desktop/server acceptance tasks.
 
 ## Next execution sequence
-1. Commit the grouped source-audit corrections and documentation reconciliation to `main`.
-2. Run the Windows build and test workflow at that commit and correct any failures.
-3. Inspect the resulting distribution artifact and provide first-run instructions.
-4. Resolve user-reported desktop acceptance defects; hand off consumer-specific issues to PM Emotes chat.
+1. User extracts the Windows distribution ZIP and follows `START-HERE.txt`.
+2. Exercise normal, dance, prop and shared animations on the Windows desktop; review transparent 320×320 APNG output, timing, framing, update/rebuild, reports and interruption recovery.
+3. Correct any defects found during desktop acceptance. Keep PM Emotes consumer playback testing in its separate project.
