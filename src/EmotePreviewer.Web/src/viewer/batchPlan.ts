@@ -36,7 +36,7 @@ export function planCatalogBatch(entries: readonly EmoteDto[]): BatchPlan {
   const ready: BatchEntry[] = [];
   const skipped: BatchSkip[] = [];
   const seen = new Set<string>();
-  for (const entry of [...entries].sort((a, b) => a.id.localeCompare(b.id))) {
+  // Reject invalid catalog input rather than allowing sort to crash or\n  // silently accepting duplicate identities as unrelated entries.\n  if (!Array.isArray(entries) || entries.some((entry) => !entry || typeof entry.id !== "string")) {\n    throw new Error("Invalid animation catalog entry");\n  }\n  for (const entry of [...entries].sort((a, b) => a.id.localeCompare(b.id))) {
     if (seen.has(entry.id)) {
       skipped.push({ id: entry.id, reason: "duplicate catalog ID" });
       continue;

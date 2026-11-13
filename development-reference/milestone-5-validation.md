@@ -49,3 +49,7 @@ The index parser now treats nonintegral frame counts and capture metadata exceed
 ## Publication safety pass
 
 The exporter now rejects prototype-sensitive catalog IDs and malformed imported index records before writes. The index parser ignores array-shaped records. Cancellation is checked immediately before publishing metadata, including for no-op incremental batches. Added preflight and cancellation regression cases. Runtime validation is still a separate acceptance gate.
+
+## Batch planning contract
+
+Catalog planning rejects null and missing-ID inputs before sorting; regression cases cover deterministic ordering, unsupported entries, and distinct safe output stems for normalized command collisions. Source work is complete for these safeguards, with execution still pending CI.
