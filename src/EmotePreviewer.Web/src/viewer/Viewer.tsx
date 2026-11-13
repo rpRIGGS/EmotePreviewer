@@ -478,9 +478,12 @@ export function Viewer() {
       }
       const ped = settings?.ped ?? DEFAULT_PED;
       const partnerPed = settings?.partnerPed ?? ped;
-      const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, rebuildAll ? "rebuild" : "update", activeMedia ?? undefined);
+      // ZIP downloads must be self-contained; force a full catalog rebuild when
+      // there is no selected output folder, regardless of incremental toggle.
+      const exportMode = !previewDirectory || rebuildAll ? "rebuild" : "update";
+      const incremental = planIncrementalBatch(emotes, activeIndex, ped, partnerPed, showPartner, exportMode, activeMedia ?? undefined);
       const plan = incremental.plan;
-      if (!plan.ready.length && !incremental.removed.length) {
+      if (!plan.ready.length && !incremental.removed.length && previewDirectory) {
         setBatchProgress(`Nothing to export: ${incremental.unchanged.length} unchanged`);
         return;
       }

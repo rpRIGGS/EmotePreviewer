@@ -30,3 +30,7 @@ C. Separate PM Emotes integration acceptance inside FiveM, only when ready.
 
 ## Decision
 The source inventory does **not** support an unconditional production-ready or fully verified claim. It does confirm substantial implementation is present, rather than a missing batch export workflow. Follow up on identified source risks before release; do not reopen completed feature scope merely because CI is unavailable.
+
+## Packaging hardening follow-up
+
+The desktop exporter now forces full-catalog rebuild mode when downloading a standalone ZIP. The batch exporter rejects partial ZIP plans before loading any animation. Incremental reuse remains available for verified selected-folder exports only. This prevents a ZIP manifest from silently excluding unchanged media that exists only in a different directory.

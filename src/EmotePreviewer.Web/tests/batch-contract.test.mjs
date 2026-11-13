@@ -159,3 +159,14 @@ test("preflight does not publish any metadata for a malformed imported index", a
   }), /Invalid previous preview index record/);
   assert.deepEqual(writes, []);
 });
+
+test("standalone ZIP refuses incremental plan that omits catalog media", async () => {
+  const writes = [];
+  await assert.rejects(exportCatalogBatch({ ready: [entry("one")], skipped: [] }, {
+    catalog: [entry("one"), entry("two")],
+    load: async () => { throw new Error("unexpected load"); },
+    writeFile: undefined,
+    onProgress: () => { writes.push("progress"); },
+  }), /Standalone ZIP requires a full rebuild/);
+  assert.deepEqual(writes, []);
+});

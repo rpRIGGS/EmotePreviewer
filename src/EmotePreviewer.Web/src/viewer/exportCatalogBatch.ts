@@ -64,6 +64,11 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       entry.id === "__proto__" || entry.id === "constructor" || entry.id === "prototype")) {
     throw new Error("Unsafe export catalog identifier");
   }
+  // A downloaded ZIP cannot borrow media from a folder. Reject an incremental
+  // plan that would publish a partial package; the desktop UI requests rebuild.
+  if (!adapter.writeFile && plan.ready.length !== completeCatalog.length) {
+    throw new Error("Standalone ZIP requires a full rebuild of the export catalog");
+  }
   const catalogIds = completeCatalog.map((entry) => entry.id);
   const catalogIdSet = new Set(catalogIds);
   if (catalogIdSet.size !== catalogIds.length) throw new Error("Duplicate emote identifiers in export catalog.");
