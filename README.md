@@ -4,7 +4,7 @@
 
 This fork extends [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer) toward an offline production workflow for creating optimized, locally hosted animation previews for **PM Emotes**, the PowerMoves RP FiveM emote interface.
 
-**Development status:** Milestones 1–4 have source implementations; Milestone 5 source hardening is implemented with additional regression coverage, pending CI and Windows/FiveM acceptance. Experimental batch APNG capture, incremental preview indexes, direct-to-folder export, and guarded cleanup are implemented in source. Windows runtime behavior, generated APNG playback in FiveM Chromium, and end-to-end PM Emotes integration remain **unverified**. Do not treat the current exporter as production-ready.
+**Development status:** Milestones 1–4 have source implementations; Milestone 5 is undergoing source audit and hardening. Build and runtime acceptance have not been established. Experimental batch APNG capture, incremental preview indexes, direct-to-folder export, and guarded cleanup are implemented in source. Windows runtime behavior, generated APNG playback in FiveM Chromium, and end-to-end PM Emotes integration remain **unverified**. Do not treat the current exporter as production-ready.
 
 ### PowerMoves development
 

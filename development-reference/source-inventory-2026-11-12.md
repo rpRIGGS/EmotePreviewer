@@ -52,3 +52,13 @@ The source inventory found literal backslash-n sequences accidentally committed 
 Identified a genuine flaw in the previously added manifest-last protocol: a staged producer index could retain a newer fingerprint for a media path still present in the older manifest, causing an update to skip needed recapture. Added a shared publication ID to the index and manifest and made recovery invalidate fingerprints whenever publication IDs disagree (or are absent in legacy manifests). This forces safe regeneration rather than silently trusting uncommitted metadata. Runtime checks remain outstanding.
 
 Regression coverage added for interrupted publication recovery: mismatched index/manifest generations must invalidate fingerprints; matching generations may retain them; legacy manifests conservatively retry. The recovery source also explicitly narrows the publication ID type for TypeScript compilation.
+
+## Consolidated source audit checkpoint — November 12
+
+**Implemented in source:** original Windows/.NET host and GTA-backed 3D viewer; catalog planning and filtering; per-entry readiness and sequential capture; deterministic PNG frame capture; APNG encoder; standalone ZIP and selected-folder export; consumer manifest, producer index and report; incremental fingerprint planning; disk verification; recovery and guarded obsolete-file cleanup; UI progress, cancellation and rebuild controls.
+
+**Defects found and corrected during this audit:** malformed literal escaped line breaks in two TypeScript modules; incomplete standalone ZIP plans; unsafe/duplicate ZIP names and classic ZIP size overflow; metadata publication order; and the subtler interrupted-publication bug where a staged index could falsely mark unchanged manifest media current. Publication IDs now distinguish committed index/manifest pairs and trigger safe retry on mismatch.
+
+**Checks not completed:** an actual TypeScript typecheck, Node test execution, .NET compilation, Windows desktop launch, real GTA capture, APNG playback, or PM Emotes acceptance. These cannot be represented as passing. The review accessed the identified export/viewer/library source modules and test files through the repository connector; it was not a recursive checkout or exhaustive audit of every original upstream backend file. No claim of a fully verified release is justified.
+
+**Remaining release gate:** execute existing frontend tests/build and .NET/Windows build when available, address any failures, generate a real preview catalog, and verify consumer playback. Source features are present; release readiness remains unverified.
