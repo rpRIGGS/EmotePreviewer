@@ -195,6 +195,21 @@ export async function exportCatalogBatch(plan: BatchPlan, adapter: BatchAdapter)
       updatedAt: new Date().toISOString(),
     };
   }
+  // The PM Emotes consumer indexes the original source/category/command triple.
+  // Reject ambiguous exports before publication instead of silently dropping
+  // an entry or assigning the wrong animated preview in the NUI.
+  const identityKeys = new Set<string>();
+  const publishedIds = new Set<string>();
+  for (const item of completeManifest) {
+    const identity = JSON.stringify([item.source, item.category, item.command]);
+    if (identityKeys.has(identity)) throw new Error(`Duplicate published preview identity: ${identity}`);
+    if (publishedIds.has(item.id)) throw new Error(`Duplicate published preview ID: ${item.id}`);
+    identityKeys.add(identity);
+    publishedIds.add(item.id);
+    if (!item.source || !item.category || !item.command || !item.id) {
+      throw new Error("Published preview identity contains an empty field");
+    }
+  }
   // Validate all final publication references before emitting metadata.
   // Media paths must remain within our immutable preview tree.
   for (const item of completeManifest) {
