@@ -6,6 +6,14 @@
 
 EmotePreviewer は [rpemotes-reborn](https://github.com/alberttheprince/rpemotes-reborn) と [scully_emotemenu](https://github.com/Scullyy/scully_emotemenu)（旧版の [rpemotes](https://github.com/Daudeuf/rpemotes) と [dpemotes](https://github.com/andristum/dpemotes) も）のエモート定義を読み、それぞれのアニメーションを手元の GTA V から探し出して、ブラウザの 3D ビューアで再生します。サーバーに入る必要も、ロード待ちもありません。6,000 件超の一覧からエモートを選べば 1 秒後には動いています。小道具付きで、好きな ped で、2 人で行うエモートなら相手も一緒に。単一の Windows 実行ファイルで、インストールは不要です。
 
+## PowerMoves Development のプレビュー書き出し
+
+このフォークはビューアに加え、PM Emotes 用のプレビューライブラリを書き出します。最新の成功した [Build workflow](https://github.com/rpRIGGS/EmotePreviewer/actions/workflows/build.yml) から `EmotePreviewer-win-x64` アーティファクトをダウンロードし、展開して `EmotePreviewer.exe` を起動してください。Windows x64 用の自己完結型ビルドです。Actions のアーティファクトは 30 日で期限切れになります。
+
+設定で GTA V Legacy の場所と、自分のゲームから作成した鍵ファイルを指定し、エモートリソースを追加します。ビューアで動作を確認した後、出力フォルダを選んで **Batch Export** を実行します。透明な 320×320 APNG を毎秒 12 フレーム、最大 3 秒で作成し、`manifest.json`、更新用の `preview-index.json`、結果の `report.json` を出力します。既存フォルダへの更新では検証済みの変更なしメディアを再利用できます。単体 ZIP はすべてのメディアを含めるため全件再構築します。
+
+自動テストと Windows ビルドは成功済みですが、実際の GTA V からのキャプチャ品質や FiveM での再生はまだ確認していません。プレビュー生成はこの Windows アプリで行い、FiveM 内では行いません。日本語の詳細な操作手順は英語版の [README](README.md) を参照してください。
+
 <p align="center">
   <img src="Docs/images/layer-walk-flag-ja.png" alt="歩き方（Casual）の上に旗を掲げる上半身エモートを重ねて再生" width="800">
 </p>
@@ -46,10 +54,9 @@ EmotePreviewer は [rpemotes-reborn](https://github.com/alberttheprince/rpemotes
 ## はじめかた
 
 1. **鍵ファイルを作る。** [Key Tool の Releases](https://github.com/Acc-Off/EmotePreviewerKeyTool/releases) から `EmotePreviewerKeyTool-<version>-win-x64.exe` をダウンロードしてダブルクリックします。`GTA5.exe` から鍵を読み、EmotePreviewer が参照する `%LOCALAPPDATA%\EmotePreviewer\keys` に書き出します。一度だけで済みます。
-2. **EmotePreviewer をダウンロードする。** [Releases](https://github.com/Acc-Off/EmotePreviewer/releases) から `EmotePreviewer-<version>-win-x64.exe` を取得して実行します。コード署名していないため Windows SmartScreen が一度確認してくることがあります（「詳細情報」→「実行」）。コンソールウィンドウが開き、ブラウザで `http://127.0.0.1:20300/` が開きます。
-   - `…-slim.exe` はずっと小さいですが、.NET 10 の **Desktop Runtime** と **ASP.NET Core Runtime**（x64、https://dotnet.microsoft.com/download/dotnet/10.0）が必要です。すでに入っている場合だけ選んでください。
-3. **リソースを追加する。** **設定** → **エモートリソース** で rpemotes-reborn / scully_emotemenu の **取得** を押すか（rpemotes は約 80 MB）、**フォルダを追加…** で手元のコピーを指定します。GTA V のフォルダはレジストリから検出され、ゲームと鍵ファイルが見つかったかは設定画面に出ます。
-4. **エモートを選ぶ。** 検索欄に入力して行をクリックすると再生されます。矢印キーで上下移動、Space で再生／停止、`/` で検索欄へ。
+2. **このフォークの Windows ビルドを取得する。** 上の Build workflow で最新の成功 run を開き、`EmotePreviewer-win-x64` アーティファクトをダウンロードします。ZIP を展開し、`EmotePreviewer.exe` を実行してください。ブラウザでローカル UI が開きます。利用中はアプリを起動したままにしてください。
+3. **設定する。** 設定画面で GTA V Legacy の場所と鍵ファイルを指定し、rpemotes-reborn / scully_emotemenu を取得するか、手元のリソースフォルダを追加します。
+4. **エモートをプレビューする。** 検索欄に入力して行を選ぶと再生されます。矢印キーで上下移動、Space で再生／停止、`/` で検索欄へ。ライブラリを作るときは出力フォルダを選び **Batch Export** を実行します。
 
 終了はコンソールで Ctrl+C か、設定画面の **EmotePreviewer を終了**。起動中にもう一度 exe を起動すると、動いているインスタンスをブラウザで開くだけです。
 
@@ -116,7 +123,7 @@ exe は小さなローカル Web サーバーです。起動時にリソース�
 前提: [.NET 10 SDK](https://dotnet.microsoft.com/download) と Node.js 22 以上。
 
 ```
-git clone https://github.com/Acc-Off/EmotePreviewer.git
+git clone https://github.com/rpRIGGS/EmotePreviewer.git
 cd EmotePreviewer
 dotnet build EmotePreviewer.slnx -c Release     # npm ci && npm run build も走り、SPA を埋め込む
 dotnet test  EmotePreviewer.slnx -c Release --no-build

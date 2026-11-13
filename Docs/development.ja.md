@@ -2,7 +2,7 @@
 
 [English](development.md) | 日本語
 
-EmotePreviewer のビルド・構成・テストについて。アプリが何をするか、使い方は [README](../README.ja.md) を参照。設計は [app-design.ja.md](app-design.ja.md)、実装計画は [app-plan.ja.md](app-plan.ja.md)、`.ycd` フォーマットのメモは [spec/ycd-format.ja.md](spec/ycd-format.ja.md)。
+EmotePreviewer のビルド・構成・テストについて。初回起動、GTA V のビューア、プレビューライブラリの書き出しは [README](../README.ja.md) を参照。PowerMoves 固有の監査状況と出力仕様は [development-reference](../development-reference/README.md) にあります。設計は [app-design.ja.md](app-design.ja.md)、実装計画は [app-plan.ja.md](app-plan.ja.md)、`.ycd` フォーマットのメモは [spec/ycd-format.ja.md](spec/ycd-format.ja.md)。
 
 ## ビルド
 
@@ -16,7 +16,7 @@ dotnet run   -c Release --no-build --project src/EmotePreviewer.App -- --no-brow
 
 - Node 無しで C# だけをビルドするときは `-p:SkipWebBuild=true`
 - フロントエンドの開発は `src/EmotePreviewer.Web` で `npm run dev`（Vite、`/api` を `127.0.0.1:20300` にプロキシ）。環境変数 `EMOTEPREVIEWER_WEBROOT` に `dist` のパスを指定すると、exe を再ビルドせずに配信内容を差し替えられる
-- 配布用: `dotnet publish src/EmotePreviewer.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true`。リリースは `Directory.Build.props` の `<Version>` と一致する `v*` タグを push したときに [.github/workflows/release.yml](../.github/workflows/release.yml) がビルドする
+- Windows 配布用: `dotnet publish src/EmotePreviewer.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true`。[Build workflow](../.github/workflows/build.yml) がフロントエンドと .NET のテストを実行し、自己完結型 exe を確認して `EmotePreviewer-win-x64` ZIP をアップロードする。アーティファクトは 30 日間保持されるため、`main` の最新成功 run を使う
 - **動作確認は必ず `--data-dir` に一時フォルダを指定する**。本物の `%LOCALAPPDATA%\EmotePreviewer` を触らない
 
 ## コマンドラインとデータフォルダ

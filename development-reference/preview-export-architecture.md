@@ -1,6 +1,6 @@
 # EmotePreviewer — implemented preview export architecture
 
-**Current state:** Producer architecture is implemented and the source audit is complete. Post-audit Windows CI packaging and desktop acceptance remain; see [completion-checklist.md](completion-checklist.md).
+**Current state:** Producer architecture and source audit are complete. Windows CI build, tests and distribution packaging passed. Real desktop and FiveM acceptance remain; see [completion-checklist.md](completion-checklist.md).
 
 ## Purpose and boundary
 `rpRIGGS/EmotePreviewer` is a standalone Windows development application built on Acc-Off's GTA V Legacy EmotePreviewer (.NET 10 host, React/TypeScript/Three.js). It loads game assets and emote resources, renders animations offline and produces local media for the separate `rpRIGGS/pm-emotes` FiveM NUI. Preview generation never runs inside FiveM.
@@ -33,4 +33,4 @@ The manifest is the consumer publication boundary; the index is producer state. 
 No second GTA renderer; no GTA encryption keys or extracted copyrighted game archives in source; no in-FiveM preview generation; no unrelated PM Emotes UI/gameplay rewrite.
 
 ## Remaining
-See [completion-checklist.md](completion-checklist.md) for source reconciliation, executable packaging and user acceptance. Do not revive historical WebP/WebM comparison as a prerequisite to handing over the existing APNG implementation; only revisit format if actual user playback shows it is necessary.
+See [completion-checklist.md](completion-checklist.md) for desktop/server acceptance. Do not revive historical WebP/WebM comparison as a prerequisite to using the existing APNG implementation; only revisit format if actual user playback shows it is necessary.

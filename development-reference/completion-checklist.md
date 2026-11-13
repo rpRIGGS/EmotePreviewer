@@ -48,7 +48,7 @@ Updated: 2026-11-13. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 - [x] Export reports distinguish new captures, failures, retained media after failed recapture, published total, added, changed, retry, unchanged, removed and skipped counts.
 - [x] Reviewed self-contained ZIP planning, direct-folder reuse, cancellation, failed writes, missing/corrupt files, interrupted metadata publication, recovery and cleanup protections.
 - [x] Reviewed Windows first-run, GTA/resource setup, folder selection, preflight, update/rebuild, cancellation and error summaries.
-- [x] Reconciled development-reference current status. Root `README.md` was intentionally left untouched as required.
+- [x] Reconciled the root and Japanese READMEs, reference index, checklist, milestones, architecture and source-inventory status with the shipped application, verified workflow and actual acceptance limits.
 
 ## E. Build, packaging and delivery — complete for desktop acceptance
 - [x] Execute the complete frontend regression suite and TypeScript production build locally after the audit (92 tests passed).

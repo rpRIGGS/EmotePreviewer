@@ -1,24 +1,29 @@
-# PM Emotes integration — target architecture
+# PM Emotes integration — producer/consumer contract
 
-PM Emotes is an RPEmotes-based resource undergoing a NoPixel-style NUI redesign. Its current preview overlay and WebP manifest are **legacy implementation details, not requirements** for EmotePreviewer. Do not make exporter architecture conform to the temporary UI.
+This reference describes how the standalone producer and FiveM consumer divide work. The repositories remain separate:
 
-## Agreed division of responsibility
+- Producer: [rpRIGGS/EmotePreviewer](https://github.com/rpRIGGS/EmotePreviewer), Windows desktop application.
+- Consumer: [rpRIGGS/pm-emotes](https://github.com/rpRIGGS/pm-emotes), FiveM resource.
 
-- **EmotePreviewer (Windows developer tool):** read animation catalog and GTA assets, generate animated transparent media, maintain fingerprints and incremental index, and write media plus manifest to a user-selected output directory.
-- **PM Emotes (FiveM runtime):** consume the finalized manifest and animated media in its redesigned NUI, display placeholders for missing previews, and load previews efficiently.
-- Media format (APNG currently experimental), identifier mapping, file structure and manifest schema must be validated before declaring a production contract. PM Emotes will adapt to the finalized contract.
+EmotePreviewer reads local GTA V Legacy animation data and emote-resource definitions, previews supported entries and generates the preview media. PM Emotes reads the exported manifest and media to display previews in its NUI. Preview generation does not happen in FiveM.
 
-## Existing repository observations (reference only)
+## Producer output
 
-- Current `rpRIGGS/pm-emotes` `fxmanifest.lua` has `ui_page 'client/NUI/index.html'` and `client/NUI/previews/*`.
-- Current `client/NUI/js/autoshot-previews.js` expects flat WebP paths and a keyed manifest. **This is not a compatibility constraint** and may be replaced during the NUI redesign.
-- The exporter should use original emote IDs/commands, not infer them from filenames. The eventual NUI must map those IDs to the correct menu entries.
+The current generated profile is transparent 320×320 APNG, 12 fps and up to 3 seconds. Each output set includes:
 
-## Exporter deliverables
+- Preview files under immutable run-specific paths such as `previews/<stem>/<runId>/preview.png`.
+- `manifest.json`, the consumer-facing list of successful published previews and their IDs, source/category/command identity, media path and timing/capture metadata.
+- `preview-index.json`, producer-side fingerprint and generation state for incremental updates.
+- `report.json`, per-run capture, failure, retention and publication counts.
 
-1. Stable complete manifest including unchanged generated previews and excluding failed/removed entries.
-2. Incremental output with safe file writes and a recoverable index.
-3. Configurable output directory, with no hardcoded prohibition based on legacy PM Emotes folder names.
-4. Actual Windows build, animation playback and performance tests before declaring ready.
+Direct-folder updates can retain verified unchanged media and regenerate changed, missing or corrupt media. Standalone ZIP export forces a full rebuild so the manifest does not refer to files outside the archive. The manifest is the publication boundary; recovery reconciles staged producer index state against the published manifest.
 
-**Current status:** folder export and APNG generation exist in source; no Windows build or FiveM playback validation. Do not treat direct installation as production-ready yet.
+## Consumer responsibilities
+
+PM Emotes consumes the exported manifest and media in its own FiveM NUI. It owns mapping those identities to the resource's menu entries and rendering/loading behavior. Changes to the FiveM consumer belong in the PM Emotes repository and chat; this producer project does not modify that repository.
+
+## Verification boundary
+
+The EmotePreviewer source audit, 92 frontend tests, Windows .NET build/tests, self-contained publish, and distribution checks passed in GitHub Actions runs [43368359942](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43368359942) and [43368761952](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43368761952). Automated checks validate export structures and packaging, but they do not prove real animation capture quality from the user's game installation or APNG playback in FiveM. Those remain desktop/server acceptance tests.
+
+See [preview-export-architecture.md](preview-export-architecture.md) for the implementation details and [completion-checklist.md](completion-checklist.md) for current status.

@@ -3,13 +3,13 @@
 **Windows developer tool for PowerMoves Roleplay (PowerMoves RP).** Built on [Acc-Off's EmotePreviewer](https://github.com/Acc-Off/EmotePreviewer), retaining upstream attribution and MIT licensing.
 
 ## Current status
-The original GTA V Legacy viewer and the PowerMoves preview-production pipeline are **implemented in source**: transparent capture, APNG encoding, catalog batch, full ZIP/direct-folder export, incremental index, manifest/report, recovery, cleanup and developer UI. This is **not yet a delivered Windows executable**. Remaining work is source reconciliation, corrections, executable packaging and user desktop acceptance—not planning or rebuilding these features.
+This fork combines the GTA V Legacy viewer with PowerMoves' preview-production workflow. The self-contained Windows x64 distribution has passed automated frontend and .NET build/test checks, executable verification and packaging. Download the latest successful [Build workflow](https://github.com/rpRIGGS/EmotePreviewer/actions/workflows/build.yml) artifact named `EmotePreviewer-win-x64`. GitHub retains workflow artifacts for 30 days.
 
-**Authoritative task list:** [Development completion checklist](development-reference/completion-checklist.md). Checkboxes distinguish implemented source from remaining work; no current Windows/GTA/FiveM execution success is claimed.
+The source audit and automated checks are complete. Real capture quality from a user's GTA V installation and playback by FiveM still require desktop/server acceptance; CI does not demonstrate those behaviors.
 
-**Build configuration:** `.github/workflows/build.yml` runs Node tests/build, .NET build/tests and self-contained win-x64 executable publication. The presence of the workflow is not proof that an artifact has been produced.
+**Build evidence:** [Successful Windows and Linux workflow run](https://github.com/rpRIGGS/EmotePreviewer/actions/runs/43368761952). It ran the frontend tests/build, .NET build/tests, then published and checked the self-contained Windows executable and distribution ZIP.
 
-**Output contract:** experimental 320×320 / 12 fps / up to 3 seconds APNG previews, `manifest.json`, `preview-index.json`, `report.json`; standalone ZIP full rebuild or direct-to-folder incremental export. The separate PM Emotes resource consumes the exported preview library. No preview generator runs inside FiveM.
+**Preview output:** transparent 320×320 APNG at 12 fps, up to 3 seconds (36 frames), plus `manifest.json`, producer-side `preview-index.json` and `report.json`. A selected output folder can reuse verified unchanged media; a standalone ZIP always rebuilds the full catalog so all referenced media is included. Preview generation runs in this application, never in FiveM.
 
 ## Project references
 - [Authoritative implementation and delivery checklist](development-reference/completion-checklist.md)
@@ -17,7 +17,8 @@ The original GTA V Legacy viewer and the PowerMoves preview-production pipeline 
 - [Implemented export architecture](development-reference/preview-export-architecture.md)
 - [Source audit and defect history](development-reference/source-inventory-2026-11-12.md)
 - [Development reference index](development-reference/README.md)
-- [Upstream technical guide](Docs/development.md)
+- [Build and technical guide](Docs/development.md)
+- [Separate PM Emotes consumer](https://github.com/rpRIGGS/pm-emotes)
 
 ---
 
@@ -32,6 +33,14 @@ EmotePreviewer reads the emote definitions of [rpemotes-reborn](https://github.c
 <p align="center">
   <img src="Docs/images/layer-walk-flag-en.png" alt="A flag-waving upper-body emote layered over the Casual walk style" width="800">
 </p>
+
+## Preview production
+
+Use the viewer to inspect emotes with their peds, props, partners and playback controls. To create a preview library, choose an output folder and run **Batch Export**. The batch waits for the selected clip, ped meshes and requested props before capture. Individual load or capture failures appear in the results without stopping the rest of the batch.
+
+Frames are captured with transparency at 320×320, 12 fps and up to three seconds, then encoded as looping APNG. The export writes preview media, `manifest.json` for the separate PM Emotes consumer, `preview-index.json` for producer-side update/rebuild state, and `report.json` with capture and publication counts. Direct-folder updates reuse only verified unchanged media and regenerate missing, corrupt or changed media. Standalone ZIP output performs a full rebuild and includes all referenced media.
+
+These workflows have automated regression coverage. Review actual capture quality, transparency, timing and framing on a Windows desktop with GTA V Legacy; FiveM playback is tested separately in the consumer project.
 
 ## Features
 
@@ -69,10 +78,12 @@ EmotePreviewer reads the emote definitions of [rpemotes-reborn](https://github.c
 ## Getting started
 
 1. **Create the key files.** Download `EmotePreviewerKeyTool-<version>-win-x64.exe` from the [Key Tool releases](https://github.com/Acc-Off/EmotePreviewerKeyTool/releases) and double-click it. It reads the keys from your `GTA5.exe` and writes them to `%LOCALAPPDATA%\EmotePreviewer\keys`, where EmotePreviewer looks for them. This is needed once.
-2. **Download EmotePreviewer.** Get `EmotePreviewer-<version>-win-x64.exe` from [Releases](https://github.com/Acc-Off/EmotePreviewer/releases) and run it. It is not code-signed, so Windows SmartScreen may ask once ("More info" → "Run anyway"). A console window opens and your browser opens `http://127.0.0.1:20300/`.
-   - `…-slim.exe` is much smaller but needs the .NET 10 **Desktop Runtime** and **ASP.NET Core Runtime** (x64) from https://dotnet.microsoft.com/download/dotnet/10.0. Pick it only if you already have them.
-3. **Add the resources.** Open **Settings** → **Emote resources** and click **Download** next to rpemotes-reborn and/or scully_emotemenu (about 80 MB for the rpemotes ones), or **Add folder…** for a copy on your disk. The GTA V folder is detected from the registry; the settings page shows whether the game and the key files were found.
-4. **Pick an emote.** Type in the search box, click a row, and it plays. Arrow keys move through the list, Space plays and pauses, `/` jumps to the search box.
+2. **Download this fork's Windows build.** Open the [Build workflow](https://github.com/rpRIGGS/EmotePreviewer/actions/workflows/build.yml), select the latest successful run on `main`, and download its `EmotePreviewer-win-x64` artifact. Extract the ZIP and run `EmotePreviewer.exe`. This self-contained build does not require installing the .NET runtime.
+3. **Configure the app.** In Settings, select the GTA V Legacy folder and the four key files created from your own game. Add rpemotes-reborn, scully_emotemenu or another supported emote resource. The app opens its local web UI in your browser; keep the executable running.
+4. **Preview and export.** Pick an emote in the viewer to inspect it. For a preview library, choose an output folder and use **Batch Export**. Use rebuild when you need a complete standalone ZIP.
+5. **Use the exported library.** Copy it to the separate PM Emotes resource and follow that project's integration instructions. FiveM does not generate the previews.
+
+The distribution includes `START-HERE.txt` and `SHA256.txt`. Keep the checksum file with the executable when verifying the download.
 
 Quit with Ctrl+C in the console window or **Quit EmotePreviewer** on the settings page. Starting the exe again while it runs just opens the browser on the running instance.
 
@@ -139,7 +150,7 @@ The archive layer comes from the MIT-licensed [gta-toolkit](https://github.com/c
 Prerequisites: [.NET 10 SDK](https://dotnet.microsoft.com/download) and Node.js 22 or later.
 
 ```
-git clone https://github.com/Acc-Off/EmotePreviewer.git
+git clone https://github.com/rpRIGGS/EmotePreviewer.git
 cd EmotePreviewer
 dotnet build EmotePreviewer.slnx -c Release     # also runs npm ci && npm run build and embeds the SPA
 dotnet test  EmotePreviewer.slnx -c Release --no-build

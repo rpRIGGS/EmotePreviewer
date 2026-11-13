@@ -2,7 +2,7 @@
 
 English | [日本語](development.ja.md)
 
-How EmotePreviewer is built, laid out and tested. For what the app does and how to use it, see the [README](../README.md). The design documents ([app-design.ja.md](app-design.ja.md), [app-plan.ja.md](app-plan.ja.md)) and the [`.ycd` format notes](spec/ycd-format.ja.md) are in Japanese.
+How EmotePreviewer is built, laid out and tested. For first-run setup, GTA-backed viewing and preview-library export, see the [README](../README.md). The PowerMoves-specific source audit, current status and output protocol are in [development-reference](../development-reference/README.md). The design documents ([app-design.ja.md](app-design.ja.md), [app-plan.ja.md](app-plan.ja.md)) and the [`.ycd` format notes](spec/ycd-format.ja.md) are in Japanese.
 
 ## Building
 
@@ -16,7 +16,7 @@ dotnet run   -c Release --no-build --project src/EmotePreviewer.App -- --no-brow
 
 - To build only the C# side without Node, pass `-p:SkipWebBuild=true`
 - Frontend development: `npm run dev` in `src/EmotePreviewer.Web` (Vite, proxies `/api` to `127.0.0.1:20300`). Setting the `EMOTEPREVIEWER_WEBROOT` environment variable to a `dist` path serves that folder instead of the embedded one, without rebuilding the exe
-- Distribution: `dotnet publish src/EmotePreviewer.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true`. Releases are built by [.github/workflows/release.yml](../.github/workflows/release.yml) when a `v*` tag matching `<Version>` in `Directory.Build.props` is pushed
+- Windows distribution: `dotnet publish src/EmotePreviewer.App -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true`. The [Build workflow](../.github/workflows/build.yml) runs frontend and .NET tests, verifies the self-contained executable and uploads the `EmotePreviewer-win-x64` ZIP artifact. Artifacts are retained for 30 days; use the latest successful run on `main`.
 - **Always pass a temporary folder as `--data-dir` when testing.** Do not touch the real `%LOCALAPPDATA%\EmotePreviewer`
 
 ## Command line and data folder
@@ -67,6 +67,10 @@ Starting a second exe opens the URL of the running instance in the browser and e
 2. The game archives are indexed (about 1.5 s): every `.ycd`, `.yft`, `.ydr`, `.ydd` and `.ytd` by name hash, `update.rpf` and the DLC packs in `dlclist.xml` order, later archives overriding earlier ones.
 3. Once indexed, each entry is checked for a dictionary and a clip. Walk styles are resolved through `clip_sets.ymt` (own dictionary, then fallback sets). The result is `previewable` + `previewReason` in the catalog DTO.
 4. When an entry is selected the clip is decoded and baked to local bone transforms at its native frame rate (capped at 60 fps) for the configured ped's skeleton, and served as a float32 block. The browser builds a three.js bone hierarchy, plays the block with an `AnimationMixer`, composes root motion client-side, and attaches props and the partner ped by bone.
+
+### Preview-library export
+
+The separate export pipeline in `src/EmotePreviewer.Web/src/viewer` waits for the selected catalog entry's clip, ped meshes and requested props before capture. It records deterministic transparent PNG frames, encodes the supported 320×320 / 12 fps / maximum 3-second profile as APNG, and writes media with `manifest.json`, `preview-index.json` and `report.json`. Direct-folder updates reuse only structurally verified unchanged media; standalone ZIP exports force a full rebuild. See [preview-export-architecture.md](../development-reference/preview-export-architecture.md) for publication, recovery and cleanup details. CI verifies source and packaging; real GTA capture quality and FiveM playback remain acceptance tests.
 
 ### API overview
 
