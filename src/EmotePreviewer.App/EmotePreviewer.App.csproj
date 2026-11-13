@@ -7,7 +7,6 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>EmotePreviewer</AssemblyName>
     <RootNamespace>EmotePreviewer.App</RootNamespace>
-    <ApplicationIcon />
     <InvariantGlobalization>true</InvariantGlobalization>
     <!-- Single-file publish: bundle lua54.dll (NLua) and the other native libraries into the exe. -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
@@ -51,7 +50,7 @@
       <_WebDistFiles Include="$(WebDist)**\*" />
       <EmbeddedResource Include="@(_WebDistFiles)" LogicalName="wwwroot/%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
-    <Warning Text="Frontend dist not found at $(WebDist); the web UI will not be served." Condition="'@(_WebDistFiles)' == ''" />
+    <Error Text="Frontend dist not found at $(WebDist); refusing to publish an executable without its UI." Condition="'@(_WebDistFiles)' == ''" />
   </Target>
 
 </Project>
