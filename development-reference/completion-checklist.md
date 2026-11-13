@@ -1,6 +1,6 @@
 # EmotePreviewer — authoritative implementation and delivery checklist
 
-Updated: 2026-11-12. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
+Updated: 2026-11-13. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 
 ## Status legend
 - [x] **Implemented in repository source**: code or configuration has been inspected or documented in this repository. This does **not** mean runtime behavior has been demonstrated.
@@ -51,9 +51,9 @@ Updated: 2026-11-12. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 - [ ] Reconcile root README and all development-reference documents against the current implementation; remove contradictory *current-status* claims while preserving historical logs.
 
 ## E. Build, packaging and delivery — outstanding
-- [ ] Execute existing Node regression tests and TypeScript production build; fix errors discovered.
-- [ ] Build/publish the Windows .NET application with the repository's existing Windows workflow or a suitable Windows build environment; fix errors discovered.
-- [ ] Obtain a nonempty self-contained `EmotePreviewer.exe` artifact and provide an accessible download.
+- [x] Execute existing Node regression tests and TypeScript production build; successful GitHub Actions run 43362399158 (commit 68f89c1).
+- [x] Build/publish the Windows .NET application; successful Windows build, tests and self-contained publication in GitHub Actions run 43362399158.
+- [x] Obtain a nonempty self-contained `EmotePreviewer.exe` in GitHub Actions artifact `EmotePreviewer-win-x64` (run 43362399158).\n- [ ] Final audit and post-audit rebuild, then deliver verified artifact for desktop acceptance.
 - [ ] Provide concise first-run instructions: GTA V Legacy, legally generated key files, local emote resource, preview output folder, full build and incremental update.
 - [ ] User performs **desktop acceptance** with real normal/dance/prop/shared animations and reviews APNG animation, transparency, framing and output.
 - [ ] Fix actual issues found during user desktop acceptance.
@@ -63,11 +63,11 @@ Updated: 2026-11-12. Repository: `rpRIGGS/EmotePreviewer`, branch `main`.
 The **producer** is deliverable when a runnable Windows executable is available and the user can use it to load their GTA V Legacy emote resources, capture supported animated previews, export a complete manifest/index/report/media library, and safely rebuild/update it. The user's desktop test is the acceptance step; FiveM consumer testing belongs to the separate PM Emotes integration.
 
 ## Evidence and limits
-Source implementation is not equivalent to observed Windows behavior. At this documentation update, no successful current Windows executable artifact, GTA capture run, or FiveM playback result has been established. The existing workflow is configured, but its success has not been observed here. Do not claim any unchecked task is complete. Do not turn developer build checks into a reason to stop source development.
+Source implementation is not equivalent to observed Windows behavior. GitHub Actions run 43362399158 succeeded on commit 68f89c1, including frontend tests/build, .NET build/tests, self-contained Windows publish, executable verification, packaging and artifact upload. No real GTA capture run or FiveM playback result has been established. Passing CI does not close the application audit or desktop acceptance. Do not claim any unchecked task is complete. Do not turn developer build checks into a reason to stop source development.
 
 ## Next execution sequence
 1. Complete source audit and defect corrections, grouped into substantial commits.
 2. Close producer export/recovery and Windows UI defects, without recreating implemented components.
-3. Execute available builds/tests and package Windows executable; fix failures.
+3. Re-run builds/tests after final source corrections and package the final Windows executable; fix failures.
 4. Deliver executable and instructions for user desktop acceptance.
 5. Resolve user-reported defects; hand off consumer-specific issues to PM Emotes chat.
