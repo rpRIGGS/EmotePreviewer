@@ -109,7 +109,7 @@ export async function recoverPreviewLibrary(root: FileSystemDirectoryHandle): Pr
       reconciled++;
     }
   }
-  if (matchingPublication) index.publicationId = manifestId;
+  if (matchingPublication) index.publicationId = manifestId as string;
   // If the manifest is ahead of the index, all entries with an unknown
   // fingerprint are retried, while verified media remains usable.
   const check = await verifyPreviewFiles(index, root);

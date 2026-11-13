@@ -50,3 +50,5 @@ The source inventory found literal backslash-n sequences accidentally committed 
 ## Publication consistency audit correction
 
 Identified a genuine flaw in the previously added manifest-last protocol: a staged producer index could retain a newer fingerprint for a media path still present in the older manifest, causing an update to skip needed recapture. Added a shared publication ID to the index and manifest and made recovery invalidate fingerprints whenever publication IDs disagree (or are absent in legacy manifests). This forces safe regeneration rather than silently trusting uncommitted metadata. Runtime checks remain outstanding.
+
+Regression coverage added for interrupted publication recovery: mismatched index/manifest generations must invalidate fingerprints; matching generations may retain them; legacy manifests conservatively retry. The recovery source also explicitly narrows the publication ID type for TypeScript compilation.
