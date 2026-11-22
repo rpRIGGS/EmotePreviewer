@@ -166,3 +166,8 @@ EmotePreviewer is an independent project. It is not affiliated with or endorsed 
 ## License
 
 [MIT](LICENSE). Third-party components and their licenses are listed in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) and on the settings page.
+
+
+## GitHub Actions usage
+
+Pushes and pull requests run the Linux frontend regression and bundle checks. The Windows x64 distribution is generated only through manual dispatch of `.github/workflows/build.yml`; the tag-triggered release workflow remains the durable release path. Manually requested test distributions are retained for 30 days for Windows acceptance testing. Avoid dispatching repeated builds for workflow-only changes.
