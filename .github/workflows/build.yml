@@ -7,7 +7,23 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
+    paths:
+      - 'EmotePreviewer.slnx'
+      - 'global.json'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/build.yml'
   pull_request:
+    paths:
+      - 'EmotePreviewer.slnx'
+      - 'global.json'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/build.yml'
 
 concurrency:
   group: emote-previewer-${{ github.workflow }}-${{ github.ref }}
